@@ -1,0 +1,43 @@
+{
+  "happy": [
+    {
+      "title": "Happy",
+      "artist": "Pharrell Williams",
+      "spotify": "https://open.spotify.com/search/Happy%20Pharrell",
+      "youtube": "https://www.youtube.com/results?search_query=Happy+Pharrell+Williams"
+    }
+  ],
+  "sad": [
+    {
+      "title": "Let Her Go",
+      "artist": "Passenger",
+      "spotify": "https://open.spotify.com/search/Let%20Her%20Go%20Passenger",
+      "youtube": "https://www.youtube.com/results?search_query=Let+Her+Go+Passenger"
+    }
+  ],
+  "angry": [
+    {
+      "title": "Believer",
+      "artist": "Imagine Dragons",
+      "spotify": "https://open.spotify.com/search/Believer%20Imagine+Dragons",
+      "youtube": "https://www.youtube.com/results?search_query=Believer+Imagine+Dragons"
+    }
+  ],
+  "neutral": [
+    {
+      "title": "Perfect",
+      "artist": "Ed Sheeran",
+      "spotify": "https://open.spotify.com/search/Perfect%20Ed+Sheeran",
+      "youtube": "https://www.youtube.com/results?search_query=Perfect+Ed+Sheeran"
+    }
+  ],
+  "surprise": [
+  {
+    "title": "On Top of the World",
+    "artist": "Imagine Dragons",
+    "spotify": "https://open.spotify.com/search/On+Top+of+the+World",
+    "youtube": "https://www.youtube.com/results?search_query=On+Top+of+the+World+Imagine+Dragons"
+  }
+]
+
+}
