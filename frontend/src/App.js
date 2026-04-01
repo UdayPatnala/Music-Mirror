@@ -8,6 +8,9 @@ export default function App() {
   const [emotion, setEmotion] = useState("");
   const [songs, setSongs] = useState([]);
 
+  // ✅ HARD-CODED BACKEND URL (IMPORTANT)
+  const API_URL = "https://emotion-music-recommender-wruw.onrender.com";
+
   useEffect(() => {
     if (!emotion) return;
 
@@ -16,10 +19,11 @@ export default function App() {
       emotion === "surprised" ? "surprise" : emotion;
 
     axios
-      .post(`${process.env.REACT_APP_API_URL}/recommend`, {
+      .post(`${API_URL}/recommend`, {
         emotion: normalizedEmotion,
       })
       .then((res) => {
+        console.log("API Response:", res.data); // 🔍 debug
         setSongs(res.data.songs || []);
       })
       .catch((err) => {
@@ -39,9 +43,13 @@ export default function App() {
       {emotion && <EmotionCard emotion={emotion} />}
 
       {/* Show recommended songs */}
-      {songs.map((song, index) => (
-        <SongCard key={index} song={song} />
-      ))}
+      {songs.length > 0 ? (
+        songs.map((song, index) => (
+          <SongCard key={index} song={song} />
+        ))
+      ) : (
+        emotion && <p>Loading songs...</p>
+      )}
     </div>
   );
 }
