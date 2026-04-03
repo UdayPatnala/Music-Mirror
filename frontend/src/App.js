@@ -144,7 +144,6 @@ export default function App() {
         setPlaylistEmotion(nextPlaylistEmotion);
         setRequestState(nextSongs.length > 0 ? "success" : "empty");
         setPendingMoodChange(null);
-        setPlayerMode("youtube");
 
         setSelectedSong((currentSong) => {
           if (
@@ -320,7 +319,6 @@ export default function App() {
     setPendingMoodChange(null);
     resetCameraBatch();
     setRequestedEmotion(emotion);
-    setPlayerMode("youtube");
   };
 
   const handleToggleFavorite = (song) => {
@@ -401,13 +399,13 @@ export default function App() {
           </div>
 
           <div className="quick-access">
-            <a className="quick-link" href="#capture-panel">
+            <a className="ghost-btn quick-link" href="#capture-panel">
               Go to camera
             </a>
-            <a className="quick-link" href="#queue-panel">
+            <a className="ghost-btn quick-link" href="#queue-panel">
               Open queue
             </a>
-            <a className="quick-link" href="#history-panel">
+            <a className="ghost-btn quick-link" href="#history-panel">
               View history
             </a>
           </div>

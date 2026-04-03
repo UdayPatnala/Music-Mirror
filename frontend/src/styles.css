@@ -293,19 +293,23 @@ select {
   gap: 10px;
 }
 
-.player-mode-btn,
-.quick-link {
+.player-mode-btn {
   padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid var(--line);
   color: var(--text);
   background: rgba(255, 255, 255, 0.05);
-  text-decoration: none;
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .player-mode-btn {
   cursor: pointer;
+}
+
+.quick-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .player-mode-btn.active,
