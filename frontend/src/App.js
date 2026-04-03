@@ -4,7 +4,12 @@ import Camera from "./components/Camera";
 import EmotionCard from "./components/EmotionCard";
 import SongCard from "./components/SongCard";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+const DEFAULT_API_URL =
+  window.location.hostname === "localhost"
+    ? "http://127.0.0.1:8000"
+    : "https://emotion-music-recommender-wruw.onrender.com";
+
+const API_URL = process.env.REACT_APP_API_URL || DEFAULT_API_URL;
 
 export default function App() {
   const [emotion, setEmotion] = useState("");
