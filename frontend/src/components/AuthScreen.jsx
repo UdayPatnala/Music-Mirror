@@ -1,4 +1,5 @@
 import { useState } from "react";
+import BrandLockup from "./BrandLockup";
 
 const genreOptions = ["Pop", "Acoustic", "Rock", "Lo-fi", "Indie"];
 const goalOptions = [
@@ -42,8 +43,10 @@ export default function AuthScreen({ onStart }) {
     <main className="auth-shell">
       <section className="auth-hero">
         <div className="auth-copy">
-          <p className="eyebrow">Emotion-responsive player</p>
-          <h1>Muse Mirror</h1>
+          <BrandLockup
+            label="Emotion-responsive player"
+            labelClassName="eyebrow"
+          />
           <p className="auth-lead">
             A polished listening room that reads facial mood, starts music
             inside the interface, and remembers what felt right.

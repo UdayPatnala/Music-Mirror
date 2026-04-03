@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import AuthScreen from "./components/AuthScreen";
+import BrandLockup from "./components/BrandLockup";
 import Camera from "./components/Camera";
 import EmotionCard, { emotionLabels } from "./components/EmotionCard";
 import HistoryPanel from "./components/HistoryPanel";
@@ -355,10 +356,10 @@ export default function App() {
       <div className="app-noise" />
 
       <header className="topbar">
-        <div>
-          <p className="topbar-label">Emotion-aware music room</p>
-          <h1>Muse Mirror</h1>
-        </div>
+        <BrandLockup
+          label="Emotion-aware music room"
+          labelClassName="topbar-label"
+        />
 
         <div className="topbar-actions">
           <div className="profile-chip">

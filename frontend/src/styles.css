@@ -90,6 +90,31 @@ select {
   letter-spacing: -0.04em;
 }
 
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand-mark {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 auto;
+  border-radius: 22px;
+  box-shadow:
+    0 18px 30px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(163, 190, 255, 0.18);
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
+.brand-copy .topbar-label,
+.brand-copy .eyebrow {
+  margin-bottom: 8px;
+}
+
 .topbar-label,
 .eyebrow,
 .section-kicker,
@@ -742,6 +767,7 @@ select {
 
   .topbar,
   .topbar-actions,
+  .brand-lockup,
   .player-header,
   .section-header,
   .song-card,
@@ -756,6 +782,11 @@ select {
   .topbar h1,
   .auth-copy h1 {
     max-width: none;
+  }
+
+  .brand-mark {
+    width: 60px;
+    height: 60px;
   }
 
   .poster-meta,
