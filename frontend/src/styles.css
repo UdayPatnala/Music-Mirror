@@ -1,3 +1,13 @@
+:root {
+  --bg-1: #0f2027;
+  --bg-2: #203a43;
+  --bg-3: #2c5364;
+  --card-bg: rgba(255, 255, 255, 0.14);
+  --card-border: rgba(255, 255, 255, 0.18);
+  --text-soft: rgba(255, 255, 255, 0.78);
+  --danger: #ffb4b4;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,110 +18,142 @@ body {
   color: white;
   text-align: center;
   font-family: "Segoe UI", sans-serif;
-
   background:
-    radial-gradient(circle at 20% 20%, rgba(0,255,200,0.15), transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(150,100,255,0.15), transparent 40%),
-    radial-gradient(circle at 50% 80%, rgba(0,150,255,0.12), transparent 45%),
-    linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 200, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(150, 100, 255, 0.15), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(0, 150, 255, 0.12), transparent 45%),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
 }
 
-@keyframes gradientMove {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+#root {
+  min-height: 100vh;
 }
 
-
-/* ---------- Layout ---------- */
 .container {
-  padding: 30px 20px 60px;
   max-width: 1100px;
-  margin: auto;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.hero {
+  max-width: 720px;
+  margin: 0 auto 28px;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: rgba(0, 255, 200, 0.8);
+  font-size: 0.82rem;
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
 }
 
 h1 {
+  margin: 0;
   font-size: 2.4rem;
-  margin-bottom: 25px;
   letter-spacing: 1px;
 }
 
-/* ---------- Glass Card ---------- */
+.hero-copy {
+  margin: 14px auto 0;
+  max-width: 580px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
 .card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: 16px;
-  padding: 18px;
-  margin: 18px auto;
   width: 100%;
   max-width: 360px;
+  margin: 18px auto;
+  padding: 18px;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--card-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
   animation: fadeUp 0.6s ease;
 }
 
-/* ---------- Emotion Card ---------- */
 .emotion-title {
-  font-size: 1.1rem;
-  opacity: 0.85;
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-soft);
 }
 
 .emotion {
-  margin-top: 10px;
+  margin: 10px 0 0;
   font-size: 2.2rem;
-  font-weight: bold;
-  letter-spacing: 2px;
+  font-weight: 700;
+  letter-spacing: 0.08rem;
 }
 
-/* Emotion colors */
+.emotion-subtitle {
+  margin: 12px 0 0;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
 .emotion.happy {
   color: #ffd93d;
 }
-.emotion.sad {
+
+.emotion.sad,
+.emotion.fearful {
   color: #4facfe;
 }
-.emotion.angry {
-  color: #ff4e50;
+
+.emotion.angry,
+.emotion.disgusted {
+  color: #ff7b72;
 }
+
 .emotion.neutral {
   color: #b8c6db;
 }
-.emotion.surprised {
-  color: #a18cd1;
+
+.emotion.surprised,
+.emotion.surprise {
+  color: #c6a4ff;
 }
 
-/* ---------- Song Card ---------- */
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.song-grid .card {
+  max-width: none;
+  height: 100%;
+}
+
 .song-title {
+  margin: 0 0 6px;
   font-size: 1.3rem;
-  margin-bottom: 6px;
 }
 
 .song-artist {
+  margin: 0 0 14px;
   font-size: 0.95rem;
-  opacity: 0.85;
-  margin-bottom: 14px;
+  color: var(--text-soft);
 }
 
-/* Buttons */
 .song-links {
   display: flex;
   gap: 12px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .song-btn {
   padding: 10px 16px;
   border-radius: 10px;
-  text-decoration: none;
   color: white;
+  text-decoration: none;
   font-weight: 600;
-  transition: all 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .song-btn.spotify {
@@ -123,18 +165,42 @@ h1 {
 }
 
 .song-btn:hover {
-  transform: translateY(-3px) scale(1.05);
+  transform: translateY(-3px) scale(1.03);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
-/* ---------- Camera ---------- */
+.status-text,
+.camera-status {
+  max-width: 620px;
+  margin: 16px auto 0;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.status-text {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.status-text.error,
+.camera-status.error {
+  color: var(--danger);
+}
+
+.camera-section {
+  max-width: 360px;
+  margin: 0 auto;
+}
+
 .camera-wrapper {
   position: relative;
   width: 320px;
   height: 240px;
-  margin: 30px auto 20px;
-  border-radius: 18px;
+  margin: 30px auto 0;
   overflow: hidden;
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(14px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
@@ -142,69 +208,66 @@ h1 {
 }
 
 .camera-video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Face scan frame */
 .scan-frame {
   position: absolute;
   inset: 12px;
-  border-radius: 14px;
   border: 2px solid rgba(0, 255, 170, 0.8);
-  animation: pulse 1.6s infinite;
+  border-radius: 14px;
   pointer-events: none;
+  animation: pulse 1.6s infinite;
 }
 
-/* Loader */
 .camera-loader {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.6);
   font-weight: 600;
-  letter-spacing: 1px;
+  line-height: 1.5;
+  letter-spacing: 0.02rem;
   z-index: 2;
 }
 
-/* Pulse animation */
+.camera-error {
+  background: rgba(60, 8, 8, 0.8);
+  color: #ffe7e7;
+}
+
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(0, 255, 170, 0.6);
   }
+
   70% {
     box-shadow: 0 0 0 18px rgba(0, 255, 170, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(0, 255, 170, 0);
   }
 }
 
-/* Mobile */
-@media (max-width: 500px) {
-  .camera-wrapper {
-    width: 92%;
-    height: 220px;
-  }
-}
-
-
-/* ---------- Animations ---------- */
 @keyframes fadeUp {
   from {
     opacity: 0;
     transform: translateY(25px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   h1 {
     font-size: 1.9rem;
@@ -212,5 +275,10 @@ h1 {
 
   .card {
     max-width: 95%;
+  }
+
+  .camera-wrapper {
+    width: 100%;
+    height: 220px;
   }
 }

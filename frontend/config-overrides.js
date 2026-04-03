@@ -15,5 +15,12 @@ module.exports = function override(config) {
     })
   );
 
+  config.ignoreWarnings = [
+    ...(config.ignoreWarnings || []),
+    (warning) =>
+      warning.message.includes("Failed to parse source map") &&
+      warning.message.includes("face-api.js"),
+  ];
+
   return config;
 };

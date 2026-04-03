@@ -11,7 +11,7 @@ export default function SongCard({ song }) {
           rel="noreferrer"
           className="song-btn spotify"
         >
-          🎵 Spotify
+          Spotify
         </a>
 
         <a
@@ -20,7 +20,7 @@ export default function SongCard({ song }) {
           rel="noreferrer"
           className="song-btn youtube"
         >
-          ▶ YouTube
+          YouTube
         </a>
       </div>
     </div>
