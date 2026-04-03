@@ -54,14 +54,14 @@ export default function Camera({ onEmotion }) {
 
         streamRef.current = stream;
 
-        const videoEl = videoRef.current;
-        if (!videoEl) {
+        const videoElement = videoRef.current;
+        if (!videoElement) {
           stream.getTracks().forEach((track) => track.stop());
           return;
         }
 
-        videoEl.srcObject = stream;
-        await videoEl.play();
+        videoElement.srcObject = stream;
+        await videoElement.play();
 
         if (isCancelled) return;
 
@@ -69,7 +69,7 @@ export default function Camera({ onEmotion }) {
         setCameraMessage("Camera is live.");
 
         intervalId = window.setInterval(async () => {
-          if (isDetectingRef.current || videoEl.readyState < 2) {
+          if (isDetectingRef.current || videoElement.readyState < 2) {
             return;
           }
 
@@ -77,15 +77,25 @@ export default function Camera({ onEmotion }) {
 
           try {
             const result = await faceapi
-              .detectSingleFace(videoEl, new faceapi.TinyFaceDetectorOptions())
+              .detectSingleFace(
+                videoElement,
+                new faceapi.TinyFaceDetectorOptions()
+              )
               .withFaceExpressions();
 
             if (result?.expressions) {
-              const emotion = Object.entries(result.expressions).reduce(
-                (highest, entry) => (entry[1] > highest[1] ? entry : highest)
-              )[0];
+              const scores = Object.entries(result.expressions)
+                .sort((left, right) => right[1] - left[1])
+                .slice(0, 3);
 
-              onEmotion(emotion);
+              const [emotion, confidence] = scores[0];
+
+              onEmotion({
+                emotion,
+                confidence,
+                scores,
+                source: "camera",
+              });
             }
           } catch (error) {
             console.error("Emotion detection error:", error);
@@ -140,7 +150,7 @@ export default function Camera({ onEmotion }) {
 
       <p className={`camera-status ${cameraState === "error" ? "error" : ""}`}>
         {cameraState === "ready"
-          ? "Keep your face centered and hold still for a moment."
+          ? "Stay centered for a few seconds while the app reads expression changes."
           : cameraMessage}
       </p>
     </section>

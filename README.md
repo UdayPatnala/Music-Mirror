@@ -1,18 +1,22 @@
 # AI-Based Facial Emotion Music Recommender
 
-This project is a webcam-based prototype that detects facial expressions in the browser with `face-api.js` and asks a FastAPI backend for songs from a small curated catalog.
+This project is now a richer mood-driven music app: it reads facial expressions in the browser with `face-api.js`, maps that mood through a FastAPI backend, and plays curated tracks inside the UI with an embedded player.
 
 ## What it does
 
 - Detects a dominant facial expression from the webcam feed
-- Maps that expression to a playlist mood
-- Returns matching songs from `backend/data/songs.json`
+- Lets the user override the mood manually when needed
+- Saves a lightweight local listening profile in the browser
+- Recommends curated songs with richer metadata
+- Plays tracks inside the app through an embedded YouTube player
+- Stores recent mood history and saved favorite songs locally
 
 ## Tech stack
 
 - Frontend: React + `face-api.js`
 - Backend: FastAPI
-- Data: static JSON catalog
+- Data: static JSON catalog in `backend/data/songs.json`
+- Persistence for the new profile/history/favorites flow: browser `localStorage`
 
 ## Local setup
 
@@ -28,5 +32,6 @@ This project is a webcam-based prototype that detects facial expressions in the 
 
 ## Notes
 
-- The recommendation logic is currently rule-based, not a learned music model.
+- The recommendation logic is still rule-based, not a learned music model.
+- The sign-in/profile flow is local to the browser for this version.
 - The backend exposes `GET /health` and `POST /recommend`.
