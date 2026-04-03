@@ -309,7 +309,8 @@ select {
 .quick-link {
   display: inline-flex;
   align-items: center;
-  text-decoration: none;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .player-mode-btn.active,

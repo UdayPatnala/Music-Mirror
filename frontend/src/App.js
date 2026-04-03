@@ -73,6 +73,19 @@ function describeBatch(batch) {
     .join(", ");
 }
 
+function scrollToSection(sectionId) {
+  const section = document.getElementById(sectionId);
+
+  if (!section) {
+    return;
+  }
+
+  section.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}
+
 export default function App() {
   const [profile, setProfile] = useState(() =>
     readStorage(STORAGE_KEYS.profile, null)
@@ -399,15 +412,27 @@ export default function App() {
           </div>
 
           <div className="quick-access">
-            <a className="ghost-btn quick-link" href="#capture-panel">
+            <button
+              className="ghost-btn quick-link"
+              onClick={() => scrollToSection("capture-panel")}
+              type="button"
+            >
               Go to camera
-            </a>
-            <a className="ghost-btn quick-link" href="#queue-panel">
+            </button>
+            <button
+              className="ghost-btn quick-link"
+              onClick={() => scrollToSection("queue-panel")}
+              type="button"
+            >
               Open queue
-            </a>
-            <a className="ghost-btn quick-link" href="#history-panel">
+            </button>
+            <button
+              className="ghost-btn quick-link"
+              onClick={() => scrollToSection("history-panel")}
+              type="button"
+            >
               View history
-            </a>
+            </button>
           </div>
         </div>
 
