@@ -186,6 +186,7 @@ select {
 .auth-points > div,
 .profile-grid > div,
 .stats-grid > div {
+  min-width: 0;
   padding: 14px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.04);
@@ -199,6 +200,11 @@ select {
   display: block;
   font-size: 1rem;
   line-height: 1.35;
+}
+
+.profile-grid strong {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .player-panel {
@@ -313,6 +319,12 @@ select {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 18px;
+}
+
+.buffer-note {
+  margin: 16px 0 0;
+  color: var(--text-soft);
+  line-height: 1.6;
 }
 
 .mood-pill,
@@ -434,6 +446,26 @@ select {
 .recommendation-list {
   display: grid;
   gap: 14px;
+}
+
+.mood-suggestion {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid rgba(140, 247, 197, 0.28);
+  border-radius: 22px;
+  background: rgba(140, 247, 197, 0.08);
+}
+
+.mood-suggestion h4 {
+  margin: 0 0 8px;
+}
+
+.mood-suggestion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .song-card {

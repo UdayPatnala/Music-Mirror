@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 
 DATA_PATH = Path(__file__).parent / "data" / "songs.json"
@@ -20,4 +21,9 @@ def normalize_emotion(emotion: str) -> str:
 
 def recommend_songs(emotion: str):
     normalized_emotion = normalize_emotion(emotion)
-    return normalized_emotion, SONGS.get(normalized_emotion, [])
+    songs = SONGS.get(normalized_emotion, [])
+
+    if not songs:
+        return normalized_emotion, []
+
+    return normalized_emotion, random.sample(songs, k=len(songs))

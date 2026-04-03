@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import AuthScreen from "./components/AuthScreen";
 import Camera from "./components/Camera";
@@ -13,6 +13,7 @@ const DEFAULT_API_URL =
     : "https://emotion-music-recommender-wruw.onrender.com";
 
 const API_URL = process.env.REACT_APP_API_URL || DEFAULT_API_URL;
+const CAMERA_BATCH_SIZE = 3;
 
 const STORAGE_KEYS = {
   profile: "emotion-music-profile-v2",
@@ -49,6 +50,28 @@ function formatTimestamp(isoValue) {
   });
 }
 
+function resolveStableEmotion(batch) {
+  const counts = {};
+
+  batch.forEach(({ emotion }) => {
+    counts[emotion] = (counts[emotion] || 0) + 1;
+  });
+
+  const topEntry = Object.entries(counts).sort((left, right) => right[1] - left[1])[0];
+
+  if (!topEntry || topEntry[1] === 1) {
+    return batch[batch.length - 1].emotion;
+  }
+
+  return topEntry[0];
+}
+
+function describeBatch(batch) {
+  return batch
+    .map(({ emotion }) => emotionLabels[emotion] || emotion)
+    .join(", ");
+}
+
 export default function App() {
   const [profile, setProfile] = useState(() =>
     readStorage(STORAGE_KEYS.profile, null)
@@ -71,6 +94,9 @@ export default function App() {
   const [selectedSong, setSelectedSong] = useState(null);
   const [requestState, setRequestState] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [cameraBatch, setCameraBatch] = useState([]);
+  const [pendingMoodChange, setPendingMoodChange] = useState(null);
+  const cameraBatchRef = useRef([]);
 
   useEffect(() => {
     if (profile) {
@@ -115,6 +141,7 @@ export default function App() {
         setSongs(nextSongs);
         setPlaylistEmotion(nextPlaylistEmotion);
         setRequestState(nextSongs.length > 0 ? "success" : "empty");
+        setPendingMoodChange(null);
 
         setSelectedSong((currentSong) => {
           if (
@@ -198,6 +225,11 @@ export default function App() {
     : "Waiting for a mood";
   const greetingName = profile?.name || "Listener";
 
+  const resetCameraBatch = () => {
+    cameraBatchRef.current = [];
+    setCameraBatch([]);
+  };
+
   const handleProfileStart = (nextProfile) => {
     setProfile(nextProfile);
   };
@@ -208,6 +240,8 @@ export default function App() {
     setPlaylistEmotion("");
     setSongs([]);
     setSelectedSong(null);
+    setPendingMoodChange(null);
+    resetCameraBatch();
     setDetection({
       emotion: "",
       confidence: 0,
@@ -223,11 +257,53 @@ export default function App() {
       return;
     }
 
-    setRequestedEmotion((currentEmotion) =>
-      currentEmotion === nextDetection.emotion
-        ? currentEmotion
-        : nextDetection.emotion
+    const nextBatch = [...cameraBatchRef.current, nextDetection].slice(
+      0,
+      CAMERA_BATCH_SIZE
     );
+
+    cameraBatchRef.current = nextBatch;
+    setCameraBatch(nextBatch);
+
+    if (nextBatch.length < CAMERA_BATCH_SIZE) {
+      return;
+    }
+
+    const stableEmotion = resolveStableEmotion(nextBatch);
+    const finalRead =
+      [...nextBatch]
+        .reverse()
+        .find((item) => item.emotion === stableEmotion) ||
+      nextBatch[nextBatch.length - 1];
+
+    resetCameraBatch();
+
+    setDetection({
+      ...finalRead,
+      emotion: stableEmotion,
+      source: "camera",
+    });
+
+    if (!requestedEmotion || !selectedSong || requestState !== "success") {
+      setRequestedEmotion(stableEmotion);
+      setPendingMoodChange(null);
+      return;
+    }
+
+    if (stableEmotion === requestedEmotion) {
+      setPendingMoodChange(null);
+      return;
+    }
+
+    setPendingMoodChange({
+      emotion: stableEmotion,
+      previousEmotion: requestedEmotion,
+      samples: nextBatch,
+      mode:
+        new Set(nextBatch.map((item) => item.emotion)).size === CAMERA_BATCH_SIZE
+          ? "last-read"
+          : "majority",
+    });
   };
 
   const handleManualMood = (emotion) => {
@@ -237,6 +313,8 @@ export default function App() {
       scores: [[emotion, 1]],
       source: "manual",
     });
+    setPendingMoodChange(null);
+    resetCameraBatch();
     setRequestedEmotion(emotion);
   };
 
@@ -251,6 +329,22 @@ export default function App() {
       return [song, ...currentFavorites].slice(0, 12);
     });
   };
+
+  const handleAcceptSuggestedMood = () => {
+    if (!pendingMoodChange) return;
+
+    setRequestedEmotion(pendingMoodChange.emotion);
+    setPendingMoodChange(null);
+  };
+
+  const handleKeepCurrentSong = () => {
+    setPendingMoodChange(null);
+  };
+
+  const cameraBatchLabel =
+    cameraBatch.length > 0
+      ? describeBatch(cameraBatch)
+      : "Waiting for the next 3 confident reads.";
 
   if (!profile) {
     return <AuthScreen onStart={handleProfileStart} />;
@@ -325,6 +419,11 @@ export default function App() {
 
             <Camera onEmotion={handleDetection} />
 
+            <p className="buffer-note">
+              Music updates after {CAMERA_BATCH_SIZE} confident camera reads.
+              Current batch: {cameraBatchLabel}
+            </p>
+
             <div className="manual-moods">
               {manualMoodOptions.map((emotion) => (
                 <button
@@ -354,6 +453,39 @@ export default function App() {
                 fallback links when you want to continue outside the app.
               </p>
             </div>
+
+            {pendingMoodChange && (
+              <div className="mood-suggestion">
+                <div>
+                  <p className="section-kicker">Suggested switch</p>
+                  <h4>
+                    Camera now leans {emotionLabels[pendingMoodChange.emotion]}.
+                  </h4>
+                  <p className="compact-copy">
+                    {pendingMoodChange.mode === "majority"
+                      ? `That mood repeated most often across the last ${CAMERA_BATCH_SIZE} reads.`
+                      : `The last ${CAMERA_BATCH_SIZE} reads were all different, so this suggestion uses the latest read.`}{" "}
+                    Batch: {describeBatch(pendingMoodChange.samples)}.
+                  </p>
+                </div>
+                <div className="mood-suggestion-actions">
+                  <button
+                    className="primary-btn"
+                    onClick={handleAcceptSuggestedMood}
+                    type="button"
+                  >
+                    Switch song
+                  </button>
+                  <button
+                    className="ghost-btn"
+                    onClick={handleKeepCurrentSong}
+                    type="button"
+                  >
+                    Keep current
+                  </button>
+                </div>
+              </div>
+            )}
 
             {requestState === "idle" && (
               <p className="state-copy">

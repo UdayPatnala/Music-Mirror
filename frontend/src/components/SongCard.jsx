@@ -20,7 +20,7 @@ export default function SongCard({
         <div className="song-topline">
           <div>
             <p className="song-kicker">
-              {song.genre} • {song.energy} energy
+              {song.genre} | {song.energy} energy
             </p>
             <h4>{song.title}</h4>
             <p className="song-artist">{song.artist}</p>
