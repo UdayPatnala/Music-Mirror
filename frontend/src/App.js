@@ -93,6 +93,7 @@ export default function App() {
   const [playlistEmotion, setPlaylistEmotion] = useState("");
   const [songs, setSongs] = useState([]);
   const [selectedSong, setSelectedSong] = useState(null);
+  const [playerMode, setPlayerMode] = useState("youtube");
   const [requestState, setRequestState] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [cameraBatch, setCameraBatch] = useState([]);
@@ -143,6 +144,7 @@ export default function App() {
         setPlaylistEmotion(nextPlaylistEmotion);
         setRequestState(nextSongs.length > 0 ? "success" : "empty");
         setPendingMoodChange(null);
+        setPlayerMode("youtube");
 
         setSelectedSong((currentSong) => {
           if (
@@ -241,6 +243,7 @@ export default function App() {
     setPlaylistEmotion("");
     setSongs([]);
     setSelectedSong(null);
+    setPlayerMode("youtube");
     setPendingMoodChange(null);
     resetCameraBatch();
     setDetection({
@@ -317,6 +320,7 @@ export default function App() {
     setPendingMoodChange(null);
     resetCameraBatch();
     setRequestedEmotion(emotion);
+    setPlayerMode("youtube");
   };
 
   const handleToggleFavorite = (song) => {
@@ -395,10 +399,25 @@ export default function App() {
               <strong>{insightSummary.favorites}</strong>
             </div>
           </div>
+
+          <div className="quick-access">
+            <a className="quick-link" href="#capture-panel">
+              Go to camera
+            </a>
+            <a className="quick-link" href="#queue-panel">
+              Open queue
+            </a>
+            <a className="quick-link" href="#history-panel">
+              View history
+            </a>
+          </div>
         </div>
 
         <NowPlaying
+          activeMood={activeMood}
           activeMoodLabel={activeMoodLabel}
+          onPlayerModeChange={setPlayerMode}
+          playerMode={playerMode}
           requestState={requestState}
           song={selectedSong}
         />
@@ -406,7 +425,7 @@ export default function App() {
 
       <main className="workspace">
         <section className="workspace-main">
-          <section className="panel capture-panel">
+          <section className="panel capture-panel" id="capture-panel">
             <div className="section-header">
               <div>
                 <p className="section-kicker">Capture</p>
@@ -443,7 +462,7 @@ export default function App() {
 
           <EmotionCard detection={detection} playlistEmotion={playlistEmotion} />
 
-          <section className="panel recommendations-panel">
+          <section className="panel recommendations-panel" id="queue-panel">
             <div className="section-header">
               <div>
                 <p className="section-kicker">Queue</p>
@@ -584,12 +603,14 @@ export default function App() {
             </div>
           </section>
 
-          <HistoryPanel
-            favorites={favorites}
-            history={history}
-            onPlaySong={setSelectedSong}
-            onToggleFavorite={handleToggleFavorite}
-          />
+          <div id="history-panel">
+            <HistoryPanel
+              favorites={favorites}
+              history={history}
+              onPlaySong={setSelectedSong}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          </div>
         </aside>
       </main>
     </div>
