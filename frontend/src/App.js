@@ -131,6 +131,7 @@ export default function App() {
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
   }, [history]);
+  
 
   useEffect(() => {
     if (!profile || !requestedEmotion) return;
@@ -211,7 +212,15 @@ export default function App() {
       ignore = true;
     };
   }, [detection.source, profile, requestedEmotion]);
+  useEffect(() => {
+    if (!pendingMoodChange) return;
 
+    const timer = setTimeout(() => {
+      setPendingMoodChange(null);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [pendingMoodChange]);
   const favoriteKeys = useMemo(
     () => new Set(favorites.map((song) => songKey(song))),
     [favorites]
@@ -350,11 +359,15 @@ export default function App() {
     if (!pendingMoodChange) return;
 
     setRequestedEmotion(pendingMoodChange.emotion);
-    setPendingMoodChange(null);
-  };
+    setTimeout(() => {
+      setPendingMoodChange(null);
+    }, 150);
+   };
 
   const handleKeepCurrentSong = () => {
-    setPendingMoodChange(null);
+    setTimeout(() => {
+      setPendingMoodChange(null);
+    }, 150);
   };
 
   const cameraBatchLabel =
@@ -435,7 +448,31 @@ export default function App() {
             </button>
           </div>
         </div>
-        
+        {pendingMoodChange && (
+          <div className="mood-floating premium">
+            <div className="mood-floating-text">
+              ⚡ Switch to {emotionLabels[pendingMoodChange.emotion]}
+            </div>
+
+            <div className="mood-floating-actions">
+              <button
+                className="inline-btn primary"
+                onClick={handleAcceptSuggestedMood}
+                type="button"
+              >
+                Switch
+              </button>
+
+              <button
+                className="inline-btn ghost"
+                onClick={handleKeepCurrentSong}
+                type="button"
+              >
+                Keep
+              </button>
+            </div>
+          </div>
+        )}         
         <NowPlaying
           activeMood={activeMood}
           activeMoodLabel={activeMoodLabel}
@@ -461,7 +498,7 @@ export default function App() {
             </div>
 
             <Camera onEmotion={handleDetection} />
-
+            
             <p className="buffer-note">
               Music updates after {CAMERA_BATCH_SIZE} confident camera reads.
               Current batch: {cameraBatchLabel}
@@ -496,39 +533,6 @@ export default function App() {
                 fallback links when you want to continue outside the app.
               </p>
             </div>
-
-            {pendingMoodChange && (
-              <div className="mood-suggestion">
-                <div>
-                  <p className="section-kicker">Suggested switch</p>
-                  <h4>
-                    Camera now leans {emotionLabels[pendingMoodChange.emotion]}.
-                  </h4>
-                  <p className="compact-copy">
-                    {pendingMoodChange.mode === "majority"
-                      ? `That mood repeated most often across the last ${CAMERA_BATCH_SIZE} reads.`
-                      : `The last ${CAMERA_BATCH_SIZE} reads were all different, so this suggestion uses the latest read.`}{" "}
-                    Batch: {describeBatch(pendingMoodChange.samples)}.
-                  </p>
-                </div>
-                <div className="mood-suggestion-actions">
-                  <button
-                    className="primary-btn"
-                    onClick={handleAcceptSuggestedMood}
-                    type="button"
-                  >
-                    Switch song
-                  </button>
-                  <button
-                    className="ghost-btn"
-                    onClick={handleKeepCurrentSong}
-                    type="button"
-                  >
-                    Keep current
-                  </button>
-                </div>
-              </div>
-            )}
 
             {requestState === "idle" && (
               <p className="state-copy">
