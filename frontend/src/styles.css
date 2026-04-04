@@ -1122,3 +1122,41 @@ select {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(140, 247, 197, 0.3);
 }
+/* ===== OVERRIDE MOOD BUTTONS (FINAL FIX) ===== */
+
+.manual-moods .mood-pill {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0f1c31;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: 
+    transform 0.12s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.12s ease;
+}
+
+/* hover */
+.manual-moods .mood-pill:hover {
+  background: #1a2f52;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* click */
+.manual-moods .mood-pill:active {
+  transform: scale(0.96);
+  background: #0c1628;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* active selected */
+.manual-moods .mood-pill.active {
+  background: linear-gradient(135deg, var(--accent), #7cd7ff);
+  color: #08131f;
+  border-color: transparent;
+}
