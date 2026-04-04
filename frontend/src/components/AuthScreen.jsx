@@ -1,5 +1,6 @@
 import { useState } from "react";
 import BrandLockup from "./BrandLockup";
+import CustomDropdown from "./CustomDropdown";
 
 const genreOptions = ["Pop", "Acoustic", "Rock", "Lo-fi", "Indie"];
 const goalOptions = [
@@ -28,9 +29,7 @@ export default function AuthScreen({ onStart }) {
     const trimmedName = form.name.trim();
     const trimmedEmail = form.email.trim();
 
-    if (!trimmedName || !trimmedEmail) {
-      return;
-    }
+    if (!trimmedName || !trimmedEmail) return;
 
     onStart({
       ...form,
@@ -71,9 +70,10 @@ export default function AuthScreen({ onStart }) {
         <form className="auth-form" onSubmit={handleSubmit}>
           <p className="section-kicker">Sign in</p>
           <h2>Create your listening profile</h2>
+
           <p className="auth-form-copy">
             This lightweight profile stays in your browser so you can return to
-            the same mood studio on your machine.
+            the same mood studio.
           </p>
 
           <label>
@@ -98,27 +98,23 @@ export default function AuthScreen({ onStart }) {
             />
           </label>
 
-          <label>
-            Preferred genre
-            <select name="genre" onChange={handleChange} value={form.genre}>
-              {genreOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+          <CustomDropdown
+            label="Preferred genre"
+            options={genreOptions}
+            value={form.genre}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, genre: val }))
+            }
+          />
 
-          <label>
-            Mood goal
-            <select name="goal" onChange={handleChange} value={form.goal}>
-              {goalOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+          <CustomDropdown
+            label="Mood goal"
+            options={goalOptions}
+            value={form.goal}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, goal: val }))
+            }
+          />
 
           <button className="primary-btn auth-submit" type="submit">
             Enter the music room
