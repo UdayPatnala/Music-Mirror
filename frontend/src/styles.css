@@ -863,3 +863,31 @@ select {
     min-height: 200px;
   }
 }
+/* ================== YOUR EXISTING CODE (UNCHANGED) ================== */
+/* (I am not repeating everything to save your time — your file stays same) */
+
+
+/* ================== 🔥 ADD THIS AT THE VERY END ================== */
+
+/* Fix select (already styled but reinforce consistency) */
+.auth-form select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--text);
+  background: rgba(15, 28, 49, 0.95); /* slightly stronger dark */
+  appearance: none;
+}
+
+/* 🔥 MAIN FIX: DROPDOWN OPTIONS VISIBILITY */
+.auth-form select option {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Optional: improve dropdown interaction */
+.auth-form select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
