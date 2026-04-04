@@ -891,7 +891,77 @@ select {
   outline: none;
   border-color: var(--accent);
 }
-/* ===== CUSTOM DROPDOWN ===== */
+/* ===== CUSTOM DROPDOWN (SOLID VERSION) ===== */
+
+.dropdown-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dropdown-label {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+/* 🔥 SOLID HEADER (no transparency) */
+.dropdown-header {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #0f1c31; /* solid color */
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-header.open {
+  border-color: var(--accent);
+  background: #13243f; /* slightly lighter on open */
+}
+
+/* 🔥 SOLID DROPDOWN LIST */
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  margin-top: 6px;
+  border-radius: 16px;
+  background: #0f1c31; /* solid (no glass) */
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* ITEMS */
+.dropdown-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  color: var(--text);
+  background: #0f1c31; /* solid */
+}
+
+.dropdown-item:hover {
+  background: #1a2f52; /* hover */
+}
+
+.dropdown-item.selected {
+  background: #1e3a5f; /* selected */
+}
+
+/* arrow */
+.dropdown-arrow {
+  font-size: 12px;
+  opacity: 0.7;
+}
+/* ================== FINAL UI FIXES ================== */
+
+/* ---------- CUSTOM DROPDOWN (SOLID) ---------- */
 
 .dropdown-wrapper {
   position: relative;
@@ -909,7 +979,7 @@ select {
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.05);
+  background: #0f1c31;
   color: var(--text);
   cursor: pointer;
   display: flex;
@@ -919,7 +989,7 @@ select {
 
 .dropdown-header.open {
   border-color: var(--accent);
-  background: rgba(140, 247, 197, 0.1);
+  background: #13243f;
 }
 
 .dropdown-list {
@@ -929,7 +999,7 @@ select {
   width: 100%;
   margin-top: 6px;
   border-radius: 16px;
-  background: var(--panel-strong);
+  background: #0f1c31;
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -940,17 +1010,115 @@ select {
   padding: 12px 16px;
   cursor: pointer;
   color: var(--text);
+  background: #0f1c31;
 }
 
 .dropdown-item:hover {
-  background: rgba(140, 247, 197, 0.12);
+  background: #1a2f52;
 }
 
 .dropdown-item.selected {
-  background: rgba(140, 247, 197, 0.18);
+  background: #1e3a5f;
 }
 
 .dropdown-arrow {
   font-size: 12px;
   opacity: 0.7;
+}
+
+/* ---------- BUTTON ALIGNMENT FIX ---------- */
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+/* ---------- BUTTON UI (PRO LEVEL) ---------- */
+
+.action-buttons button {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0f1c31;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: 
+    transform 0.12s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.12s ease;
+}
+
+.action-buttons button:hover {
+  background: #1a2f52;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.action-buttons button:active {
+  transform: scale(0.96);
+  background: #0c1628;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.action-buttons button:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(140, 247, 197, 0.3);
+}
+
+.action-buttons button.active {
+  background: linear-gradient(135deg, var(--accent), #7cd7ff);
+  color: #08131f;
+  border-color: transparent;
+}
+/* ===== BUTTON FIX (FINAL) ===== */
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+/* clean button style */
+.action-buttons .quick-link {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0f1c31;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: 
+    transform 0.12s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.12s ease;
+}
+
+/* hover */
+.action-buttons .quick-link:hover {
+  background: #1a2f52;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* click press */
+.action-buttons .quick-link:active {
+  transform: scale(0.96);
+  background: #0c1628;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* focus */
+.action-buttons .quick-link:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(140, 247, 197, 0.3);
 }

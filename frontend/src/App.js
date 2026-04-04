@@ -411,23 +411,23 @@ export default function App() {
             </div>
           </div>
 
-          <div className="quick-access">
+                    <div className="action-buttons">
             <button
-              className="ghost-btn quick-link"
+              className="quick-link"
               onClick={() => scrollToSection("capture-panel")}
               type="button"
             >
               Go to camera
             </button>
             <button
-              className="ghost-btn quick-link"
+              className="quick-link"
               onClick={() => scrollToSection("queue-panel")}
               type="button"
             >
               Open queue
             </button>
             <button
-              className="ghost-btn quick-link"
+              className="quick-link"
               onClick={() => scrollToSection("history-panel")}
               type="button"
             >
@@ -435,7 +435,7 @@ export default function App() {
             </button>
           </div>
         </div>
-
+        
         <NowPlaying
           activeMood={activeMood}
           activeMoodLabel={activeMoodLabel}
