@@ -1,0 +1,232 @@
+{
+  "happy": [
+    {
+      "title": "Happy",
+      "artist": "Pharrell Williams",
+      "genre": "Pop",
+      "energy": "Bright",
+      "duration": "3:53",
+      "note": "A quick mood lift with instant sing-along energy.",
+      "spotify": "https://open.spotify.com/search/Happy%20Pharrell%20Williams",
+      "youtube": "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
+      "youtubeId": "ZbZSe6N_BXs"
+    },
+    {
+      "title": "Can't Stop the Feeling!",
+      "artist": "Justin Timberlake",
+      "genre": "Dance Pop",
+      "energy": "Upbeat",
+      "duration": "3:56",
+      "note": "Keeps the room moving when the mood is already light.",
+      "spotify": "https://open.spotify.com/search/Can't%20Stop%20the%20Feeling%20Justin%20Timberlake",
+      "youtube": "https://www.youtube.com/watch?v=ru0K8uYEZWw",
+      "youtubeId": "ru0K8uYEZWw"
+    },
+    {
+      "title": "Uptown Funk",
+      "artist": "Mark Ronson ft. Bruno Mars",
+      "genre": "Funk Pop",
+      "energy": "High",
+      "duration": "4:30",
+      "note": "A glossy, celebratory track when the camera catches a genuinely upbeat moment.",
+      "spotify": "https://open.spotify.com/search/Uptown%20Funk%20Mark%20Ronson%20Bruno%20Mars",
+      "youtube": "https://www.youtube.com/watch?v=OPf0YbXqDm0",
+      "youtubeId": "OPf0YbXqDm0"
+    },
+    {
+      "title": "Best Day Of My Life",
+      "artist": "American Authors",
+      "genre": "Indie Pop",
+      "energy": "High",
+      "duration": "3:14",
+      "note": "A bright momentum pick that keeps cheerful sessions from flattening out.",
+      "spotify": "https://open.spotify.com/search/Best%20Day%20Of%20My%20Life%20American%20Authors",
+      "youtube": "https://www.youtube.com/watch?v=Y66j_BUCBMY",
+      "youtubeId": "Y66j_BUCBMY"
+    }
+  ],
+  "sad": [
+    {
+      "title": "Let Her Go",
+      "artist": "Passenger",
+      "genre": "Acoustic",
+      "energy": "Low",
+      "duration": "4:12",
+      "note": "Gentle and reflective when the detected mood leans heavy.",
+      "spotify": "https://open.spotify.com/search/Let%20Her%20Go%20Passenger",
+      "youtube": "https://www.youtube.com/watch?v=RBumgq5yVrA",
+      "youtubeId": "RBumgq5yVrA"
+    },
+    {
+      "title": "Someone You Loved",
+      "artist": "Lewis Capaldi",
+      "genre": "Soul Pop",
+      "energy": "Low",
+      "duration": "3:02",
+      "note": "A slow emotional reset for quieter moments.",
+      "spotify": "https://open.spotify.com/search/Someone%20You%20Loved%20Lewis%20Capaldi",
+      "youtube": "https://www.youtube.com/watch?v=zABLecsR5UE",
+      "youtubeId": "zABLecsR5UE"
+    },
+    {
+      "title": "Someone Like You",
+      "artist": "Adele",
+      "genre": "Ballad",
+      "energy": "Low",
+      "duration": "4:45",
+      "note": "A slower, fuller recommendation when the expression stays deeply reflective.",
+      "spotify": "https://open.spotify.com/search/Someone%20Like%20You%20Adele",
+      "youtube": "https://www.youtube.com/watch?v=hLQl3WQQoQ0",
+      "youtubeId": "hLQl3WQQoQ0"
+    },
+    {
+      "title": "When I Was Your Man",
+      "artist": "Bruno Mars",
+      "genre": "Piano Pop",
+      "energy": "Low",
+      "duration": "3:34",
+      "note": "Soft and honest, better for low-energy moods than forcing a quick uplift.",
+      "spotify": "https://open.spotify.com/search/When%20I%20Was%20Your%20Man%20Bruno%20Mars",
+      "youtube": "https://www.youtube.com/watch?v=ekzHIouo8Q4",
+      "youtubeId": "ekzHIouo8Q4"
+    }
+  ],
+  "angry": [
+    {
+      "title": "Believer",
+      "artist": "Imagine Dragons",
+      "genre": "Alternative Rock",
+      "energy": "High",
+      "duration": "3:24",
+      "note": "Turns tense energy into momentum instead of noise.",
+      "spotify": "https://open.spotify.com/search/Believer%20Imagine%20Dragons",
+      "youtube": "https://www.youtube.com/watch?v=7wtfhZwyrcc",
+      "youtubeId": "7wtfhZwyrcc"
+    },
+    {
+      "title": "Numb",
+      "artist": "Linkin Park",
+      "genre": "Rock",
+      "energy": "High",
+      "duration": "3:08",
+      "note": "A more intense outlet when the reading skews frustrated.",
+      "spotify": "https://open.spotify.com/search/Numb%20Linkin%20Park",
+      "youtube": "https://www.youtube.com/watch?v=kXYiU_JCYtU",
+      "youtubeId": "kXYiU_JCYtU"
+    },
+    {
+      "title": "Stronger",
+      "artist": "Kanye West",
+      "genre": "Hip-Hop",
+      "energy": "High",
+      "duration": "5:12",
+      "note": "Pushes heated energy forward without dropping the pace of the session.",
+      "spotify": "https://open.spotify.com/search/Stronger%20Kanye%20West",
+      "youtube": "https://www.youtube.com/watch?v=PsO6ZnUZI0g",
+      "youtubeId": "PsO6ZnUZI0g"
+    },
+    {
+      "title": "Titanium",
+      "artist": "David Guetta ft. Sia",
+      "genre": "Dance Pop",
+      "energy": "High",
+      "duration": "4:05",
+      "note": "A big, resilient chorus that redirects anger into confidence.",
+      "spotify": "https://open.spotify.com/search/Titanium%20David%20Guetta%20Sia",
+      "youtube": "https://www.youtube.com/watch?v=JRfuAukYTKg",
+      "youtubeId": "JRfuAukYTKg"
+    }
+  ],
+  "neutral": [
+    {
+      "title": "Perfect",
+      "artist": "Ed Sheeran",
+      "genre": "Pop",
+      "energy": "Steady",
+      "duration": "4:23",
+      "note": "A calm baseline track when the expression stays centered.",
+      "spotify": "https://open.spotify.com/search/Perfect%20Ed%20Sheeran",
+      "youtube": "https://www.youtube.com/watch?v=2Vv-BfVoq4g",
+      "youtubeId": "2Vv-BfVoq4g"
+    },
+    {
+      "title": "Photograph",
+      "artist": "Ed Sheeran",
+      "genre": "Acoustic Pop",
+      "energy": "Steady",
+      "duration": "4:19",
+      "note": "Warm and unobtrusive when the room feels balanced.",
+      "spotify": "https://open.spotify.com/search/Photograph%20Ed%20Sheeran",
+      "youtube": "https://www.youtube.com/watch?v=nSDgHBxUbVQ",
+      "youtubeId": "nSDgHBxUbVQ"
+    },
+    {
+      "title": "Counting Stars",
+      "artist": "OneRepublic",
+      "genre": "Pop Rock",
+      "energy": "Medium",
+      "duration": "4:18",
+      "note": "Keeps a neutral reading engaged without pushing too bright or too heavy.",
+      "spotify": "https://open.spotify.com/search/Counting%20Stars%20OneRepublic",
+      "youtube": "https://www.youtube.com/watch?v=hT_nvWreIhg",
+      "youtubeId": "hT_nvWreIhg"
+    },
+    {
+      "title": "Yellow",
+      "artist": "Coldplay",
+      "genre": "Alternative",
+      "energy": "Steady",
+      "duration": "4:29",
+      "note": "Softly atmospheric and easy to live with during calm stretches.",
+      "spotify": "https://open.spotify.com/search/Yellow%20Coldplay",
+      "youtube": "https://www.youtube.com/watch?v=yKNxeF4KMsY",
+      "youtubeId": "yKNxeF4KMsY"
+    }
+  ],
+  "surprise": [
+    {
+      "title": "On Top of the World",
+      "artist": "Imagine Dragons",
+      "genre": "Indie Pop",
+      "energy": "Elevated",
+      "duration": "3:12",
+      "note": "Celebratory energy for wide-eyed, high-lift reactions.",
+      "spotify": "https://open.spotify.com/search/On%20Top%20of%20the%20World%20Imagine%20Dragons",
+      "youtube": "https://www.youtube.com/watch?v=w5tWYmIOWGk",
+      "youtubeId": "w5tWYmIOWGk"
+    },
+    {
+      "title": "Thunder",
+      "artist": "Imagine Dragons",
+      "genre": "Electro Pop",
+      "energy": "Elevated",
+      "duration": "3:07",
+      "note": "Keeps the unexpected feeling playful and cinematic.",
+      "spotify": "https://open.spotify.com/search/Thunder%20Imagine%20Dragons",
+      "youtube": "https://www.youtube.com/watch?v=fKopy74weus",
+      "youtubeId": "fKopy74weus"
+    },
+    {
+      "title": "Firework",
+      "artist": "Katy Perry",
+      "genre": "Pop",
+      "energy": "Elevated",
+      "duration": "3:48",
+      "note": "A bigger, flashier pick for delighted or stunned reactions.",
+      "spotify": "https://open.spotify.com/search/Firework%20Katy%20Perry",
+      "youtube": "https://www.youtube.com/watch?v=QGJuMBdaqIw",
+      "youtubeId": "QGJuMBdaqIw"
+    },
+    {
+      "title": "Roar",
+      "artist": "Katy Perry",
+      "genre": "Pop",
+      "energy": "High",
+      "duration": "3:43",
+      "note": "A confident surprise lane when the room suddenly wakes up.",
+      "spotify": "https://open.spotify.com/search/Roar%20Katy%20Perry",
+      "youtube": "https://www.youtube.com/watch?v=CevxZvSJLk8",
+      "youtubeId": "CevxZvSJLk8"
+    }
+  ]
+}

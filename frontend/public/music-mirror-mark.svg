@@ -1,0 +1,27 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="surface" x1="36" y1="24" x2="220" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102447"/>
+      <stop offset="1" stop-color="#07101F"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="72" y1="60" x2="190" y2="196" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8CF7C5"/>
+      <stop offset="1" stop-color="#7CD7FF"/>
+    </linearGradient>
+    <linearGradient id="pulse" x1="128" y1="64" x2="128" y2="192" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD27A"/>
+      <stop offset="1" stop-color="#8CF7C5"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="24" y="24" width="208" height="208" rx="56" fill="url(#surface)"/>
+  <rect x="24" y="24" width="208" height="208" rx="56" stroke="#2A446C" stroke-width="2"/>
+
+  <circle cx="128" cy="128" r="72" fill="#0B1830" stroke="url(#glow)" stroke-width="5"/>
+  <path d="M109 82C91 95 79 111 79 128C79 145 91 161 109 174" stroke="url(#glow)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M147 82C165 95 177 111 177 128C177 145 165 161 147 174" stroke="url(#glow)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M120 100C110 107 104 117 104 128C104 139 110 149 120 156" stroke="url(#glow)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M136 100C146 107 152 117 152 128C152 139 146 149 136 156" stroke="url(#glow)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M128 72V184" stroke="url(#pulse)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="128" cy="128" r="11" fill="#FFD27A"/>
+</svg>
