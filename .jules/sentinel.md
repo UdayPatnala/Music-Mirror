@@ -1,0 +1,4 @@
+## 2026-04-18 - Restrict CORS and Add Request Validation
+**Vulnerability:** The FastAPI backend used a wildcard `allow_origins=["*"]` for CORS, which could allow any malicious website to make cross-origin requests to the API. Additionally, the `emotion` parameter in `EmotionRequest` had no length limit, making it susceptible to DoS attacks via excessively long strings.
+**Learning:** Even simple APIs without authentication can be abused. While this specific API does not handle sensitive user data directly, open CORS allows malicious sites to consume its resources, and unbounded input fields can lead to memory exhaustion or processing overhead.
+**Prevention:** Always restrict `allow_origins` to known frontend domains. Use Pydantic's `Field` (e.g., `Field(..., max_length=50)`) to enforce input validation on all API endpoints.
