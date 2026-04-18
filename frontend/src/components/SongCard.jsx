@@ -1,8 +1,10 @@
+import { memo } from "react";
+
 function thumbnailUrl(youtubeId) {
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
-export default function SongCard({
+function SongCard({
   song,
   isActive,
   isFavorite,
@@ -67,3 +69,5 @@ export default function SongCard({
     </article>
   );
 }
+
+export default memo(SongCard);

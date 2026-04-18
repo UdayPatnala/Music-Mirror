@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import AuthScreen from "./components/AuthScreen";
 import BrandLockup from "./components/BrandLockup";
@@ -212,6 +212,7 @@ export default function App() {
       ignore = true;
     };
   }, [detection.source, profile, requestedEmotion]);
+
   useEffect(() => {
     if (!pendingMoodChange) return;
 
@@ -221,6 +222,7 @@ export default function App() {
 
     return () => clearTimeout(timer);
   }, [pendingMoodChange]);
+
   const favoriteKeys = useMemo(
     () => new Set(favorites.map((song) => songKey(song))),
     [favorites]
@@ -275,7 +277,7 @@ export default function App() {
     });
   };
 
-  const handleDetection = (nextDetection) => {
+  const handleDetection = useCallback((nextDetection) => {
     setDetection(nextDetection);
 
     if (nextDetection.confidence < 0.5) {
@@ -329,7 +331,7 @@ export default function App() {
           ? "last-read"
           : "majority",
     });
-  };
+  }, [requestedEmotion, selectedSong, requestState]);
 
   const handleManualMood = (emotion) => {
     setDetection({
@@ -343,7 +345,7 @@ export default function App() {
     setRequestedEmotion(emotion);
   };
 
-  const handleToggleFavorite = (song) => {
+  const handleToggleFavorite = useCallback((song) => {
     const key = songKey(song);
 
     setFavorites((currentFavorites) => {
@@ -353,7 +355,7 @@ export default function App() {
 
       return [song, ...currentFavorites].slice(0, 12);
     });
-  };
+  }, []);
 
   const handleAcceptSuggestedMood = () => {
     if (!pendingMoodChange) return;
