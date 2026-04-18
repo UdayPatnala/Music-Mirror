@@ -10,7 +10,7 @@ app = FastAPI(title="Emotion Music API")
 # Security Enhancement: Restrict CORS to known frontend origins instead of "*"
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://127.0.0.1:3000,https://emotion-music-recommender-wruw.onrender.com"
+    "http://localhost:3000,http://127.0.0.1:3000,http://[::1]:3000,https://emotion-music-recommender-wruw.onrender.com"
 ).split(",")
 
 app.add_middleware(

@@ -9,7 +9,7 @@ import NowPlaying from "./components/NowPlaying";
 import SongCard from "./components/SongCard";
 
 const DEFAULT_API_URL =
-  ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname)
     ? "http://127.0.0.1:8000"
     : "https://emotion-music-recommender-wruw.onrender.com";
 
