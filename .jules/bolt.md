@@ -1,0 +1,3 @@
+## 2024-05-20 - React.memo on Frequently Re-rendered Components
+**Learning:** Found that the React app was re-rendering the entire list of `SongCard` components on every face detection tick (every 2 seconds) because `handleDetection` and `handleToggleFavorite` were defined directly inside the functional component body without `useCallback`, and `SongCard` was not wrapped in `React.memo()`.
+**Action:** When working with continuous state updates like face detection, identify stable components like list items (`SongCard`) and apply `React.memo` along with `useCallback` on event handlers to drastically reduce unnecessary render cycles.

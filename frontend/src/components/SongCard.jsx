@@ -1,8 +1,10 @@
+import { memo } from "react";
+
 function thumbnailUrl(youtubeId) {
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
-export default function SongCard({
+function SongCard({
   song,
   isActive,
   isFavorite,
@@ -67,3 +69,7 @@ export default function SongCard({
     </article>
   );
 }
+
+// React.memo prevents re-rendering when parent state changes but props remain exactly the same
+// In this case, active state changes or new favorite is added, but only cards whose props actually change will re-render
+export default memo(SongCard);
