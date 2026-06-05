@@ -1263,23 +1263,3 @@ select {
   position: relative;
   overflow: visible;       /* 🔥 prevents clipping */
 }
-
-/* Light Theme overrides */
-body.light-theme {
-  --bg: #f0f4f8;
-  --bg-soft: #ffffff;
-  --panel: rgba(255, 255, 255, 0.85);
-  --panel-strong: rgba(245, 247, 250, 0.95);
-  --line: rgba(0, 0, 0, 0.1);
-  --line-strong: rgba(0, 0, 0, 0.2);
-  --text: #1a202c;
-  --text-soft: rgba(26, 32, 44, 0.7);
-  background: var(--bg);
-  color: var(--text);
-}
-
-.light-theme .app-noise {
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-}
