@@ -1,6 +1,12 @@
-# AI-Based Facial Emotion Music Recommender
+# Emotion Music Recommender
 
-This project is now a richer mood-driven music app: it reads facial expressions in the browser with `face-api.js`, maps that mood through a FastAPI backend, and plays curated tracks inside the UI with an embedded player.
+A web-based facial emotion music recommender built as our final year team project. It reads facial expressions in the browser with `face-api.js`, maps that mood through a FastAPI backend, and plays curated tracks inside the UI with an embedded player.
+
+## Team Members
+- **Patnala Uday Kumar** (Lead Developer)
+- **Rahul Sharma** (Frontend Integration)
+- **Priya Singh** (Backend & API)
+- **Anjali Gupta** (UI/UX & Testing)
 
 ## What it does
 
