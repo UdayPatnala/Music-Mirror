@@ -111,7 +111,17 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [cameraBatch, setCameraBatch] = useState([]);
   const [pendingMoodChange, setPendingMoodChange] = useState(null);
+  const [theme, setTheme] = useState(() => window.localStorage.getItem('theme') || 'dark');
   const cameraBatchRef = useRef([]);
+
+  useEffect(() => {
+    window.localStorage.setItem('theme', theme);
+    document.body.className = theme === 'light' ? 'light-theme' : '';
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     if (profile) {
@@ -392,6 +402,12 @@ export default function App() {
         />
 
         <div className="topbar-actions">
+          <button className="ghost-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} type="button">
+            Home
+          </button>
+          <button className="ghost-btn" onClick={toggleTheme} type="button">
+            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+          </button>
           <div className="profile-chip">
             <span>{greetingName}</span>
             <small>{profile.genre} focus</small>
