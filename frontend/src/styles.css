@@ -29,7 +29,7 @@ body {
   background:
     radial-gradient(circle at top left, rgba(101, 255, 205, 0.16), transparent 28%),
     radial-gradient(circle at top right, rgba(102, 143, 255, 0.16), transparent 24%),
-    linear-gradient(135deg, #09111f 0%, #0d1830 45%, #101d3b 100%);
+    linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 45%, #F3F4F6 100%);
 }
 
 a {
@@ -139,7 +139,7 @@ select {
   padding: 12px 16px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .profile-chip small,
@@ -177,7 +177,7 @@ select {
   padding: clamp(28px, 5vw, 52px);
   border-radius: 36px;
   background:
-    linear-gradient(145deg, rgba(12, 26, 47, 0.86), rgba(8, 18, 34, 0.9)),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.9)),
     radial-gradient(circle at top left, rgba(99, 102, 241, 0.16), transparent 32%);
 }
 
@@ -214,8 +214,8 @@ select {
   min-width: 0;
   padding: 14px 16px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .poster-meta strong,
@@ -240,7 +240,7 @@ select {
   padding: 22px;
   border-radius: 32px;
   background:
-    linear-gradient(160deg, rgba(9, 17, 31, 0.95), rgba(16, 29, 58, 0.9)),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(243, 244, 246, 0.9)),
     radial-gradient(circle at top right, rgba(255, 199, 107, 0.18), transparent 30%);
 }
 
@@ -508,7 +508,7 @@ select {
 .score-meter {
   height: 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -632,7 +632,7 @@ select {
   align-items: center;
   padding: 12px 14px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .mini-row span {
@@ -735,7 +735,7 @@ select {
   overflow: hidden;
   border: 1px solid var(--line-strong);
   border-radius: 28px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .camera-video {
