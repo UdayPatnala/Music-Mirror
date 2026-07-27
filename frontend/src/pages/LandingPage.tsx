@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAppStore } from "../store/useAppStore";
 import CustomDropdown from "../components/CustomDropdown";
 import { Sparkles, BrainCircuit, AudioWaveform } from "lucide-react";
 
@@ -13,11 +14,13 @@ const goalOptions = [
   "Calm things down",
 ];
 
-export default function LandingPage({ onLogin }) {
+export default function LandingPage() {
   const navigate = useNavigate();
+  const setProfile = useAppStore((state) => state.setProfile);
+
   const [form, setForm] = useState({
-    name: "",
-    email: "",
+    name: "Listener",
+    email: "user@musicmirror.ai",
     genre: "Pop",
     goal: "Match my mood",
   });
@@ -29,10 +32,19 @@ export default function LandingPage({ onLogin }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const trimmedName = form.name.trim();
-    const trimmedEmail = form.email.trim();
-    if (!trimmedName || !trimmedEmail) return;
-    onLogin({ ...form, name: trimmedName, email: trimmedEmail });
+    const trimmedName = form.name.trim() || "Listener";
+    const trimmedEmail = form.email.trim() || "user@musicmirror.ai";
+
+    const userProfile = {
+      ...form,
+      name: trimmedName,
+      email: trimmedEmail,
+    };
+
+    // Save profile into Zustand persistent store
+    setProfile(userProfile);
+
+    // Immediately navigate to the room
     navigate("/room");
   };
 
