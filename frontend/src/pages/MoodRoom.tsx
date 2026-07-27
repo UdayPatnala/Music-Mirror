@@ -142,6 +142,17 @@ export default function MoodRoom() {
   const activeMoodLabel = activeMood ? emotionLabels[activeMood] || activeMood : "Waiting for a mood";
   const greetingName = profile?.name || "Listener";
 
+  
+  const handleToggleFavorite = useCallback((song) => {
+    const key = songKey(song);
+    setFavorites((currentFavorites) => {
+      if (currentFavorites.some((item) => songKey(item) === key)) {
+        return currentFavorites.filter((item) => songKey(item) !== key);
+      }
+      return [song, ...currentFavorites].slice(0, 12);
+    });
+  }, []);
+
   const handleLogout = () => {
     clearProfile();
   };
@@ -246,6 +257,7 @@ export default function MoodRoom() {
                     isActive={selectedSong ? songKey(song) === songKey(selectedSong) : false}
                     isFavorite={favoriteKeys.has(songKey(song))}
                     onPlay={setSelectedSong}
+                    onToggleFavorite={handleToggleFavorite}
                     song={song}
                   />
                 ))}
@@ -255,7 +267,7 @@ export default function MoodRoom() {
         </section>
         
         <aside className="workspace-side">
-          <HistoryPanel history={history} />
+          <HistoryPanel history={history} favorites={favorites} onPlaySong={setSelectedSong} onToggleFavorite={handleToggleFavorite} />
         </aside>
       </main>
     </div>

@@ -2,7 +2,7 @@
 import { emotionLabels } from "./EmotionCard";
 
 function songKey(song) {
-  return `${song.title}::${song.artist}`;
+  return `${song.title || song.name}::${song.artist}`;
 }
 
 function formatTime(isoValue) {
@@ -15,29 +15,32 @@ function formatTime(isoValue) {
 }
 
 export default function HistoryPanel({
-  favorites,
-  history,
-  onPlaySong,
-  onToggleFavorite,
+  favorites = [],
+  history = [],
+  onPlaySong = () => {},
+  onToggleFavorite = () => {},
 }) {
+  const safeHistory = history || [];
+  const safeFavorites = favorites || [];
+
   return (
     <section className="panel history-panel">
       <p className="section-kicker">Memory</p>
       <h3>History and favorites</h3>
 
-      <div className="history-columns">
+      <div className="history-columns" style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "16px" }}>
         <div>
           <h4>Recent mood reads</h4>
-          {history.length === 0 ? (
+          {safeHistory.length === 0 ? (
             <p className="compact-copy">
               No saved scans yet. Your first detected mood will appear here.
             </p>
           ) : (
             <div className="mini-list">
-              {history.map((item) => (
+              {safeHistory.map((item) => (
                 <div className="mini-row" key={item.id}>
                   <div>
-                    <strong>{emotionLabels[item.playlistEmotion]}</strong>
+                    <strong>{emotionLabels[item.playlistEmotion] || item.playlistEmotion}</strong>
                     <p className="compact-copy">
                       {item.title} by {item.artist}
                     </p>
@@ -50,17 +53,17 @@ export default function HistoryPanel({
         </div>
 
         <div>
-          <h4>Saved tracks</h4>
-          {favorites.length === 0 ? (
+          <h4>Saved tracks ({safeFavorites.length})</h4>
+          {safeFavorites.length === 0 ? (
             <p className="compact-copy">
               Save tracks from the queue to keep a personal shortlist.
             </p>
           ) : (
             <div className="mini-list">
-              {favorites.map((song) => (
+              {safeFavorites.map((song) => (
                 <div className="mini-row action" key={songKey(song)}>
                   <div>
-                    <strong>{song.title}</strong>
+                    <strong>{song.title || song.name}</strong>
                     <p className="compact-copy">{song.artist}</p>
                   </div>
                   <div className="mini-actions">
