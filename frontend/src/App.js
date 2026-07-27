@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
-import AuthScreen from "./components/AuthScreen";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import SummaryPage from "./pages/SummaryPage";
 import BrandLockup from "./components/BrandLockup";
 import Camera from "./components/Camera";
 import EmotionCard, { emotionLabels } from "./components/EmotionCard";
@@ -379,13 +381,20 @@ export default function App() {
       ? describeBatch(cameraBatch)
       : "Waiting for the next 3 confident reads.";
 
-  if (!profile) {
-    return <AuthScreen onStart={handleProfileStart} />;
-  }
-
   return (
-    <div className="app-shell">
-      <div className="app-noise" />
+    <Routes>
+      <Route path="/" element={
+        !profile ? <LandingPage onLogin={handleProfileStart} /> : <Navigate to="/room" replace />
+      } />
+      <Route path="/summary" element={
+        !profile ? <Navigate to="/" replace /> : (
+          <SummaryPage profile={profile} history={history} favorites={favorites} insightSummary={insightSummary} />
+        )
+      } />
+      <Route path="/room" element={
+        !profile ? <Navigate to="/" replace /> : (
+          <div className="app-shell">
+            <div className="app-noise" />
 
       <header className="topbar">
         <BrandLockup
@@ -399,6 +408,7 @@ export default function App() {
             <span>{greetingName}</span>
             <small>{profile.genre} focus</small>
           </div>
+          <Link to="/summary" className="ghost-btn">Summary</Link>
           <button className="ghost-btn" onClick={handleLogout} type="button">
             Log out
           </button>
@@ -646,5 +656,8 @@ export default function App() {
         </aside>
       </main>
     </div>
+        )
+      } />
+    </Routes>
   );
 }

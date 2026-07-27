@@ -5,13 +5,13 @@ module.exports = function override(config) {
     fs: false,
     util: require.resolve("util/"),
     buffer: require.resolve("buffer/"),
-    process: require.resolve("process/browser")
+    process: require.resolve("process/browser.js")
   };
 
   config.plugins.push(
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],
-      process: "process/browser"
+      process: "process/browser.js"
     })
   );
 
