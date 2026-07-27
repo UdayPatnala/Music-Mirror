@@ -99,6 +99,40 @@ export default function SummaryPage({ profile, history, favorites, insightSummar
           </div>
         </motion.section>
 
+        
+        {/* FUTURE VISION SECTION */}
+        <motion.section 
+          className="panel"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          style={{ marginBottom: '40px', borderLeft: '4px solid #a855f7', background: 'rgba(168, 85, 247, 0.03)' }}
+        >
+          <motion.div variants={itemVariants}>
+            <p className="section-kicker" style={{ color: '#a855f7' }}>Long-Term Roadmap & Ecosystem Scope</p>
+            <h2 style={{ fontSize: '2rem', marginBottom: '16px', lineHeight: 1.2 }}>
+              Future Vision
+            </h2>
+            <div style={{ fontSize: '0.96rem', lineHeight: 1.8, color: 'var(--text-soft)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <p>
+                Music Mirror is designed to evolve far beyond a web-based music recommendation platform. Our long-term vision is to transform it into an intelligent emotional companion that seamlessly integrates into everyday environments through dedicated software and IoT-powered devices.
+              </p>
+              <p>
+                One of our primary goals is to bring Music Mirror into modern vehicles. As advanced driver-assistance systems (ADAS) and smart vehicles increasingly incorporate interior cameras, Music Mirror can leverage these existing sensors to analyze the facial expressions and emotional state of drivers and passengers entirely in real time.
+              </p>
+              <p>
+                By understanding the occupants' emotional context, the system can intelligently curate music that complements or gradually improves their mood. For example, it can play calming music during stressful traffic conditions, increase energy during long highway drives, recommend relaxing playlists after a tiring workday, or maintain an engaging atmosphere for passengers during road trips.
+              </p>
+              <p>
+                Future versions will extend beyond music recommendations by learning individual listening habits, emotional responses, and contextual preferences to create highly personalized in-car experiences. With strict privacy principles, facial analysis can be performed locally on the device whenever possible, ensuring that sensitive biometric data remains secure.
+              </p>
+              <p>
+                Beyond automotive applications, Music Mirror is envisioned as a cross-platform emotional intelligence system that can be deployed across smart homes, wearable devices, public interactive systems, and other IoT ecosystems. By combining real-time emotion recognition, contextual awareness, adaptive AI, and personalized learning, Music Mirror aims to redefine how people interact with music and intelligent environments—making every listening experience more natural, personalized, and emotionally aware.
+              </p>
+            </div>
+          </motion.div>
+        </motion.section>
+
         {/* TEAM MEMBERS SECTION */}
         <motion.section 
           initial="hidden"
