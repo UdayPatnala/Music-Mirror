@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import BrandLockup from "../components/BrandLockup";
 import CustomDropdown from "../components/CustomDropdown";
 import { Sparkles, BrainCircuit, AudioWaveform } from "lucide-react";
 
