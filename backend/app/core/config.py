@@ -1,11 +1,12 @@
 import os
-from pydantic_settings import BaseSettings
+from dataclasses import dataclass, field
 
-class Settings(BaseSettings):
+@dataclass
+class Settings:
     PROJECT_NAME: str = "Music Mirror API"
-    ALLOWED_ORIGINS: list[str] = os.getenv(
+    ALLOWED_ORIGINS: list[str] = field(default_factory=lambda: os.getenv(
         "ALLOWED_ORIGINS",
         "http://localhost:3000,http://127.0.0.1:3000,https://emotion-music-recommender-wruw.onrender.com,https://music-mirror-aos.vercel.app"
-    ).split(",")
+    ).split(","))
 
 settings = Settings()
