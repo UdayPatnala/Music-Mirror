@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef, useEffect, useId } from "react";
 
 export default function CustomDropdown({

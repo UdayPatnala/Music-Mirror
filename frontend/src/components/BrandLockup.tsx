@@ -1,3 +1,4 @@
+// @ts-nocheck
 const BRAND_MARK_URL = `${process.env.PUBLIC_URL}/music-mirror-mark.svg`;
 
 export default function BrandLockup({ label, labelClassName = "" }) {

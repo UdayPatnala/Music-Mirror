@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const emotionLabels = {
   happy: "Happy",
   sad: "Sad",

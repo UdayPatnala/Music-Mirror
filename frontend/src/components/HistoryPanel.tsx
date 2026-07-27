@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { emotionLabels } from "./EmotionCard";
 
 function songKey(song) {

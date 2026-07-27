@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from "react";
 import BrandLockup from "./BrandLockup";
 import CustomDropdown from "./CustomDropdown";

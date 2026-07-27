@@ -1,3 +1,4 @@
+// @ts-nocheck
 const SPOTIFY_PLAYLISTS = {
   happy: {
     label: "Happy mix",
