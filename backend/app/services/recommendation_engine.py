@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
 import math
-import random
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -91,12 +90,15 @@ class RecommendationService:
         elif "relax" in goal:
             target_profile["energy"] = max(0.0, target_profile["energy"] - 0.3)
 
-        candidates = [s for cat in SONGS.values() for s in cat]
+        # Collect candidate pool (first check specific mood bucket, fallback to all)
+        mood_bucket = SONGS.get(normalized, [])
+        all_songs = [s for cat in SONGS.values() for s in cat]
+        candidates = mood_bucket + all_songs
         
         # Deduplication
         seen, deduped = set(), []
         for c in candidates:
-            c_str = str(c.get("name",""))+str(c.get("artist",""))
+            c_str = str(c.get("title", c.get("name","")))+str(c.get("artist",""))
             if c_str not in seen:
                 seen.add(c_str)
                 deduped.append(c)
@@ -120,30 +122,36 @@ class RecommendationService:
             # 4. Diversity / Penalty Engine
             penalty = cls.calculate_diversity_penalty(song, artist_counts)
             if user_genre and user_genre.lower() != "any" and user_genre.lower() not in song_genre:
-                penalty += 0.3
+                penalty += 0.15 # Reduced harshness so non-genre songs aren't eliminated
                 
             # 5. Discovery / Novelty Score
             popularity = float(song.get("popularity", 50)) / 100.0
             novelty = (popularity - 0.5) * 0.05
             
             final_score = similarity + context + preference + novelty - penalty
-            final_score = max(0.0, min(1.0, final_score))
+            final_score = max(0.05, min(1.0, final_score))
             
-            if final_score > 0.4:
-                artist = song.get("artist", "Unknown")
-                artist_counts[artist] = artist_counts.get(artist, 0) + 1
+            artist = song.get("artist", "Unknown")
+            artist_counts[artist] = artist_counts.get(artist, 0) + 1
+            
+            s = song.copy()
+            s["recommendation_score"] = round(final_score, 3)
+            s["audio_features"] = feats
+            
+            # Explainable AI
+            reasons = [f"{int(similarity*100)}% acoustic match"]
+            if context > 0: reasons.append("fits context")
+            if preference > 0: reasons.append("matches your taste")
+            s["recommendation_reason"] = " · ".join(reasons)
+            
+            scored.append(s)
                 
-                s = song.copy()
-                s["recommendation_score"] = round(final_score, 3)
-                s["audio_features"] = feats
-                
-                # Explainable AI
-                reasons = [f"{int(similarity*100)}% acoustic match"]
-                if context > 0: reasons.append("fits context")
-                if preference > 0: reasons.append("matches your taste")
-                s["recommendation_reason"] = " · ".join(reasons)
-                
-                scored.append(s)
-                
+        # Sort descending by score
         scored.sort(key=lambda x: x["recommendation_score"], reverse=True)
-        return normalized, scored[:limit]
+        
+        # GUARANTEE: Never return empty list
+        final_results = scored[:limit]
+        if not final_results:
+            final_results = deduped[:limit]
+            
+        return normalized, final_results

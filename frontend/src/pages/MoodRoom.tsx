@@ -72,7 +72,7 @@ export default function MoodRoom() {
     scores: [],
     source: "camera",
   });
-  const [requestedEmotion, setRequestedEmotion] = useState("");
+  const [requestedEmotion, setRequestedEmotion] = useState("happy");
   const [playlistEmotion, setPlaylistEmotion] = useState("");
   const [songs, setSongs] = useState([]);
   const [selectedSong, setSelectedSong] = useState(null);
