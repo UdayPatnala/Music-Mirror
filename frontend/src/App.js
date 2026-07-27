@@ -149,6 +149,8 @@ export default function App() {
       try {
         const response = await axios.post(`${API_URL}/recommend`, {
           emotion: requestedEmotion,
+          genre: profile.genre,
+          goal: profile.goal,
         });
 
         if (ignore) return;

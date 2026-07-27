@@ -19,6 +19,7 @@ function getCameraErrorMessage(error) {
 
 export default function Camera({ onEmotion }) {
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const isDetectingRef = useRef(false);
   const [cameraState, setCameraState] = useState("loading");
@@ -83,7 +84,15 @@ export default function Camera({ onEmotion }) {
               )
               .withFaceExpressions();
 
-            if (result?.expressions) {
+            const canvas = canvasRef.current;
+            if (result && canvas && videoElement) {
+              const displaySize = { width: videoElement.videoWidth, height: videoElement.videoHeight };
+              faceapi.matchDimensions(canvas, displaySize);
+              const resizedDetections = faceapi.resizeResults(result, displaySize);
+              canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+              faceapi.draw.drawDetections(canvas, resizedDetections);
+              faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
               const scores = Object.entries(result.expressions)
                 .sort((left, right) => right[1] - left[1])
                 .slice(0, 3);
@@ -96,13 +105,15 @@ export default function Camera({ onEmotion }) {
                 scores,
                 source: "camera",
               });
+            } else if (canvas) {
+              canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
             }
           } catch (error) {
             console.error("Emotion detection error:", error);
           } finally {
             isDetectingRef.current = false;
           }
-        }, 2000);
+        }, 300);
       } catch (error) {
         if (isCancelled) return;
 
@@ -135,6 +146,11 @@ export default function Camera({ onEmotion }) {
           muted
           playsInline
           className="camera-video"
+          style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "12px" }}
+        />
+        <canvas
+          ref={canvasRef}
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", borderRadius: "12px", pointerEvents: "none" }}
         />
 
         {cameraState === "loading" && (
@@ -145,7 +161,6 @@ export default function Camera({ onEmotion }) {
           <div className="camera-loader camera-error">{cameraMessage}</div>
         )}
 
-        {cameraState === "ready" && <div className="scan-frame" />}
       </div>
 
       <p className={`camera-status ${cameraState === "error" ? "error" : ""}`}>
