@@ -127,52 +127,68 @@ def compute_feature_similarity(
 
 def recommend_songs(
     emotion: str,
-    genre_filter: str | None = None,
-    limit: int | None = None,
+    user_genre: str | None = None,
+    user_goal: str | None = None,
+    limit: int | None = 20,
     min_score: float | None = None,
-    weights: dict[str, float] | None = None,
 ) -> tuple[str, list[dict[str, Any]]]:
-    """Recommend songs matched to emotion state using feature-weighted audio matching."""
+    """Recommend songs using dynamic feature-weighted audio matching for BTech Project."""
     normalized_emotion = normalize_emotion(emotion)
-    target_profile = EMOTION_TARGETS.get(
+    base_profile = EMOTION_TARGETS.get(
         normalized_emotion, EMOTION_TARGETS["neutral"]
     )
+    
+    # Dynamic Goal-Based Audio Feature Shifting
+    target_profile = base_profile.copy()
+    weights = DEFAULT_WEIGHTS.copy()
+    
+    if user_goal:
+        goal = user_goal.lower()
+        if "lift" in goal or "energy" in goal:
+            target_profile["energy"] = min(1.0, target_profile["energy"] + 0.3)
+            target_profile["valence"] = min(1.0, target_profile["valence"] + 0.2)
+            weights["energy"] = 0.6  # Heavily weight energy
+        elif "calm" in goal or "relax" in goal:
+            target_profile["energy"] = max(0.0, target_profile["energy"] - 0.4)
+            target_profile["tempo"] = max(0.0, target_profile["tempo"] - 0.3)
+            weights["energy"] = 0.5
+            weights["tempo"] = 0.3
+        elif "focus" in goal:
+            target_profile["energy"] = 0.5
+            target_profile["valence"] = 0.5
+            weights["valence"] = 0.2
+            weights["energy"] = 0.6
 
     candidates: list[dict[str, Any]] = []
-    # Primary pool: songs matching the emotion tag in dataset
-    if normalized_emotion in SONGS:
-        candidates.extend(SONGS[normalized_emotion])
-
-    # Secondary pool: all other songs for feature-similarity scoring
     for cat, song_list in SONGS.items():
-        if cat != normalized_emotion:
-            for s in song_list:
-                if s not in candidates:
-                    candidates.append(s)
+        for s in song_list:
+            if s not in candidates:
+                candidates.append(s)
 
     if not candidates:
         return normalized_emotion, []
 
     scored_songs: list[dict[str, Any]] = []
     for song in candidates:
-        # Genre filtering
-        if genre_filter:
+        # Strict genre penalty instead of hard filter to ensure we always return songs
+        score_penalty = 0.0
+        if user_genre and user_genre.lower() != "any":
             song_genre = str(song.get("genre", "")).lower()
-            if genre_filter.lower() not in song_genre:
-                continue
+            if user_genre.lower() not in song_genre:
+                score_penalty = 0.3  # 30% penalty for wrong genre
 
         feats = extract_song_features(song)
-        score = compute_feature_similarity(feats, target_profile, weights)
+        base_score = compute_feature_similarity(feats, target_profile, weights)
+        final_score = max(0.0, base_score - score_penalty)
 
-        if min_score is not None and score < min_score:
+        if min_score is not None and final_score < min_score:
             continue
 
         enriched_song = song.copy()
-        enriched_song["recommendation_score"] = score
+        enriched_song["recommendation_score"] = final_score
         enriched_song["audio_features"] = feats
         scored_songs.append(enriched_song)
 
-    # Sort by feature-weighted recommendation score descending
     scored_songs.sort(key=lambda x: x["recommendation_score"], reverse=True)
 
     if limit is not None and limit > 0:

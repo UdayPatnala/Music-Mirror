@@ -25,6 +25,8 @@ app.add_middleware(
 class EmotionRequest(BaseModel):
     # Security Enhancement: Add input length limits to prevent DoS
     emotion: str = Field(..., max_length=50)
+    genre: str | None = Field("Pop", max_length=50)
+    goal: str | None = Field("Match my mood", max_length=100)
 
 
 @app.get("/health")
@@ -34,7 +36,7 @@ def health():
 
 @app.post("/recommend")
 def recommend(req: EmotionRequest):
-    normalized_emotion, songs = recommend_songs(req.emotion)
+    normalized_emotion, songs = recommend_songs(req.emotion, req.genre, req.goal)
     return {
         "emotion": req.emotion,
         "normalized_emotion": normalized_emotion,
