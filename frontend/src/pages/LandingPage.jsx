@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import BrandLockup from "../components/BrandLockup";
 import CustomDropdown from "../components/CustomDropdown";
+import { Sparkles, BrainCircuit, AudioWaveform } from "lucide-react";
 
 const genreOptions = ["Pop", "Acoustic", "Rock", "Lo-fi", "Indie"];
 const goalOptions = [
@@ -28,132 +29,110 @@ export default function LandingPage({ onLogin }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
     const trimmedName = form.name.trim();
     const trimmedEmail = form.email.trim();
-
     if (!trimmedName || !trimmedEmail) return;
-
-    onLogin({
-      ...form,
-      name: trimmedName,
-      email: trimmedEmail,
-    });
+    onLogin({ ...form, name: trimmedName, email: trimmedEmail });
     navigate("/room");
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { staggerChildren: 0.15 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } }
-  };
-
   return (
-    <main className="auth-shell">
-      <section className="auth-hero">
+    <main className="ai-landing-shell">
+      {/* Animated AI Background */}
+      <div className="ai-mesh-bg">
         <motion.div 
-          className="auth-copy"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div variants={itemVariants}>
-            <BrandLockup
-              label="Emotion-responsive player"
-              labelClassName="eyebrow"
-            />
-          </motion.div>
-          
-          <motion.p className="auth-lead" variants={itemVariants}>
-            A polished listening room that reads facial mood, starts music
-            inside the interface, and remembers what felt right.
-          </motion.p>
+          className="mesh-blob blob-1"
+          animate={{
+            x: [0, 100, -50, 0],
+            y: [0, -100, 50, 0],
+            scale: [1, 1.2, 0.9, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div 
+          className="mesh-blob blob-2"
+          animate={{
+            x: [0, -120, 80, 0],
+            y: [0, 80, -100, 0],
+            scale: [1, 1.1, 1.3, 1],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="mesh-glass-overlay" />
+      </div>
 
-          <motion.div className="auth-points" variants={containerVariants}>
-            <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
-              <span className="meta-label">Live playback</span>
-              <strong>Embedded player inside the app</strong>
-            </motion.div>
-            <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
-              <span className="meta-label">Mood memory</span>
-              <strong>Favorites and recent emotional reads</strong>
-            </motion.div>
-            <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
-              <span className="meta-label">Manual override</span>
-              <strong>Choose a mood when the camera is uncertain</strong>
-            </motion.div>
-          </motion.div>
+      <section className="ai-landing-content">
+        <motion.div 
+          className="ai-hero-copy"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <div className="ai-badge">
+            <Sparkles size={16} />
+            <span>AI Emotion Engine Powered</span>
+          </div>
+          <h1 className="ai-hero-title">
+            Music that <br/>
+            <span className="text-gradient">reads your mind.</span>
+          </h1>
+          <p className="ai-hero-lead">
+            Experience the next generation of musical curation. Our neural models analyze your micro-expressions in real-time to generate the perfect soundtrack for your exact cognitive state.
+          </p>
+
+          <div className="ai-features-grid">
+            <div className="ai-feature">
+              <div className="feature-icon"><BrainCircuit size={24} /></div>
+              <div>
+                <strong>Deep Learning</strong>
+                <p>Real-time facial analysis</p>
+              </div>
+            </div>
+            <div className="ai-feature">
+              <div className="feature-icon"><AudioWaveform size={24} /></div>
+              <div>
+                <strong>Dynamic Audio</strong>
+                <p>Goal-oriented synthesis</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <motion.form 
-          className="auth-form" 
+          className="ai-glass-form"
           onSubmit={handleSubmit}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 100 }}
         >
-          <p className="section-kicker">Sign in</p>
-          <h2>Create your listening profile</h2>
+          <div className="form-header">
+            <h3>Initialize Profile</h3>
+            <p>Create your unique neural listening signature.</p>
+          </div>
 
-          <p className="auth-form-copy">
-            This lightweight profile stays in your browser so you can return to
-            the same mood studio.
-          </p>
+          <div className="form-group">
+            <label>Subject Name</label>
+            <input name="name" onChange={handleChange} placeholder="e.g. Alex" type="text" value={form.name} />
+          </div>
 
-          <label>
-            Display name
-            <input
-              name="name"
-              onChange={handleChange}
-              placeholder="Your name"
-              type="text"
-              value={form.name}
-            />
-          </label>
+          <div className="form-group">
+            <label>Authentication Email</label>
+            <input name="email" onChange={handleChange} placeholder="alex@domain.com" type="email" value={form.email} />
+          </div>
 
-          <label>
-            Email
-            <input
-              name="email"
-              onChange={handleChange}
-              placeholder="you@example.com"
-              type="email"
-              value={form.email}
-            />
-          </label>
-
-          <CustomDropdown
-            label="Preferred genre"
-            options={genreOptions}
-            value={form.genre}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, genre: val }))
-            }
-          />
-
-          <CustomDropdown
-            label="Mood goal"
-            options={goalOptions}
-            value={form.goal}
-            onChange={(val) =>
-              setForm((prev) => ({ ...prev, goal: val }))
-            }
-          />
+          <div className="form-row">
+            <CustomDropdown label="Base Genre" options={genreOptions} value={form.genre} onChange={(val) => setForm((prev) => ({ ...prev, genre: val }))} />
+            <CustomDropdown label="Cognitive Goal" options={goalOptions} value={form.goal} onChange={(val) => setForm((prev) => ({ ...prev, goal: val }))} />
+          </div>
 
           <motion.button 
-            className="primary-btn auth-submit" 
+            className="ai-primary-btn" 
             type="submit"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(0, 229, 255, 0.5)" }}
+            whileTap={{ scale: 0.97 }}
           >
-            Enter the music room
+            <span>Activate Session</span>
+            <Sparkles size={18} />
           </motion.button>
         </motion.form>
       </section>
