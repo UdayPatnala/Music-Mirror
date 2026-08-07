@@ -168,7 +168,8 @@ export default function MoodRoom() {
         </nav>
 
         <div className="room-nav-end">
-          <Link to="/summary" className="room-nav-link">Sessions</Link>
+          <Link to="/profile" className="room-nav-link">👤 Profile</Link>
+          <Link to="/summary" className="room-nav-link">📊 Summary</Link>
           <button className="room-nav-exit" onClick={clearProfile} title="Sign out">→</button>
         </div>
       </header>

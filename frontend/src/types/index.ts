@@ -4,6 +4,11 @@ export interface UserProfile {
   genre: string;
   goal: string;
   languages?: string[];
+  avatarUrl?: string;
+  favoriteArtists?: string[];
+  mostPlayedSongs?: Song[];
+  savedSongs?: Song[];
+  moodHistory?: { emotion: string; timestamp: string }[];
 }
 
 export interface Song {

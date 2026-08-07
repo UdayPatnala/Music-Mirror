@@ -7,6 +7,7 @@ import { useAppStore } from './store/useAppStore';
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const MoodRoom = lazy(() => import('./pages/MoodRoom'));
 const SummaryPage = lazy(() => import('./pages/SummaryPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,16 @@ export default function App() {
                             <Route path="/room" element={
                                 <ProtectedRoute>
                                     <MoodRoom />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/profile" element={
+                                <ProtectedRoute>
+                                    <ProfilePage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/auth" element={
+                                <ProtectedRoute>
+                                    <ProfilePage />
                                 </ProtectedRoute>
                             } />
                             <Route path="/summary" element={
