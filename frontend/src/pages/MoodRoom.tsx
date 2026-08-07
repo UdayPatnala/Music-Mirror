@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "../api/client";
@@ -66,14 +66,16 @@ export default function MoodRoom() {
   const batchRef = useRef<any[]>([]);
   const BATCH = 3;
 
-  const DEFAULT_GUEST_PROFILE = {
+  // Stable profile object — must not re-create on every render or the
+  // useEffect([mood, activeProfile]) dependency fires an infinite fetch loop.
+  const activeProfile = useMemo(() => profile ?? {
     name: "Guest Listener",
     email: "guest@musicmirror.ai",
     genre: "Pop",
     goal: "Match my mood",
     languages: ["Telugu", "English", "Tamil", "Hindi"],
-  };
-  const activeProfile = profile || DEFAULT_GUEST_PROFILE;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.name, profile?.genre, profile?.goal, JSON.stringify(profile?.languages)]);
 
   /* fetch recommendations */
   useEffect(() => {
@@ -92,8 +94,10 @@ export default function MoodRoom() {
         if (dead) return;
         setWaking(false);
         const list: Song[] = Array.isArray(res.data.songs) ? res.data.songs : [];
-        setSongs(list.length ? list : FALLBACK);
-        setCurrent(c => list.some(s => key(s) === key(c!)) ? c : (list[0] || FALLBACK[0]));
+        const resolved = list.length ? list : FALLBACK;
+        setSongs(resolved);
+        // Guard: c may be null on first load — don't call key(null)
+        setCurrent(c => c && resolved.some(s => key(s) === key(c)) ? c : resolved[0]);
         setStatus("done");
         if (list[0]) sendTelemetry("recommendation_success", list[0].title, mood);
       } catch {

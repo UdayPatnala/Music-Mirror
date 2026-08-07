@@ -229,7 +229,7 @@ export default function NowPlaying({
 
       <div
         className={`player-frame ${playerMode === "spotify" ? "spotify" : ""} ${isDirectAudio ? "direct-audio" : ""}`}
-        key={isDirectAudio ? song.preview_url : playerMode === "spotify" ? spotifyPlaylist.url : song.youtubeId}
+        key={isDirectAudio ? song.preview_url : playerMode === "spotify" ? spotifyPlaylist.url : getYouTubeId(song)}
       >
         {isDirectAudio ? (
           <div className="direct-audio-player-wrapper glass-card" style={{ padding: '1.25rem', borderRadius: '16px', background: 'rgba(15,15,25,0.75)', border: '1px solid rgba(255,255,255,0.1)' }}>
@@ -289,8 +289,8 @@ export default function NowPlaying({
           <iframe
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            src={embedUrl(song.youtubeId)}
-            title={`${song.title} by ${song.artist}`}
+            src={embedUrl(getYouTubeId(song))}
+            title={`${song.title || song.name} by ${song.artist}`}
           />
         )}
       </div>
@@ -298,7 +298,7 @@ export default function NowPlaying({
       <div className="player-footer">
         <div
           className="player-art"
-          style={{ backgroundImage: `url(${thumbnailUrl(song.youtubeId)})` }}
+          style={{ backgroundImage: `url(${thumbnailUrl(getYouTubeId(song))})` }}
         />
         <div>
           <p className="player-copy">
