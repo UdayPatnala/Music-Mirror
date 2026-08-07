@@ -1,11 +1,27 @@
-// @ts-nocheck
 import { emotionLabels } from "./EmotionCard";
+import type { Song } from "../types";
 
-function songKey(song) {
+export interface HistoryItem {
+  id: string;
+  emotion: string;
+  playlistEmotion: string;
+  title: string;
+  artist: string;
+  timestamp: string;
+}
+
+interface HistoryPanelProps {
+  favorites?: Song[];
+  history?: HistoryItem[];
+  onPlaySong?: (song: Song) => void;
+  onToggleFavorite?: (song: Song) => void;
+}
+
+function songKey(song: Song): string {
   return `${song.title || song.name}::${song.artist}`;
 }
 
-function formatTime(isoValue) {
+function formatTime(isoValue: string): string {
   return new Date(isoValue).toLocaleString([], {
     month: "short",
     day: "numeric",
@@ -19,7 +35,7 @@ export default function HistoryPanel({
   history = [],
   onPlaySong = () => {},
   onToggleFavorite = () => {},
-}) {
+}: HistoryPanelProps) {
   const safeHistory = history || [];
   const safeFavorites = favorites || [];
 

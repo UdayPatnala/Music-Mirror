@@ -1,7 +1,7 @@
-// @ts-nocheck
-import { useState } from "react";
+import React, { useState } from "react";
 import BrandLockup from "./BrandLockup";
 import CustomDropdown from "./CustomDropdown";
+import type { UserProfile } from "../types";
 
 const genreOptions = ["Pop", "Acoustic", "Rock", "Lo-fi", "Indie"];
 const goalOptions = [
@@ -11,20 +11,24 @@ const goalOptions = [
   "Calm things down",
 ];
 
-export default function AuthScreen({ onStart }) {
-  const [form, setForm] = useState({
+interface AuthScreenProps {
+  onStart: (profile: UserProfile) => void;
+}
+
+export default function AuthScreen({ onStart }: AuthScreenProps) {
+  const [form, setForm] = useState<UserProfile>({
     name: "",
     email: "",
     genre: "Pop",
     goal: "Match my mood",
   });
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     const trimmedName = form.name.trim();

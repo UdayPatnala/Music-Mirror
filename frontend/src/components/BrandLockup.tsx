@@ -1,8 +1,11 @@
-// @ts-nocheck
-import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function BrandLockup({ label = "Music Mirror", labelClassName = "" }) {
+interface BrandLockupProps {
+  label?: string;
+  labelClassName?: string;
+}
+
+export default function BrandLockup({ label = "Music Mirror", labelClassName = "" }: BrandLockupProps) {
   return (
     <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'inherit' }}>
       <img 

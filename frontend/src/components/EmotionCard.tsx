@@ -1,5 +1,4 @@
-// @ts-nocheck
-export const emotionLabels = {
+export const emotionLabels: Record<string, string> = {
   happy: "Happy",
   sad: "Sad",
   angry: "Angry",
@@ -10,11 +9,23 @@ export const emotionLabels = {
   disgusted: "Disgusted",
 };
 
-function formatPercent(value) {
+function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
-export default function EmotionCard({ detection, playlistEmotion }) {
+interface EmotionDetection {
+  emotion: string;
+  confidence: number;
+  scores?: [string, number][];
+  source?: string;
+}
+
+interface EmotionCardProps {
+  detection: EmotionDetection;
+  playlistEmotion?: string;
+}
+
+export default function EmotionCard({ detection, playlistEmotion }: EmotionCardProps) {
   const detectedLabel = detection.emotion
     ? emotionLabels[detection.emotion] || detection.emotion
     : "Waiting";
@@ -59,7 +70,7 @@ export default function EmotionCard({ detection, playlistEmotion }) {
         </div>
       </div>
 
-      {detection.scores?.length > 0 && (
+      {detection.scores && detection.scores.length > 0 && (
         <div className="score-stack">
           {detection.scores.map(([emotion, score]) => (
             <div className="score-row" key={emotion}>

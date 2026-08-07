@@ -1,19 +1,25 @@
-// @ts-nocheck
 import { useState, useRef, useEffect, useId } from "react";
+
+interface CustomDropdownProps {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+}
 
 export default function CustomDropdown({
   label,
   options,
   value,
   onChange,
-}) {
+}: CustomDropdownProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef();
+  const ref = useRef<HTMLDivElement>(null);
   const labelId = useId();
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };

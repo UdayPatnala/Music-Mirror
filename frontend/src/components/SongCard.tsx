@@ -1,6 +1,14 @@
-// @ts-nocheck
 import React, { useRef, useState, useEffect } from "react";
 import { Play, Pause, Heart, ExternalLink } from "lucide-react";
+import type { Song } from "../types";
+
+interface SongCardProps {
+  isActive: boolean;
+  isFavorite: boolean;
+  onPlay: (song: Song) => void;
+  onToggleFavorite: (song: Song) => void;
+  song: Song;
+}
 
 export default function SongCard({
   isActive,
@@ -8,9 +16,9 @@ export default function SongCard({
   onPlay,
   onToggleFavorite,
   song,
-}) {
+}: SongCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (isActive && isPlaying && audioRef.current) {
@@ -29,7 +37,7 @@ export default function SongCard({
     }
   };
 
-  const handleFavoriteClick = (e) => {
+  const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleFavorite(song);
   };
@@ -37,7 +45,7 @@ export default function SongCard({
   const albumArt =
     song.album_art ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      song.title || "Track"
+      song.title || song.name || "Track"
     )}&background=random&color=fff&size=128`;
 
   return (

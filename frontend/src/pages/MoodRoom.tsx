@@ -1,9 +1,9 @@
-// @ts-nocheck
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient } from "../api/client";
 import { useAppStore } from "../store/useAppStore";
 import { sendTelemetry } from "../api/telemetry";
+import type { Song } from "../types";
 
 import BrandLockup from "../components/BrandLockup";
 import Camera from "../components/Camera";
@@ -11,7 +11,6 @@ import EmotionCard, { emotionLabels } from "../components/EmotionCard";
 import HistoryPanel from "../components/HistoryPanel";
 import NowPlaying from "../components/NowPlaying";
 import SongCard from "../components/SongCard";
-import GitRepoExplorer from "../components/GitRepoExplorer";
 import LocalFileExplorer from "../components/LocalFileExplorer";
 
 const CAMERA_BATCH_SIZE = 3;
@@ -24,37 +23,23 @@ const manualMoodOptions = [
   "surprise",
 ];
 
-function songKey(song) {
+function songKey(song: any): string {
   return `${song.title || song.name}::${song.artist}`;
 }
 
-function formatTimestamp(isoValue) {
-  if (!isoValue) return "No scans yet";
-  return new Date(isoValue).toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function resolveStableEmotion(batch) {
-  const counts = {};
+function resolveStableEmotion(batch: any[]): string {
+  const counts: Record<string, number> = {};
   batch.forEach(({ emotion }) => {
     counts[emotion] = (counts[emotion] || 0) + 1;
   });
-  const topEntry = Object.entries(counts).sort((left, right) => right[1] - left[1])[0];
+  const topEntry = Object.entries(counts).sort((left, right) => (right[1] as number) - (left[1] as number))[0];
   if (!topEntry || topEntry[1] === 1) {
     return batch[batch.length - 1].emotion;
   }
   return topEntry[0];
 }
 
-function describeBatch(batch) {
-  return batch
-    .map(({ emotion }) => emotionLabels[emotion] || emotion)
-    .join(", ");
-}
-
-function scrollToSection(sectionId) {
+function scrollToSection(sectionId: string): void {
   const section = document.getElementById(sectionId);
   if (section) {
     section.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -67,26 +52,26 @@ export default function MoodRoom() {
 
   const [activeNavTab, setActiveNavTab] = useState("mood-room"); // 'mood-room' | 'git-explorer' | 'local-explorer'
 
-  const [favorites, setFavorites] = useState([]);
-  const [history, setHistory] = useState([]);
+  const [favorites, setFavorites] = useState<Song[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
 
-  const [detection, setDetection] = useState({
+  const [detection, setDetection] = useState<any>({
     emotion: "",
     confidence: 0,
     scores: [],
     source: "camera",
   });
-  const [requestedEmotion, setRequestedEmotion] = useState("happy");
-  const [playlistEmotion, setPlaylistEmotion] = useState("");
-  const [songs, setSongs] = useState([]);
-  const [selectedSong, setSelectedSong] = useState(null);
-  const [playerMode, setPlayerMode] = useState("youtube");
-  const [requestState, setRequestState] = useState("idle");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [cameraBatch, setCameraBatch] = useState([]);
-  const [pendingMoodChange, setPendingMoodChange] = useState(null);
+  const [requestedEmotion, setRequestedEmotion] = useState<string>("happy");
+  const [playlistEmotion, setPlaylistEmotion] = useState<string>("");
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const [playerMode, setPlayerMode] = useState<string>("youtube");
+  const [requestState, setRequestState] = useState<string>("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [cameraBatch, setCameraBatch] = useState<any[]>([]);
+  const [pendingMoodChange, setPendingMoodChange] = useState<string | null>(null);
 
-  const cameraBatchRef = useRef([]);
+  const cameraBatchRef = useRef<any[]>([]);
 
   useEffect(() => {
     if (!profile || !requestedEmotion) return;
@@ -118,7 +103,7 @@ export default function MoodRoom() {
         setSelectedSong((currentSong) => {
           if (
             currentSong &&
-            nextSongs.some((song) => songKey(song) === songKey(currentSong))
+            nextSongs.some((song: Song) => songKey(song) === songKey(currentSong))
           ) {
             return currentSong;
           }
@@ -176,7 +161,7 @@ export default function MoodRoom() {
     };
   }, [detection.source, profile, requestedEmotion]);
 
-  const handleExternalPlayTrack = (track) => {
+  const handleExternalPlayTrack = (track: any) => {
     setSelectedSong({
       title: track.name,
       artist: track.artist,
@@ -198,48 +183,34 @@ export default function MoodRoom() {
   };
 
   const handleDetection = useCallback(
-    (nextDetection) => {
+    (nextDetection: any) => {
       setDetection(nextDetection);
-      if (nextDetection.confidence < 0.5) return;
-      const nextBatch = [...cameraBatchRef.current, nextDetection].slice(0, CAMERA_BATCH_SIZE);
+      if (nextDetection.source === "manual") return;
+
+      const nextBatch = [...cameraBatchRef.current, nextDetection];
       cameraBatchRef.current = nextBatch;
       setCameraBatch(nextBatch);
-      if (nextBatch.length < CAMERA_BATCH_SIZE) return;
 
-      const stableEmotion = resolveStableEmotion(nextBatch);
-      const finalRead = [...nextBatch].reverse().find((item) => item.emotion === stableEmotion) || nextBatch[nextBatch.length - 1];
+      if (nextBatch.length >= CAMERA_BATCH_SIZE) {
+        const stableEmotion = resolveStableEmotion(nextBatch);
+        cameraBatchRef.current = [];
+        setCameraBatch([]);
 
-      cameraBatchRef.current = [];
-      setCameraBatch([]);
-
-      setDetection({
-        ...finalRead,
-        emotion: stableEmotion,
-        source: "camera",
-      });
-
-      if (!requestedEmotion || !selectedSong || requestState !== "success") {
-        setRequestedEmotion(stableEmotion);
-        setPendingMoodChange(null);
-        return;
+        if (stableEmotion && stableEmotion !== requestedEmotion) {
+          setPendingMoodChange(stableEmotion);
+        }
       }
-
-      if (stableEmotion === requestedEmotion) {
-        setPendingMoodChange(null);
-        return;
-      }
-
-      setPendingMoodChange({
-        emotion: stableEmotion,
-        previousEmotion: requestedEmotion,
-        samples: nextBatch,
-        mode: new Set(nextBatch.map((item) => item.emotion)).size === CAMERA_BATCH_SIZE ? "last-read" : "majority",
-      });
     },
-    [requestedEmotion, selectedSong, requestState]
+    [requestedEmotion]
   );
 
-  const handleManualMood = (emotion) => {
+  const handleApplyPendingMood = () => {
+    if (!pendingMoodChange) return;
+    setRequestedEmotion(pendingMoodChange);
+    setPendingMoodChange(null);
+  };
+
+  const handleManualMood = (emotion: string) => {
     setDetection({
       emotion,
       confidence: 1,
@@ -252,34 +223,34 @@ export default function MoodRoom() {
     setRequestedEmotion(emotion);
   };
 
-  const handleToggleFavorite = useCallback((song) => {
+  const handleToggleFavorite = useCallback((song: Song) => {
     const key = songKey(song);
     setFavorites((currentFavorites) => {
       if (currentFavorites.some((item) => songKey(item) === key)) {
-        sendTelemetry("unfavorite", song.title || song.name);
+        sendTelemetry("unfavorite", song.title || song.name || "Track");
         return currentFavorites.filter((item) => songKey(item) !== key);
       }
-      sendTelemetry("favorite", song.title || song.name);
+      sendTelemetry("favorite", song.title || song.name || "Track");
       return [song, ...currentFavorites].slice(0, 12);
     });
   }, []);
 
   const insightSummary = useMemo(() => {
-    const counts = history.reduce((result, item) => {
+    const counts = history.reduce((result: Record<string, number>, item: any) => {
       result[item.playlistEmotion] = (result[item.playlistEmotion] || 0) + 1;
       return result;
     }, {});
 
-    const topMoodEntry = Object.entries(counts).sort((left, right) => right[1] - left[1])[0] || [];
+    const topMoodEntry = Object.entries(counts).sort((left, right) => (right[1] as number) - (left[1] as number))[0] || [];
 
     return {
-      topMood: topMoodEntry[0] || "neutral",
+      topMood: (topMoodEntry[0] as string) || "neutral",
       totalScans: history.length,
       favorites: favorites.length,
     };
   }, [favorites.length, history]);
 
-  const handleMoodJourney = async (targetEmotion) => {
+  const handleMoodJourney = async (targetEmotion: string) => {
     setRequestState("loading");
     setErrorMessage("");
     try {
@@ -399,6 +370,19 @@ export default function MoodRoom() {
                   Use webcam for live emotion detection or pick a mood manually.
                 </p>
               </div>
+
+              {errorMessage && (
+                <div className="alert-box error" style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", padding: "10px 14px", borderRadius: "10px", color: "#fca5a5", fontSize: "0.85rem", marginBottom: "12px" }}>
+                  ⚠️ {errorMessage}
+                </div>
+              )}
+
+              {pendingMoodChange && (
+                <div className="alert-box mood-alert" style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)", padding: "10px 14px", borderRadius: "10px", color: "#e9d5ff", fontSize: "0.85rem", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Detected new mood expression: <strong>{emotionLabels[pendingMoodChange] || pendingMoodChange}</strong> (Sampled {cameraBatch.length} frames)</span>
+                  <button onClick={handleApplyPendingMood} className="pill-button primary" style={{ padding: "4px 12px", fontSize: "0.75rem", cursor: "pointer" }}>Switch Mood</button>
+                </div>
+              )}
 
               <Camera onEmotion={handleDetection} />
 

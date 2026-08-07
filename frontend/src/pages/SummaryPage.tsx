@@ -1,11 +1,18 @@
-// @ts-nocheck
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import BrandLockup from "../components/BrandLockup";
+import { Users, Code, Sparkles, Brain, Database } from "lucide-react";
 import { emotionLabels } from "../components/EmotionCard";
-import { Users, Code, Brain, Database, Sparkles, Zap, ShieldCheck, Layers, Cpu, Activity } from "lucide-react";
+import type { UserProfile, Song } from "../types";
 
-export default function SummaryPage({ profile, history, favorites, insightSummary }) {
+interface SummaryPageProps {
+  profile?: UserProfile | null;
+  history?: any[];
+  favorites?: Song[];
+  insightSummary?: any;
+}
+
+export default function SummaryPage({ profile, history = [], favorites = [], insightSummary = {} }: SummaryPageProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -200,6 +207,10 @@ export default function SummaryPage({ profile, history, favorites, insightSummar
                 <div>
                   <span className="meta-label">Top Mood</span>
                   <strong style={{ fontSize: '1.8rem' }}>{insightSummary?.topMood ? (emotionLabels[insightSummary.topMood] || "Neutral") : "Neutral"}</strong>
+                </div>
+                <div>
+                  <span className="meta-label">Saved Favorites</span>
+                  <strong style={{ fontSize: '1.8rem' }}>{favorites.length}</strong>
                 </div>
               </div>
             </section>

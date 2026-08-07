@@ -1,24 +1,33 @@
-// @ts-nocheck
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
-import { Camera as CameraIcon, CameraOff, Sun, Moon, AlertTriangle } from "lucide-react";
+import { Camera as CameraIcon, CameraOff, Sun, Moon } from "lucide-react";
 
-export default function Camera({ onEmotion }) {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const streamRef = useRef(null);
+export interface DetectionResult {
+  emotion: string;
+  confidence: number;
+  scores: [string, number][];
+  source: string;
+}
+
+interface CameraProps {
+  onEmotion: (result: DetectionResult) => void;
+}
+
+export default function Camera({ onEmotion }: CameraProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const isDetectingRef = useRef(false);
   
-  const [cameraState, setCameraState] = useState("loading");
+  const [cameraState, setCameraState] = useState<"loading" | "requesting" | "active" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
-  const [lightingCondition, setLightingCondition] = useState("good"); // "good" | "low" | "high"
+  const [lightingCondition, setLightingCondition] = useState<"good" | "low" | "high">("good");
   
-  // Advanced Temporal Emotion Fusion State
-  const emotionHistory = useRef([]);
-  const lastKnownEmotion = useRef(null);
-  const faceLostTimer = useRef(null);
+  const emotionHistory = useRef<any[]>([]);
+  const lastKnownEmotion = useRef<string | null>(null);
+  const faceLostTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const analyzeLighting = (videoElement) => {
+  const analyzeLighting = (videoElement: HTMLVideoElement) => {
     if (!canvasRef.current) {
        canvasRef.current = document.createElement("canvas");
        canvasRef.current.width = 160;
@@ -31,7 +40,7 @@ export default function Camera({ onEmotion }) {
     ctx.drawImage(videoElement, 0, 0, 160, 120);
     const imageData = ctx.getImageData(0, 0, 160, 120);
     const data = imageData.data;
-    let r, g, b, avg;
+    let r: number, g: number, b: number, avg: number;
     let colorSum = 0;
     
     for (let x = 0, len = data.length; x < len; x += 4) {
@@ -59,123 +68,104 @@ export default function Camera({ onEmotion }) {
         video: {
           width: { ideal: 640 },
           height: { ideal: 480 },
-          facingMode: "user",
-        },
-        audio: false,
+          facingMode: "user"
+        }
       });
-
+      
+      streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setCameraState("active");
       }
-    } catch (err) {
+      setCameraState("active");
+    } catch (err: any) {
       setCameraState("error");
-      setErrorMessage(
-        err.name === "NotAllowedError"
-          ? "Camera access denied. Please grant permission."
-          : "Could not access the camera. Check your device."
-      );
+      setErrorMessage("Could not access camera. Please allow camera permissions.");
     }
   };
 
-  const stopCamera = useCallback(() => {
-    isDetectingRef.current = false;
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
+  const loadModels = useCallback(async () => {
+    try {
+      setCameraState("loading");
+      const MODEL_URL = "/models";
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
+      ]);
+      await startCamera();
+    } catch (err) {
+      setCameraState("error");
+      setErrorMessage("Failed to load face detection AI models.");
     }
-    setCameraState("inactive");
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
-    
-    const loadModelsAndStart = async () => {
-      try {
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri("/models"),
-          faceapi.nets.faceExpressionNet.loadFromUri("/models"),
-        ]);
-        if (isMounted) startCamera();
-      } catch (err) {
-        if (isMounted) {
-          setCameraState("error");
-          setErrorMessage("Failed to load AI models. Check your network.");
-        }
-      }
-    };
-    
-    loadModelsAndStart();
-
+    loadModels();
     return () => {
-      isMounted = false;
-      stopCamera();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      isDetectingRef.current = false;
+      if (faceLostTimer.current) clearTimeout(faceLostTimer.current);
     };
-  }, [stopCamera]);
+  }, [loadModels]);
 
   const handleVideoPlay = () => {
     if (isDetectingRef.current) return;
     isDetectingRef.current = true;
 
     const detectLoop = async () => {
-      if (!isDetectingRef.current || !videoRef.current) return;
+      if (!videoRef.current || !isDetectingRef.current) return;
 
-      try {
+      if (videoRef.current.readyState === 4) {
         analyzeLighting(videoRef.current);
+        
+        try {
+          const detections = await faceapi
+            .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+            .withFaceExpressions();
 
-        const detection = await faceapi
-          .detectSingleFace(
-            videoRef.current,
-            new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.4 })
-          )
-          .withFaceExpressions();
-
-        if (detection) {
-          if (faceLostTimer.current) {
-             clearTimeout(faceLostTimer.current);
-             faceLostTimer.current = null;
-          }
-          
-          const expressions = detection.expressions;
-          const sorted = Object.entries(expressions).sort((a, b) => b[1] - a[1]);
-          const primaryEmotion = sorted[0][0];
-          const primaryConfidence = sorted[0][1];
-
-          // Confidence-Weighted Temporal Fusion (sliding window of 5 frames)
-          emotionHistory.current.push({ emotion: primaryEmotion, confidence: primaryConfidence });
-          if (emotionHistory.current.length > 5) {
-              emotionHistory.current.shift();
-          }
-          
-          // Compute fused emotion
-          const weightMap = {};
-          emotionHistory.current.forEach(item => {
-             weightMap[item.emotion] = (weightMap[item.emotion] || 0) + item.confidence;
-          });
-          
-          const fusedSorted = Object.entries(weightMap).sort((a, b) => b[1] - a[1]);
-          const fusedEmotion = fusedSorted[0][0];
-          
-          lastKnownEmotion.current = {
-              emotion: fusedEmotion,
-              confidence: primaryConfidence,
-              scores: sorted,
-              source: "camera",
-          };
-
-          onEmotion(lastKnownEmotion.current);
-        } else {
-            // Face Lost Recovery Protocol
-            if (!faceLostTimer.current && lastKnownEmotion.current) {
-                faceLostTimer.current = setTimeout(() => {
-                    lastKnownEmotion.current = null;
-                    emotionHistory.current = [];
-                }, 3000);
+          if (detections && detections.expressions) {
+            if (faceLostTimer.current) {
+              clearTimeout(faceLostTimer.current);
+              faceLostTimer.current = null;
             }
+
+            emotionHistory.current.push(detections.expressions);
+            if (emotionHistory.current.length > 5) {
+              emotionHistory.current.shift();
+            }
+
+            const averagedScores: Record<string, number> = {};
+            const keys: string[] = ["happy", "sad", "angry", "neutral", "surprised", "fearful", "disgusted"];
+
+            keys.forEach((key) => {
+              const sum = emotionHistory.current.reduce((acc, curr) => acc + (curr[key] || 0), 0);
+              averagedScores[key] = sum / emotionHistory.current.length;
+            });
+
+            const sorted = Object.entries(averagedScores).sort((a, b) => b[1] - a[1]);
+            const topEmotion = sorted[0][0];
+            const confidence = sorted[0][1];
+
+            lastKnownEmotion.current = topEmotion;
+
+            onEmotion({
+              emotion: topEmotion,
+              confidence,
+              scores: sorted as [string, number][],
+              source: "camera"
+            });
+          } else {
+            if (lastKnownEmotion.current && !faceLostTimer.current) {
+              faceLostTimer.current = setTimeout(() => {
+                lastKnownEmotion.current = null;
+                emotionHistory.current = [];
+              }, 3000);
+            }
+          }
+        } catch (e) {
+          // Detection frame error tolerance
         }
-      } catch (error) {
-         // silent ignore for adaptive sampling
       }
 
       setTimeout(detectLoop, 300);

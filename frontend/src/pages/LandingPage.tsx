@@ -1,10 +1,10 @@
-// @ts-nocheck
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import CustomDropdown from "../components/CustomDropdown";
 import { Sparkles, BrainCircuit, AudioWaveform } from "lucide-react";
+import type { UserProfile } from "../types";
 
 const genreOptions = ["Pop", "Acoustic", "Rock", "Lo-fi", "Indie"];
 const goalOptions = [
@@ -18,136 +18,109 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const setProfile = useAppStore((state) => state.setProfile);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<UserProfile>({
     name: "Listener",
     email: "user@musicmirror.ai",
     genre: "Pop",
     goal: "Match my mood",
   });
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const trimmedName = form.name.trim() || "Listener";
     const trimmedEmail = form.email.trim() || "user@musicmirror.ai";
 
-    const userProfile = {
+    const userProfile: UserProfile = {
       ...form,
       name: trimmedName,
       email: trimmedEmail,
     };
 
-    // Save profile into Zustand persistent store
     setProfile(userProfile);
-
-    // Immediately navigate to the room
     navigate("/room");
   };
 
   return (
-    <main className="ai-landing-shell">
-      {/* Animated AI Background */}
-      <div className="ai-mesh-bg">
-        <motion.div 
-          className="mesh-blob blob-1"
-          animate={{
-            x: [0, 100, -50, 0],
-            y: [0, -100, 50, 0],
-            scale: [1, 1.2, 0.9, 1],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        />
-        <motion.div 
-          className="mesh-blob blob-2"
-          animate={{
-            x: [0, -120, 80, 0],
-            y: [0, 80, -100, 0],
-            scale: [1, 1.1, 1.3, 1],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        />
-        <div className="mesh-glass-overlay" />
-      </div>
+    <div className="landing-page-wrapper">
+      <motion.div 
+        className="landing-hero-card glass-card"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <div className="brand-badge-pill" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(168, 85, 247, 0.15)", border: "1px solid rgba(168, 85, 247, 0.3)", padding: "6px 16px", borderRadius: "20px", marginBottom: "20px" }}>
+          <Sparkles size={16} color="#a855f7" />
+          <span style={{ color: "#c084fc", fontSize: "0.85rem", fontWeight: 600 }}>AI Biometric Sound Studio</span>
+        </div>
 
-      <section className="ai-landing-content">
-        <motion.div 
-          className="ai-hero-copy"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <div className="ai-badge">
-            <Sparkles size={16} />
-            <span>AI Emotion Engine Powered</span>
-          </div>
-          <h1 className="ai-hero-title">
-            Music that <br/>
-            <span className="text-gradient">reads your mind.</span>
-          </h1>
-          <p className="ai-hero-lead">
-            Experience the next generation of musical curation. Our neural models analyze your micro-expressions in real-time to generate the perfect soundtrack for your exact cognitive state.
-          </p>
+        <h1 className="hero-title" style={{ fontSize: "2.8rem", fontWeight: 800, lineHeight: 1.15, marginBottom: "16px", background: "linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          Music That Mirror Your Emotions in Real-Time.
+        </h1>
 
-          <div className="ai-features-grid">
-            <div className="ai-feature">
-              <div className="feature-icon"><BrainCircuit size={24} /></div>
-              <div>
-                <strong>Deep Learning</strong>
-                <p>Real-time facial analysis</p>
-              </div>
+        <p className="hero-description" style={{ color: "#94a3b8", fontSize: "1.05rem", lineHeight: 1.6, marginBottom: "32px", maxWidth: "540px" }}>
+          Connect your camera for live facial emotion mapping, explore local disk audio files, or launch automated acoustic mood transitions.
+        </p>
+
+        <form onSubmit={handleSubmit} className="landing-form-box" style={{ background: "rgba(15, 23, 42, 0.6)", padding: "24px", borderRadius: "16px", border: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.85rem", color: "#94a3b8", marginBottom: "6px" }}>Your Name</label>
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                className="input-field"
+                style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
+              />
             </div>
-            <div className="ai-feature">
-              <div className="feature-icon"><AudioWaveform size={24} /></div>
-              <div>
-                <strong>Dynamic Audio</strong>
-                <p>Goal-oriented synthesis</p>
-              </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.85rem", color: "#94a3b8", marginBottom: "6px" }}>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="input-field"
+                style={{ width: "100%", padding: "12px", borderRadius: "10px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
+              />
             </div>
           </div>
-        </motion.div>
 
-        <motion.form 
-          className="ai-glass-form"
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2, type: "spring", stiffness: 100 }}
-        >
-          <div className="form-header">
-            <h3>Initialize Profile</h3>
-            <p>Create your unique neural listening signature.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <CustomDropdown
+              label="Favorite Genre"
+              options={genreOptions}
+              value={form.genre}
+              onChange={(val) => setForm((prev) => ({ ...prev, genre: val }))}
+            />
+            <CustomDropdown
+              label="Primary Goal"
+              options={goalOptions}
+              value={form.goal}
+              onChange={(val) => setForm((prev) => ({ ...prev, goal: val }))}
+            />
           </div>
 
-          <div className="form-group">
-            <label>Subject Name</label>
-            <input name="name" onChange={handleChange} placeholder="e.g. Alex" type="text" value={form.name} />
-          </div>
+          <button type="submit" className="pill-button primary" style={{ marginTop: "12px", width: "100%", padding: "14px", fontSize: "1rem", fontWeight: 700, borderRadius: "12px", background: "linear-gradient(135deg, #0ea5e9 0%, #a855f7 100%)", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+            <AudioWaveform size={20} /> Launch Music Mirror
+          </button>
+        </form>
 
-          <div className="form-group">
-            <label>Authentication Email</label>
-            <input name="email" onChange={handleChange} placeholder="alex@domain.com" type="email" value={form.email} />
+        <div className="features-strip" style={{ display: "flex", gap: "24px", marginTop: "32px", justifyContent: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", color: "#64748b" }}>
+            <BrainCircuit size={16} color="#0ea5e9" /> Biometric AI Vision
           </div>
-
-          <div className="form-row">
-            <CustomDropdown label="Base Genre" options={genreOptions} value={form.genre} onChange={(val) => setForm((prev) => ({ ...prev, genre: val }))} />
-            <CustomDropdown label="Cognitive Goal" options={goalOptions} value={form.goal} onChange={(val) => setForm((prev) => ({ ...prev, goal: val }))} />
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", color: "#64748b" }}>
+            <AudioWaveform size={16} color="#a855f7" /> Spectrum Visualizer
           </div>
-
-          <motion.button 
-            className="ai-primary-btn" 
-            type="submit"
-            whileHover={{ scale: 1.03, boxShadow: "0 0 25px rgba(0, 229, 255, 0.5)" }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <span>Activate Session</span>
-            <Sparkles size={18} />
-          </motion.button>
-        </motion.form>
-      </section>
-    </main>
+        </div>
+      </motion.div>
+    </div>
   );
 }
