@@ -24,62 +24,69 @@ img { max-width: 100%; display: block; }
 
 /* ── Design tokens ──────────────────────────────────────────── */
 :root {
-  /* Backgrounds */
+  /* Backgrounds & Surfaces */
   --bg:          #090909;
-  --surface:     #161616;
-  --card:        #202020;
+  --surface:     #131313;
+  --card:        #1B1B1B;
 
-  /* Glass */
-  --glass-bg:    rgba(255,255,255,0.04);
+  /* Glassmorphism */
+  --glass-bg:    rgba(255,255,255,0.05);
   --glass-border:rgba(255,255,255,0.08);
   --glass-shadow:rgba(0,0,0,0.55);
   --glass-blur:  32px;
 
-  /* Primary Accent — Royal Gold */
-  --gold:        #D4AF37;
-  --gold-light:  #FFD56A;
-  --gold-dim:    rgba(212,175,55,0.18);
-  --gold-border: rgba(212,175,55,0.3);
-
-  /* Secondary Accent — Sapphire */
-  --sapphire:    #2563EB;
-  --sapphire-lt: #60A5FA;
-  --sapphire-dim:rgba(37,99,235,0.18);
-
   /* Accents */
-  --purple:      #7E22CE;
-  --purple-lt:   #C084FC;
-  --emerald:     #16A34A;
-  --emerald-lt:  #34D399;
-  --copper:      #B87333;
-  --copper-lt:   #D99058;
-  --crimson:     #B91C1C;
-  --crimson-lt:  #EF4444;
-
-  /* Status */
+  --gold:        #D4AF37;
+  --purple:      #A855F7;
+  --highlight:   #FF9966;
   --success:     #22C55E;
-  --warning:     #F59E0B;
   --error:       #EF4444;
 
-  /* Text */
+  /* Text Colors */
   --text-1:      #FFFFFF;
-  --text-2:      #B5B5B5;
-  --text-3:      #737373;
-  --text-4:      #404040;
+  --text-2:      #B6B6B6;
+  --text-3:      #6F6F6F;
+  --text-4:      #444444;
 
+  /* Spacing & Spacing System */
+  --space-unit:  8px;
+  
   /* Radii */
-  --r-sm:  8px;
-  --r-md:  14px;
-  --r-lg:  20px;
-  --r-xl:  28px;
-  --r-2xl: 36px;
+  --r-32:  32px;
+  --r-24:  24px;
+  --r-20:  20px;
+  --r-16:  16px;
+  --r-12:  12px;
+
+  /* Spring Physics Transition */
+  --spring-transition: all 280ms cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  /* Extended Color Tokens */
+  --gold-light:      #FFD56A;
+  --gold-dim:        rgba(212,175,55,0.12);
+  --gold-border:     rgba(212,175,55,0.24);
+  --purple-light:    #C084FC;
+  --purple-lt:       #C084FC;
+  --purple-dim:      rgba(168,85,247,0.12);
+  --sapphire:        #2563EB;
+  --sapphire-lt:     #60A5FA;
+  --sapphire-dim:    rgba(37,99,235,0.12);
+  --emerald:         #16A34A;
+  --emerald-lt:      #34D399;
+  --emerald-dim:     rgba(22,163,74,0.12);
+  --crimson:         #B91C1C;
+  --crimson-lt:      #EF4444;
+  --crimson-dim:     rgba(185,28,28,0.12);
+  --copper:          #B87333;
+  --copper-lt:       #D99058;
 
   /* Shadows */
-  --shadow-sm: 0 2px 12px rgba(0,0,0,0.45);
   --shadow:    0 8px 32px rgba(0,0,0,0.55);
-  --shadow-lg: 0 20px 60px rgba(0,0,0,0.65);
-  --glow-gold: 0 0 32px rgba(212,175,55,0.35);
-  --glow-sapp: 0 0 32px rgba(37,99,235,0.35);
+  --shadow-lg: 0 24px 64px rgba(0,0,0,0.7);
+  --shadow-sm: 0 4px 16px rgba(0,0,0,0.4);
+
+  /* Aliases */
+  --r-xl: var(--r-24);
 }
 
 /* ── Mood ambient overlays ───────────────────────────────────── */
@@ -880,4 +887,222 @@ img { max-width: 100%; display: block; }
 }
 .lp-float-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); }
 .lp-float-value { font-size: 0.84rem; font-weight: 700; color: var(--text-1); margin-top: 2px; }
+
+/* ── Global Persistent Morphing Player ───────────────────────── */
+.player-global-host {
+  position: fixed;
+  z-index: 1000;
+  overflow: hidden;
+  transition: var(--spring-transition);
+}
+
+/* Floating Mini Pill Player State */
+.player-global-host.state-floating {
+  bottom: 28px;
+  right: 36px;
+  left: auto;
+  transform: none;
+  width: 440px;
+  height: 72px;
+  border-radius: 999px;
+  background: rgba(18, 18, 18, 0.92);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 24px rgba(212,175,55,0.08);
+}
+
+.studio-mini-player {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  height: 100%;
+}
+.studio-mini-art {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--glass-border);
+  flex-shrink: 0;
+  animation: spin 16s linear infinite;
+}
+.studio-mini-art img { width: 100%; height: 100%; object-fit: cover; }
+.studio-mini-art span { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+.studio-mini-info { flex: 1; min-width: 0; }
+.studio-mini-title { font-size: 0.88rem; font-weight: 700; color: var(--text-1); }
+.studio-mini-artist { font-size: 0.76rem; color: var(--text-2); margin-top: 2px; }
+.studio-mini-controls { display: flex; align-items: center; gap: 12px; }
+.studio-mini-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: var(--gold); color: #090909; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: var(--spring-transition);
+}
+.studio-mini-btn:hover { transform: scale(1.05); background: var(--text-1); }
+.studio-mini-badge {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--gold); background: rgba(212,175,55,0.12); padding: 4px 10px; border-radius: 999px;
+  border: 1px solid rgba(212,175,55,0.2);
+}
+
+/* Large Hero Docked Card State */
+.player-global-host.state-room {
+  top: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 560px;
+  height: 550px;
+  border-radius: var(--r-32);
+  background: var(--card);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 24px 72px rgba(0,0,0,0.7), 0 0 40px rgba(212,175,55,0.06);
+}
+
+.studio-large-card {
+  padding: 32px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.studio-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.studio-provider-tag {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-3); display: block; margin-bottom: 6px;
+}
+.studio-song-title { font-size: 1.6rem; font-weight: 800; color: var(--text-1); letter-spacing: -0.02em; }
+.studio-song-artist { font-size: 0.95rem; color: var(--text-2); margin-top: 4px; }
+.studio-badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.studio-badge-gold { background: rgba(212,175,55,0.08); color: var(--gold); border-color: rgba(212,175,55,0.18); }
+.studio-badge-purple { background: rgba(168,85,247,0.08); color: var(--purple); border-color: rgba(168,85,247,0.18); }
+
+.studio-album-art-container {
+  display: flex; justify-content: center; position: relative; margin: 24px 0;
+}
+.studio-album-art {
+  width: 180px; height: 180px; border-radius: 50%;
+  position: relative; display: flex; align-items: center; justify-content: center;
+  border: 6px solid var(--surface); box-shadow: var(--shadow);
+  animation: spin 20s linear infinite; z-index: 10;
+}
+.studio-album-art img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.studio-album-art-initial { font-size: 4rem; font-weight: 900; color: #fff; text-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+.studio-album-art-overlay {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.85) 90%);
+}
+.studio-album-art-glow {
+  position: absolute; width: 220px; height: 220px; border-radius: 50%;
+  filter: blur(48px); opacity: 0.35; top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
+
+.studio-visualizer-container {
+  height: 52px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+}
+.studio-wave-bars {
+  display: flex; gap: 4px; align-items: center; height: 100%; width: 100%; justify-content: center;
+}
+.studio-wave-bar {
+  width: 4px; border-radius: 99px; transition: height 120ms ease;
+  min-height: 4px;
+}
+
+.studio-card-controls {
+  display: flex; flex-direction: column; gap: 20px;
+}
+.studio-progress-container {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.studio-progress-time {
+  display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-3); font-weight: 600;
+}
+.studio-progress-bar-wrap {
+  height: 4px; background: rgba(255,255,255,0.04); border-radius: 99px; overflow: hidden;
+}
+.studio-progress-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--gold), var(--purple));
+  border-radius: 99px; transition: width 0.1s linear;
+}
+.studio-control-buttons {
+  display: flex; justify-content: center;
+}
+.studio-ctrl-btn {
+  width: 52px; height: 52px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--gold), var(--highlight));
+  color: #090909; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: var(--spring-transition);
+  box-shadow: 0 0 24px rgba(212,175,55,0.3);
+}
+.studio-ctrl-btn:hover { transform: scale(1.05); box-shadow: 0 0 32px rgba(212,175,55,0.45); }
+
+/* Hide standard video interface */
+.studio-iframe-wrapper {
+  position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none;
+}
+
+/* ── Page Layout: Studio (Music Room) ────────────────────────── */
+.studio-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  gap: 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 110px 56px 80px;
+  min-height: 100vh;
+}
+.studio-acoustic-panel {
+  border-radius: var(--r-24);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+}
+.studio-wood-trim {
+  border-top: 4px solid var(--gold);
+}
+.studio-speaker-glow {
+  box-shadow: inset 0 0 32px rgba(168,85,247,0.06);
+}
+
+.studio-nav-bar {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  display: flex;
+  gap: 8px;
+  background: rgba(22, 22, 22, 0.85);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px);
+  padding: 6px;
+  border-radius: 999px;
+}
+.studio-nav-item {
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-2);
+  transition: var(--spring-transition);
+}
+.studio-nav-item:hover { color: var(--text-1); background: rgba(255,255,255,0.04); }
+.studio-nav-item.active { color: var(--gold); background: rgba(212,175,55,0.12); }
+
 

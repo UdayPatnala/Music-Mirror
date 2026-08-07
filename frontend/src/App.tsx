@@ -3,11 +3,13 @@ import React, { Suspense, lazy, Component } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from './store/useAppStore';
+import GlobalPlayerHost from './components/GlobalPlayerHost';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const MoodRoom = lazy(() => import('./pages/MoodRoom'));
 const SummaryPage = lazy(() => import('./pages/SummaryPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 
 const queryClient = new QueryClient();
 
@@ -32,17 +34,17 @@ class ErrorBoundary extends Component {
             return (
                 <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    minHeight: '100vh', background: '#08080f', color: '#e2e8f0', fontFamily: 'Outfit, sans-serif', padding: '24px', textCenter: 'center'
+                    minHeight: '100vh', background: '#090909', color: '#FFFFFF', fontFamily: 'Outfit, sans-serif', padding: '24px', textCenter: 'center'
                 }}>
-                    <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#a855f7' }}>🪞 Music Mirror V2</h2>
-                    <p style={{ color: '#94a3b8', marginBottom: '20px', maxWidth: '400px', textAlign: 'center' }}>
+                    <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#D4AF37' }}>🪞 Music Mirror V2</h2>
+                    <p style={{ color: '#B6B6B6', marginBottom: '20px', maxWidth: '400px', textAlign: 'center' }}>
                         Something unexpected happened while rendering. Let's restart your session.
                     </p>
                     <button
                         onClick={() => { this.setState({ hasError: false }); window.location.href = '/room'; }}
                         style={{
-                            padding: '12px 24px', background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
-                            border: 'none', borderRadius: '999px', color: '#fff', fontWeight: 'bold', cursor: 'pointer'
+                            padding: '12px 24px', background: 'linear-gradient(135deg, #D4AF37, #FF9966)',
+                            border: 'none', borderRadius: '999px', color: '#000', fontWeight: 'bold', cursor: 'pointer'
                         }}
                     >
                         Reload Room
@@ -72,36 +74,44 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
             <ErrorBoundary>
                 <BrowserRouter>
-                    <Suspense fallback={
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#08080f', color: '#a855f7', fontFamily: 'Outfit, sans-serif' }}>
-                            Loading AI Modules...
-                        </div>
-                    }>
-                        <Routes>
-                            <Route path="/" element={<LandingPage />} />
-                            <Route path="/room" element={
-                                <ProtectedRoute>
-                                    <MoodRoom />
-                                </ProtectedRoute>
-                            } />
-                            <Route path="/profile" element={
-                                <ProtectedRoute>
-                                    <ProfilePage />
-                                </ProtectedRoute>
-                            } />
-                            <Route path="/auth" element={
-                                <ProtectedRoute>
-                                    <ProfilePage />
-                                </ProtectedRoute>
-                            } />
-                            <Route path="/summary" element={
-                                <ProtectedRoute>
-                                    <SummaryPage />
-                                </ProtectedRoute>
-                            } />
-                            <Route path="*" element={<Navigate to="/" replace />} />
-                        </Routes>
-                    </Suspense>
+                    <div className="app-shell" style={{ position: "relative", minHeight: "100vh" }}>
+                        <Suspense fallback={
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#090909', color: '#D4AF37', fontFamily: 'Outfit, sans-serif' }}>
+                                Loading AI Modules...
+                            </div>
+                        }>
+                            <Routes>
+                                <Route path="/" element={<LandingPage />} />
+                                <Route path="/room" element={
+                                    <ProtectedRoute>
+                                        <MoodRoom />
+                                    </ProtectedRoute>
+                                } />
+                                <Route path="/profile" element={
+                                    <ProtectedRoute>
+                                        <ProfilePage />
+                                    </ProtectedRoute>
+                                } />
+                                <Route path="/dashboard" element={
+                                    <ProtectedRoute>
+                                        <DashboardPage />
+                                    </ProtectedRoute>
+                                } />
+                                <Route path="/auth" element={
+                                    <ProtectedRoute>
+                                        <ProfilePage />
+                                    </ProtectedRoute>
+                                } />
+                                <Route path="/summary" element={
+                                    <ProtectedRoute>
+                                        <SummaryPage />
+                                    </ProtectedRoute>
+                                } />
+                                <Route path="*" element={<Navigate to="/" replace />} />
+                            </Routes>
+                        </Suspense>
+                        <GlobalPlayerHost />
+                    </div>
                 </BrowserRouter>
             </ErrorBoundary>
         </QueryClientProvider>

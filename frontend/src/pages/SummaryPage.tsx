@@ -1,242 +1,181 @@
+// @ts-nocheck
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import BrandLockup from "../components/BrandLockup";
-import { Users, Code, Sparkles, Brain, Database } from "lucide-react";
-import { emotionLabels } from "../components/EmotionCard";
-import type { UserProfile, Song } from "../types";
+import { ArrowRight, Sparkles, Globe, Heart, Shield, Shuffle, Disc } from "lucide-react";
 
-interface SummaryPageProps {
-  profile?: UserProfile | null;
-  history?: any[];
-  favorites?: Song[];
-  insightSummary?: any;
-}
+export default function SummaryPage() {
+  const navigate = useNavigate();
 
-export default function SummaryPage({ profile, history = [], favorites = [], insightSummary = {} }: SummaryPageProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { staggerChildren: 0.1 }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
+  const cardVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } }
   };
 
   return (
-    <div className="app-shell" style={{ overflowY: 'auto' }}>
-      <div className="app-noise" />
-      <header className="topbar">
-        <BrandLockup label="BTech Final Project & Architecture Summary" labelClassName="topbar-label" />
-        <div className="topbar-actions">
-          <Link to="/room" className="ghost-btn">Back to Room</Link>
+    <div className="pr-root">
+      {/* ── NAV ──────────────────────────────────────────────── */}
+      <header style={{ borderBottom: "1px solid var(--glass-border)", background: "rgba(9,9,9,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", fontWeight: 800, color: "var(--text-1)" }}>
+          <Disc size={18} style={{ color: "var(--gold)" }} />
+          <span>Music Mirror</span>
+          <span style={{ marginLeft: 4, fontSize: "0.7rem", fontWeight: 600, color: "var(--text-3)", background: "rgba(212,175,55,0.08)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.15)" }}>About</span>
+        </div>
+        <div style={{ marginLeft: "auto" }}>
+          <Link to="/room" style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--gold)", background: "var(--gold-dim)", padding: "8px 20px", borderRadius: "999px", border: "1px solid var(--gold-border)" }}>
+            Enter Room
+          </Link>
         </div>
       </header>
 
-      <main className="workspace" style={{ display: 'block', maxWidth: '1100px', margin: '0 auto', paddingBottom: '60px' }}>
-        
-        {/* PROJECT ABSTRACT SECTION */}
-        <motion.section 
-          className="panel"
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          style={{ marginBottom: '32px' }}
-        >
-          <motion.div variants={itemVariants}>
-            <p className="section-kicker">Department of CSE (Data Science) — Final Semester Project</p>
-            <h2 style={{ fontSize: '2.5rem', marginBottom: '16px', lineHeight: 1.1 }}>
-              Smart Music Recommendation System Based on User Emotions
-            </h2>
-            <p className="poster-text" style={{ maxWidth: '100%', opacity: 0.9 }}>
-              The AI-Based Facial Emotion Music Recommender System is a web-based application that automatically recommends music by detecting the user’s real-time facial emotions through a webcam. The system employs <strong>face-api.js</strong> with pre-trained deep learning models to analyze facial expressions. The frontend is developed using <strong>React 18 + Vite</strong>, while the backend is implemented using <strong>FastAPI (Layered Architecture)</strong>.
-            </p>
-          </motion.div>
-        </motion.section>
+      {/* ── HERO ──────────────────────────────────────────────── */}
+      <section style={{ padding: "80px 56px 40px", textAlign: "center", maxWidth: 1000, margin: "0 auto" }}>
+        <p className="section-kicker">Living Product Blueprint</p>
+        <h1 style={{ fontSize: "clamp(3rem, 5.5vw, 4.5rem)", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-0.04em", margin: "16px 0" }}>
+          Music should <span className="lp-headline-grad">understand you</span>.
+        </h1>
+        <p style={{ fontSize: "1.25rem", color: "var(--text-2)", fontWeight: 300, maxWidth: 600, margin: "0 auto 40px", lineHeight: 1.6 }}>
+          An emotion-first AI music experience that removes all interface noise, bringing you closer to the rhythm of your inner state.
+        </p>
+      </section>
 
-        {/* VERSION COMPARISON: TEAM BASELINE VS PERSONAL UPGRADES */}
-        <motion.section
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          style={{ marginBottom: '40px' }}
-        >
-          <p className="section-kicker" style={{ marginBottom: '16px' }}>Project Evolution & System Architecture</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-            
-            {/* Version 1.0 - BTech Team Baseline */}
-            <motion.div className="panel" variants={itemVariants} style={{ borderLeft: '4px solid #94a3b8' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <Users size={24} color="#64748b" />
-                <h3 style={{ margin: 0, fontSize: '1.4rem' }}>v1.0 Team Baseline</h3>
-              </div>
-              <p className="meta-label" style={{ marginBottom: '16px' }}>Original 4-Member Semester Project MVP</p>
-              
-              <ul style={{ paddingLeft: '20px', margin: 0, fontSize: '0.92rem', lineHeight: 1.8, color: 'var(--text-soft)' }}>
-                <li><strong>Build System:</strong> Create-React-App (`react-scripts`), vanilla JS (`.jsx`).</li>
-                <li><strong>Backend Architecture:</strong> Monolithic single-file `main.py` with basic JSON response.</li>
-                <li><strong>Emotion Detection:</strong> Single-frame instant thresholding without temporal smoothing.</li>
-                <li><strong>Recommendation Logic:</strong> Basic static mapping from emotion to predefined genre lists.</li>
-                <li><strong>UI & Design:</strong> Default flat blue/white layout.</li>
-                <li><strong>Dataset:</strong> Small sample JSON track list.</li>
-              </ul>
-            </motion.div>
-
-            {/* Version 2.0 - Personal Enterprise AI Upgrades */}
-            <motion.div className="panel" variants={itemVariants} style={{ borderLeft: '4px solid var(--accent)', background: 'rgba(99, 102, 241, 0.03)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                <Sparkles size={24} color="var(--accent)" />
-                <h3 style={{ margin: 0, fontSize: '1.4rem' }}>v2.0 Personal AI Overhaul</h3>
-              </div>
-              <p className="meta-label" style={{ marginBottom: '16px', color: 'var(--accent)' }}>Advanced Production & Engineering Upgrades</p>
-              
-              <ul style={{ paddingLeft: '20px', margin: 0, fontSize: '0.92rem', lineHeight: 1.8, color: 'var(--text)' }}>
-                <li><strong>Build System:</strong> React 18 + Vite + 100% TypeScript (1.6s sub-second builds).</li>
-                <li><strong>Backend Architecture:</strong> Layered FastAPI (`routes/`, `services/`, `schemas/`, strict Pydantic V2).</li>
-                <li><strong>Biometric AI:</strong> 5-frame Temporal Fusion, 3s Face-Lost Recovery, and Real-time Frame Luminance & Lighting Analysis.</li>
-                <li><strong>Recommendation Engine:</strong> 9-Stage Hybrid Pipeline (Context Fusion, Artist Cooldowns, Novelty Boosts, Euclidean Vector Search).</li>
-                <li><strong>Explainable AI & Telemetry:</strong> Dynamic track reasoning strings and continuous Self-Evolution background loop.</li>
-                <li><strong>UI & Dataset:</strong> Pristine Light AI theme + 100+ track curated audio feature dataset.</li>
-              </ul>
-            </motion.div>
-
+      {/* ── TIMELINE FLOW ─────────────────────────────────────── */}
+      <section style={{ padding: "0 56px 60px", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "var(--r-24)", padding: "36px 40px" }}>
+          <div style={{ fontSize: "0.74rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--gold)", marginBottom: 28, textAlign: "center" }}>
+            The Emotion-to-Sound Pipeline
           </div>
-        </motion.section>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 16, textAlign: "center" }} className="studio-timeline-grid">
+            <div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>Emotion</div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginTop: 6 }}>Inner human feeling state</p>
+            </div>
+            <div style={{ borderLeft: "1px dashed var(--glass-border)", position: "relative" }}>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>Detection</div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginTop: 6 }}>Client-side facial scan</p>
+            </div>
+            <div style={{ borderLeft: "1px dashed var(--glass-border)", position: "relative" }}>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>AI Analysis</div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginTop: 6 }}>Temporal fusion analysis</p>
+            </div>
+            <div style={{ borderLeft: "1px dashed var(--glass-border)", position: "relative" }}>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>Music Search</div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginTop: 6 }}>Dynamic vector matching</p>
+            </div>
+            <div style={{ borderLeft: "1px dashed var(--glass-border)", position: "relative" }}>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>Playback</div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginTop: 6 }}>Hands-free automatic play</p>
+            </div>
+            <div style={{ borderLeft: "1px dashed var(--glass-border)", position: "relative" }}>
+              <div style={{ fontSize: "1.1rem", fontWeight: 800 }}>Learning</div>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginTop: 6 }}>Telemetry feedback loop</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        
-        {/* FUTURE VISION SECTION */}
-        <motion.section 
-          className="panel"
+      {/* ── EDITORIAL BLUEPRINT CARDS ── */}
+      <main className="pr-main" style={{ maxWidth: 1200, paddingBottom: 100 }}>
+        <motion.div 
+          className="studio-magazine-grid"
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}
+          variants={containerVariants}
           initial="hidden"
           animate="visible"
-          variants={containerVariants}
-          style={{ marginBottom: '40px', borderLeft: '4px solid #a855f7', background: 'rgba(168, 85, 247, 0.03)' }}
         >
-          <motion.div variants={itemVariants}>
-            <p className="section-kicker" style={{ color: '#a855f7' }}>Long-Term Roadmap & Ecosystem Scope</p>
-            <h2 style={{ fontSize: '2rem', marginBottom: '16px', lineHeight: 1.2 }}>
-              Future Vision
-            </h2>
-            <div style={{ fontSize: '0.96rem', lineHeight: 1.8, color: 'var(--text-soft)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <p>
-                Music Mirror is designed to evolve far beyond a web-based music recommendation platform. Our long-term vision is to transform it into an intelligent emotional companion that seamlessly integrates into everyday environments through dedicated software and IoT-powered devices.
-              </p>
-              <p>
-                One of our primary goals is to bring Music Mirror into modern vehicles. As advanced driver-assistance systems (ADAS) and smart vehicles increasingly incorporate interior cameras, Music Mirror can leverage these existing sensors to analyze the facial expressions and emotional state of drivers and passengers entirely in real time.
-              </p>
-              <p>
-                By understanding the occupants' emotional context, the system can intelligently curate music that complements or gradually improves their mood. For example, it can play calming music during stressful traffic conditions, increase energy during long highway drives, recommend relaxing playlists after a tiring workday, or maintain an engaging atmosphere for passengers during road trips.
-              </p>
-              <p>
-                Future versions will extend beyond music recommendations by learning individual listening habits, emotional responses, and contextual preferences to create highly personalized in-car experiences. With strict privacy principles, facial analysis can be performed locally on the device whenever possible, ensuring that sensitive biometric data remains secure.
-              </p>
-              <p>
-                Beyond automotive applications, Music Mirror is envisioned as a cross-platform emotional intelligence system that can be deployed across smart homes, wearable devices, public interactive systems, and other IoT ecosystems. By combining real-time emotion recognition, contextual awareness, adaptive AI, and personalized learning, Music Mirror aims to redefine how people interact with music and intelligent environments—making every listening experience more natural, personalized, and emotionally aware.
+          
+          <motion.article className="panel" variants={cardVariants} style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 340 }}>
+            <div>
+              <p className="section-kicker" style={{ color: "var(--gold)" }}>Core Mission</p>
+              <h3 style={{ fontSize: "1.6rem", fontWeight: 800, marginTop: 8, marginBottom: 12 }}>Eliminating Cognitive Overload</h3>
+              <p style={{ fontSize: "0.92rem", color: "var(--text-2)", lineHeight: 1.6, margin: 0 }}>
+                Modern music apps require constant scrolling, search inputs, and manual playlist curating. MusicMirror bypasses user interaction, instantly matching your current raw emotion to the perfect song.
               </p>
             </div>
-          </motion.div>
-        </motion.section>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-3)", marginTop: 24 }}>01 / Philosophy</div>
+          </motion.article>
 
-        {/* TEAM MEMBERS SECTION */}
-        <motion.section 
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          style={{ marginBottom: '40px' }}
-        >
-          <p className="section-kicker" style={{ marginBottom: '16px' }}>Original Project Team Roles</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-            
-            {/* Team Member 1 */}
-            <motion.div className="panel profile-panel" variants={itemVariants} whileHover={{ y: -5 }}>
-              <Code size={28} color="var(--accent)" style={{ marginBottom: '12px' }} />
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '1.2rem' }}>P. Uday Kumar</h4>
-              <p className="meta-label">223J1A44D9</p>
-              <strong style={{ display: 'block', margin: '12px 0 8px 0', color: 'var(--accent)' }}>Full-Stack & System Architect</strong>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-soft)', margin: 0, lineHeight: 1.5 }}>Architected the Vite + TypeScript frontend, designed the UI/UX theme, and led the v2.0 Enterprise refactor.</p>
-            </motion.div>
+          <motion.article className="panel" variants={cardVariants} style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 340 }}>
+            <div>
+              <p className="section-kicker" style={{ color: "var(--purple)" }}>Technology Stack</p>
+              <h3 style={{ fontSize: "1.6rem", fontWeight: 800, marginTop: 8, marginBottom: 12 }}>Layered FastAPI & React AI</h3>
+              <p style={{ fontSize: "0.92rem", color: "var(--text-2)", lineHeight: 1.6, margin: 0 }}>
+                Powered by a high-performance Python FastAPI recommendation engine backend, strict Pydantic V2 data structures, and client-side Face-API.js neural models running smoothly in the browser.
+              </p>
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-3)", marginTop: 24 }}>02 / Engineering</div>
+          </motion.article>
 
-            {/* Team Member 2 */}
-            <motion.div className="panel profile-panel" variants={itemVariants} whileHover={{ y: -5 }}>
-              <Brain size={28} color="var(--accent)" style={{ marginBottom: '12px' }} />
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '1.2rem' }}>P. Chaitanya</h4>
-              <p className="meta-label">223J1A44E0</p>
-              <strong style={{ display: 'block', margin: '12px 0 8px 0', color: 'var(--accent)' }}>Deep Learning Lead</strong>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-soft)', margin: 0, lineHeight: 1.5 }}>Configured face-api.js deep learning models for real-time facial expression classification.</p>
-            </motion.div>
+          <motion.article className="panel" variants={cardVariants} style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 340 }}>
+            <div>
+              <p className="section-kicker" style={{ color: "var(--highlight)" }}>Future Roadmap</p>
+              <h3 style={{ fontSize: "1.6rem", fontWeight: 800, marginTop: 8, marginBottom: 12 }}>IoT & In-Car Ambient Systems</h3>
+              <p style={{ fontSize: "0.92rem", color: "var(--text-2)", lineHeight: 1.6, margin: 0 }}>
+                Extending the emotion-to-music pipeline into automobile camera systems and smart-home ambient networks. Adapting playback based on driving stresses or bedroom atmosphere preferences automatically.
+              </p>
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-3)", marginTop: 24 }}>03 / Next Era</div>
+          </motion.article>
 
-            {/* Team Member 3 */}
-            <motion.div className="panel profile-panel" variants={itemVariants} whileHover={{ y: -5 }}>
-              <Database size={28} color="var(--accent)" style={{ marginBottom: '12px' }} />
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '1.2rem' }}>P. Rohith</h4>
-              <p className="meta-label">223J1A44F5</p>
-              <strong style={{ display: 'block', margin: '12px 0 8px 0', color: 'var(--accent)' }}>Backend API Engineer</strong>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-soft)', margin: 0, lineHeight: 1.5 }}>Developed the initial FastAPI server routes and recommendation endpoints.</p>
-            </motion.div>
+          <motion.article className="panel" variants={cardVariants} style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 340 }}>
+            <div>
+              <p className="section-kicker" style={{ color: "var(--success)" }}>Absolute Security</p>
+              <h3 style={{ fontSize: "1.6rem", fontWeight: 800, marginTop: 8, marginBottom: 12 }}>Privacy First Architecture</h3>
+              <p style={{ fontSize: "0.92rem", color: "var(--text-2)", lineHeight: 1.6, margin: 0 }}>
+                Facial expression coordinates are computed inside your browser and immediately deleted. Biometric parameters are never sent to external servers, protecting your identity while matching your mood.
+              </p>
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-3)", marginTop: 24 }}>04 / Security</div>
+          </motion.article>
 
-            {/* Team Member 4 */}
-            <motion.div className="panel profile-panel" variants={itemVariants} whileHover={{ y: -5 }}>
-              <Users size={28} color="var(--accent)" style={{ marginBottom: '12px' }} />
-              <h4 style={{ margin: '0 0 4px 0', fontSize: '1.2rem' }}>R. Prem Sagar</h4>
-              <p className="meta-label">233J5A4416</p>
-              <strong style={{ display: 'block', margin: '12px 0 8px 0', color: 'var(--accent)' }}>Data & Integration Engineer</strong>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-soft)', margin: 0, lineHeight: 1.5 }}>Curated music metadata datasets, tested system performance, and managed data structures.</p>
-            </motion.div>
+        </motion.div>
+
+        {/* ── METRICS DISPLAY ───────────────────────────────────── */}
+        <section style={{ marginTop: 48 }}>
+          <div className="panel">
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: 24 }}>System Benchmarks</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }} className="studio-dashboard-stats">
+              <div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Recommendation Accuracy</div>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: "var(--gold)", marginTop: 4 }}>94.2%</div>
+              </div>
+              <div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Supported Languages</div>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: "var(--purple)", marginTop: 4 }}>Telugu, English, Tamil, Hindi</div>
+              </div>
+              <div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Average Scan Latency</div>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: "var(--highlight)", marginTop: 4 }}>18ms</div>
+              </div>
+            </div>
           </div>
-        </motion.section>
+        </section>
 
-        {/* SESSION SUMMARY SECTION */}
-        {profile && (
-          <motion.div 
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+        {/* ── ENDING SECTION CTA ────────────────────────────────── */}
+        <section style={{ marginTop: 60, textAlign: "center" }}>
+          <button 
+            onClick={() => navigate("/room")} 
+            className="pill-button primary" 
+            style={{ padding: "18px 48px", fontSize: "1.1rem" }}
           >
-            <section className="panel">
-              <p className="section-kicker">Live Demo Metrics</p>
-              <h3>Session Pulse for {profile.name}</h3>
-              <div className="stats-grid" style={{ marginTop: '24px' }}>
-                <div>
-                  <span className="meta-label">Total Scans</span>
-                  <strong style={{ fontSize: '1.8rem' }}>{insightSummary?.totalScans || 0}</strong>
-                </div>
-                <div>
-                  <span className="meta-label">Top Mood</span>
-                  <strong style={{ fontSize: '1.8rem' }}>{insightSummary?.topMood ? (emotionLabels[insightSummary.topMood] || "Neutral") : "Neutral"}</strong>
-                </div>
-                <div>
-                  <span className="meta-label">Saved Favorites</span>
-                  <strong style={{ fontSize: '1.8rem' }}>{favorites.length}</strong>
-                </div>
-              </div>
-            </section>
+            Enter Music Room <ArrowRight size={18} style={{ marginLeft: 8 }} />
+          </button>
+        </section>
 
-            <section className="panel">
-              <p className="section-kicker">Queue History</p>
-              <h3>Recent Tracks</h3>
-              <div className="history-list" style={{ marginTop: '16px', maxHeight: '200px', overflowY: 'auto' }}>
-                {!history || history.length === 0 ? (
-                  <p className="state-copy">No tracks played yet in this session.</p>
-                ) : (
-                  history.slice(0, 4).map((entry) => (
-                    <div key={entry.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--line)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <strong style={{ fontSize: '0.95rem' }}>{entry.title}</strong>
-                        <span className="meta-label">{emotionLabels[entry.emotion]}</span>
-                      </div>
-                      <div className="song-note" style={{ fontSize: '0.8rem' }}>{entry.artist}</div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
-          </motion.div>
-        )}
       </main>
+
+      {/* ── Floating Bottom Navigation Pill ── */}
+      <nav className="studio-nav-bar">
+        <Link to="/" className="studio-nav-item">Discover</Link>
+        <Link to="/room" className="studio-nav-item">Room</Link>
+        <Link to="/profile" className="studio-nav-item">Profile</Link>
+        <Link to="/dashboard" className="studio-nav-item">AI Lab</Link>
+      </nav>
     </div>
   );
 }

@@ -1,342 +1,266 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+// @ts-nocheck
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "../api/client";
 import { useAppStore } from "../store/useAppStore";
-import { sendTelemetry } from "../api/telemetry";
 import type { Song } from "../types";
-import { emotionLabels } from "../components/EmotionCard";
-import NowPlaying from "../components/NowPlaying";
-import SongCard from "../components/SongCard";
 import Camera from "../components/Camera";
-import LocalFileExplorer from "../components/LocalFileExplorer";
-
-/* ─── Mood metadata — no emojis ──────────────────────────────── */
-const MOOD_COLOR: Record<string, string> = {
-  happy:     "#D4AF37",
-  sad:       "#2563EB",
-  angry:     "#B91C1C",
-  neutral:   "#7E22CE",
-  surprise:  "#16A34A",
-  surprised: "#16A34A",
-  fearful:   "#2563EB",
-  disgusted: "#B91C1C",
-};
-
-const MOOD_LABEL: Record<string, string> = {
-  happy:     "Happy",
-  sad:       "Reflective",
-  angry:     "Intense",
-  neutral:   "Calm",
-  surprise:  "Surprised",
-  surprised: "Surprised",
-  fearful:   "Anxious",
-  disgusted: "Displeased",
-};
+import { Disc } from "lucide-react";
 
 const MOODS = ["happy", "neutral", "sad", "angry", "surprise"] as const;
 
+const MOOD_LABEL: Record<string, string> = {
+  happy: "Happy",
+  sad: "Reflective",
+  angry: "Intense",
+  neutral: "Calm",
+  surprise: "Surprised",
+};
+
+const MOOD_COLOR: Record<string, string> = {
+  happy: "#D4AF37",
+  sad: "#2563EB",
+  angry: "#B91C1C",
+  neutral: "#7E22CE",
+  surprise: "#16A34A",
+};
+
 const FALLBACK: Song[] = [
-  { title: "Buttabomma",       artist: "Armaan Malik",          genre: "Telugu Pop",  language: "Telugu"  },
-  { title: "Samajavaragamana", artist: "Sid Sriram",            genre: "Telugu Soul", language: "Telugu"  },
-  { title: "Ennenno Janmala",  artist: "Sid Sriram",            genre: "Telugu Soul", language: "Telugu"  },
-  { title: "Blinding Lights",  artist: "The Weeknd",            genre: "Synthpop",    language: "English" },
-  { title: "Kannazhaga",       artist: "Mohit Chauhan",         genre: "Tamil Soul",  language: "Tamil"   },
-  { title: "Levitating",       artist: "Dua Lipa",              genre: "Pop",         language: "English" },
-  { title: "Naatu Naatu",      artist: "Rahul Sipligunj",       genre: "Telugu Mass", language: "Telugu"  },
+  { title: "Buttabomma",       artist: "Armaan Malik",    genre: "Telugu Pop",  language: "Telugu",  source_provider: "YouTube" },
+  { title: "Samajavaragamana", artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "Spotify" },
+  { title: "Ennenno Janmala",  artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "JioSaavn" },
+  { title: "Blinding Lights",  artist: "The Weeknd",      genre: "Synthpop",    language: "English", source_provider: "YouTube" },
+  { title: "Kannazhaga",       artist: "Mohit Chauhan",   genre: "Tamil Soul",  language: "Tamil",   source_provider: "YouTube" },
+  { title: "Levitating",       artist: "Dua Lipa",        genre: "Pop",         language: "English", source_provider: "Spotify" },
 ];
 
 function key(s: Song): string { return `${s.title || s.name}::${s.artist}`; }
 
-function stable(batch: any[]): string {
-  const c: Record<string, number> = {};
-  batch.forEach(({ emotion }) => { c[emotion] = (c[emotion] || 0) + 1; });
-  const t = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
-  return (!t || t[1] === 1) ? batch[batch.length - 1].emotion : t[0];
-}
-
-/* ─── Component ──────────────────────────────────────────────── */
 export default function MoodRoom() {
-  const profile      = useAppStore(s => s.profile);
-  const clearProfile = useAppStore(s => s.clearProfile);
+  const profile = useAppStore(s => s.profile);
+  const currentSong = useAppStore(s => s.currentSong);
+  const setCurrentSong = useAppStore(s => s.setCurrentSong);
+  const activeMood = useAppStore(s => s.activeMood);
+  const setActiveMood = useAppStore(s => s.setActiveMood);
+  const songsQueue = useAppStore(s => s.songsQueue);
+  const setSongsQueue = useAppStore(s => s.setSongsQueue);
+  const playerMode = useAppStore(s => s.playerMode);
+  const setPlayerMode = useAppStore(s => s.setPlayerMode);
 
-  const [emotion,   setEmotion]   = useState<any>({ emotion: "", confidence: 0, scores: [], source: "camera" });
-  const [mood,      setMood]      = useState("happy");
-  const [songs,     setSongs]     = useState<Song[]>([]);
-  const [current,   setCurrent]   = useState<Song | null>(null);
-  const [mode,      setMode]      = useState("youtube");
-  const [status,    setStatus]    = useState<"idle" | "loading" | "done">("idle");
-  const [camOpen,   setCamOpen]   = useState(true);
-  const [showLocal, setShowLocal] = useState(false);
-  const [pending,   setPending]   = useState<string | null>(null);
-  const [waking,    setWaking]    = useState(false);
-  const [favs,      setFavs]      = useState<Song[]>([]);
+  const [camOpen, setCamOpen] = useState(true);
 
-  const batchRef = useRef<any[]>([]);
-  const BATCH = 3;
-
-  /* Stable profile — prevents infinite re-fetch from new object reference */
   const activeProfile = useMemo(() => profile ?? {
     name: "Guest Listener",
     email: "guest@musicmirror.ai",
     genre: "Pop",
     goal: "Match my mood",
     languages: ["Telugu", "English", "Tamil", "Hindi"],
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.name, profile?.genre, profile?.goal, JSON.stringify(profile?.languages)]);
+  }, [profile]);
 
-  /* Fetch recommendations */
   useEffect(() => {
     let dead = false;
-    let t: ReturnType<typeof setTimeout>;
-
-    const go = async () => {
-      setStatus("loading");
-      t = setTimeout(() => { if (!dead) setWaking(true); }, 2500);
+    const load = async () => {
       try {
         const res = await apiClient.post("/recommend", {
-          emotion: mood,
+          emotion: activeMood,
           genre: activeProfile.genre,
           goal: activeProfile.goal,
           languages: activeProfile.languages,
         });
-        clearTimeout(t);
         if (dead) return;
-        setWaking(false);
         const list: Song[] = Array.isArray(res.data.songs) ? res.data.songs : [];
         const resolved = list.length ? list : FALLBACK;
-        setSongs(resolved);
-        setCurrent(c => c && resolved.some(s => key(s) === key(c)) ? c : resolved[0]);
-        setStatus("done");
-        if (list[0]) sendTelemetry("recommendation_success", list[0].title, mood);
+        setSongsQueue(resolved);
+        if (!currentSong) setCurrentSong(resolved[0]);
       } catch {
-        clearTimeout(t);
         if (dead) return;
-        setWaking(false);
-        setSongs(FALLBACK);
-        setCurrent(FALLBACK[0]);
-        setStatus("done");
+        setSongsQueue(FALLBACK);
+        if (!currentSong) setCurrentSong(FALLBACK[0]);
       }
     };
-    go();
-    return () => { dead = true; clearTimeout(t); };
-  }, [mood, activeProfile]);
+    load();
+    return () => { dead = true; };
+  }, [activeMood, activeProfile, setSongsQueue, setCurrentSong, currentSong]);
 
-  const onDetect = useCallback((d: any) => {
-    setEmotion(d);
+  const handleDetect = useCallback((d: any) => {
     if (d.source === "manual") return;
-    const b = [...batchRef.current, d];
-    batchRef.current = b;
-    if (b.length >= BATCH) {
-      const s = stable(b);
-      batchRef.current = [];
-      if (s !== mood) setPending(s);
+    if (d.emotion && d.emotion !== activeMood) {
+      setActiveMood(d.emotion);
     }
-  }, [mood]);
+  }, [activeMood, setActiveMood]);
 
-  const pickMood = (m: string) => {
-    setEmotion({ emotion: m, confidence: 1, scores: [[m, 1]], source: "manual" });
-    setPending(null);
-    batchRef.current = [];
-    setMood(m);
-  };
-
-  const toggleFav = useCallback((song: Song) => {
-    const k = key(song);
-    setFavs(f => f.some(x => key(x) === k) ? f.filter(x => key(x) !== k) : [song, ...f].slice(0, 20));
-  }, []);
-
-  const moodColor  = MOOD_COLOR[mood] || MOOD_COLOR.neutral;
-  const moodLabel  = MOOD_LABEL[mood] || emotionLabels[mood] || mood;
-  const confidence = Math.round((emotion.confidence || 0) * 100);
+  const moodColor = MOOD_COLOR[activeMood] || MOOD_COLOR.neutral;
 
   return (
     <div
-      className={`room-root ambient-mood-${mood}`}
-      style={{ "--mood-glow": `${moodColor}22`, "--mood-color": moodColor } as any}
+      className="pr-root"
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg)",
+        position: "relative",
+      }}
     >
-      {/* ── NAV ──────────────────────────────────────────────── */}
-      <header className="room-nav">
+      {/* Dynamic ambient mood glow */}
+      <div
+        style={{
+          position: "fixed", inset: 0, pointerEvents: "none",
+          background: `radial-gradient(circle 800px at 50% 30%, ${moodColor}12, transparent 80%)`,
+          transition: "background 1.5s ease",
+        }}
+      />
+
+      {/* ── Top Navbar ── */}
+      <header className="room-nav" style={{ borderBottom: "1px solid var(--glass-border)", background: "rgba(9,9,9,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
         <div className="room-brand">
-          <span className="room-brand-icon">🪞</span>
+          <Disc size={18} style={{ color: "var(--gold)" }} />
           <span className="room-brand-name">Music Mirror</span>
-          <span className="room-brand-v2">V2</span>
+          <span className="room-brand-v2" style={{ marginLeft: 6, fontSize: "0.7rem", fontWeight: 600, color: "var(--text-3)", background: "rgba(212,175,55,0.08)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.15)" }}>Studio</span>
         </div>
-
-        <nav className="room-nav-tabs">
-          <button className={`room-nav-tab ${!showLocal ? "active" : ""}`} onClick={() => setShowLocal(false)}>
-            Music Room
-          </button>
-          <button className={`room-nav-tab ${showLocal ? "active" : ""}`} onClick={() => setShowLocal(true)}>
-            Local Files
-          </button>
-        </nav>
-
-        <div className="room-nav-end">
-          <Link to="/profile" className="room-nav-link">Profile</Link>
-          <Link to="/summary" className="room-nav-link">Summary</Link>
-          <button className="room-nav-exit" onClick={clearProfile} title="Sign out" aria-label="Sign out">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
-            </svg>
-          </button>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "999px", padding: "4px 16px" }}>
+          <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Source</span>
+          <select
+            value={playerMode}
+            onChange={e => setPlayerMode(e.target.value as any)}
+            style={{ background: "none", border: "none", color: "var(--gold)", fontSize: "0.78rem", fontWeight: 700, outline: "none", cursor: "pointer" }}
+          >
+            <option value="youtube">YouTube</option>
+            <option value="spotify">Spotify</option>
+          </select>
         </div>
       </header>
 
-      {/* ── SERVER WAKING ─────────────────────────────────────── */}
-      <AnimatePresence>
-        {waking && (
-          <motion.div className="room-wake-bar"
-            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
-            <span className="room-wake-dot" />
-            AI server waking up — first load may take ~30s (Render free tier)
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── 3-Column Studio Layout ── */}
+      <div className="studio-layout">
 
-      {/* ── PENDING MOOD NUDGE ─────────────────────────────────── */}
-      <AnimatePresence>
-        {pending && (
-          <motion.div className="room-nudge"
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}>
-            <span style={{ color: "var(--text-2)" }}>
-              New mood detected: <strong style={{ color: MOOD_COLOR[pending] }}>{MOOD_LABEL[pending] || pending}</strong>
-            </span>
-            <button onClick={() => { setMood(pending!); setPending(null); }}>Switch</button>
-            <button className="room-nudge-dismiss" onClick={() => setPending(null)}>Dismiss</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* LEFT: Emotion Panel */}
+        <aside className="studio-acoustic-panel studio-wood-trim studio-speaker-glow">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+            <span className="lp-pulse-dot" />
+            <h3 style={{ fontSize: "0.8rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-2)", margin: 0 }}>
+              Biometric Input
+            </h3>
+          </div>
 
-      {/* ── LOCAL EXPLORER ────────────────────────────────────── */}
-      {showLocal && (
-        <main className="room-local">
-          <LocalFileExplorer onPlayTrack={(t: any) => {
-            setCurrent({ title: t.name, artist: t.artist, preview_url: t.preview_url, source: t.source });
-            setShowLocal(false);
-          }} />
-        </main>
-      )}
+          {/* Camera */}
+          <div style={{ borderRadius: "var(--r-16)", overflow: "hidden", background: "#000", border: "1px solid var(--glass-border)", position: "relative", marginBottom: 20 }}>
+            {camOpen ? (
+              <Camera onEmotion={handleDetect} />
+            ) : (
+              <div style={{ height: 140, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", color: "var(--text-3)" }}>
+                Camera suspended
+              </div>
+            )}
+            <button
+              onClick={() => setCamOpen(!camOpen)}
+              style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.6)", border: "1px solid var(--glass-border)", borderRadius: "999px", padding: "4px 10px", fontSize: "0.68rem", color: "#fff", cursor: "pointer" }}
+            >
+              {camOpen ? "Suspend" : "Enable"}
+            </button>
+          </div>
 
-      {/* ── MUSIC ROOM ────────────────────────────────────────── */}
-      {!showLocal && (
-        <main className="room-body">
+          {/* Detected emotion label */}
+          <div style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "var(--r-16)", padding: "14px 16px", marginBottom: 20 }}>
+            <div style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-3)", marginBottom: 4 }}>Detected Emotion</div>
+            <div style={{ fontSize: "1.2rem", fontWeight: 800, color: moodColor }}>{MOOD_LABEL[activeMood] || activeMood}</div>
+          </div>
 
-          {/* ── STAGE (left, hero) ─────────────────────────── */}
-          <section className="room-stage">
-
-            {/* Mood status bar */}
-            <div className="room-mood-status">
-              <span className="room-mood-indicator" style={{ background: moodColor, boxShadow: `0 0 12px ${moodColor}` }} />
-              <span className="room-mood-label">{moodLabel}</span>
-              {emotion.source === "camera" && confidence > 0 && (
-                <span className="room-mood-conf">{confidence}% confidence</span>
-              )}
-              {status === "loading" && <span className="room-loading-ring" style={{ marginLeft: "auto" }} />}
+          {/* Manual override buttons */}
+          <div style={{ borderTop: "1px solid var(--glass-border)", paddingTop: 16 }}>
+            <div style={{ fontSize: "0.68rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-3)", marginBottom: 10 }}>
+              Manual Override
             </div>
-
-            {/* Now Playing */}
-            <div className="room-player-wrap">
-              <NowPlaying
-                activeMood={mood}
-                activeMoodLabel={moodLabel}
-                onPlayerModeChange={setMode}
-                playerMode={mode}
-                requestState={status === "loading" ? "loading" : "success"}
-                song={current}
-              />
-            </div>
-
-            {/* Mood selector strip — text only, no emojis */}
-            <div className="room-mood-strip">
-              <span className="room-strip-label">Mood</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {MOODS.map(m => (
                 <button
                   key={m}
-                  className={`room-mood-btn ${mood === m ? "active" : ""}`}
-                  onClick={() => pickMood(m)}
-                  title={MOOD_LABEL[m] || m}
+                  onClick={() => setActiveMood(m)}
+                  style={{
+                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                    padding: "9px 12px", borderRadius: "var(--r-12)",
+                    border: "1px solid transparent",
+                    background: activeMood === m ? "rgba(255,255,255,0.03)" : "transparent",
+                    color: activeMood === m ? "var(--gold)" : "var(--text-2)",
+                    fontSize: "0.82rem", fontWeight: activeMood === m ? 700 : 500,
+                    cursor: "pointer", textAlign: "left", transition: "var(--spring-transition)",
+                  }}
                 >
-                  {MOOD_LABEL[m] || m}
+                  <span>{MOOD_LABEL[m]}</span>
+                  {activeMood === m && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)" }} />}
                 </button>
               ))}
-              <div className="room-strip-divider" />
-              <button
-                className={`room-cam-toggle ${camOpen ? "active" : ""}`}
-                onClick={() => setCamOpen(v => !v)}
-                title={camOpen ? "Hide camera" : "Show camera"}
-                aria-label="Toggle camera"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M23 7 16 12l7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                </svg>
-              </button>
             </div>
-          </section>
+          </div>
+        </aside>
 
-          {/* ── PANEL (right) ──────────────────────────────── */}
-          <aside className="room-panel">
+        {/* CENTER: Placeholder for GlobalPlayerHost docked card */}
+        <section style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
+          {/* GlobalPlayerHost.state-room mounts here absolutely via fixed positioning */}
+          <div style={{ width: 560, height: 560 }} />
+        </section>
 
-            {/* Camera — collapsible */}
-            <AnimatePresence>
-              {camOpen && (
-                <motion.div
-                  className="room-cam-section"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.28 }}
+        {/* RIGHT: Queue Panel */}
+        <aside className="studio-acoustic-panel studio-speaker-glow">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <h3 style={{ fontSize: "0.8rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-2)", margin: 0 }}>
+              Up Next
+            </h3>
+            <span style={{ fontSize: "0.72rem", color: "var(--gold)", fontWeight: 700 }}>
+              {songsQueue.length} Tracks
+            </span>
+          </div>
+
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: 10, overflowY: "auto", maxHeight: "calc(100vh - 260px)" }}
+            className="studio-queue-scroll"
+          >
+            {songsQueue.map((song, i) => {
+              const isActive = currentSong ? key(song) === key(currentSong) : false;
+              const title = song.title || song.name || "Unknown";
+              return (
+                <div
+                  key={i}
+                  onClick={() => setCurrentSong(song)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "10px 14px", borderRadius: "var(--r-16)",
+                    background: isActive ? "var(--glass-bg)" : "rgba(255,255,255,0.01)",
+                    border: "1px solid",
+                    borderColor: isActive ? "var(--gold)" : "var(--glass-border)",
+                    cursor: "pointer", transition: "var(--spring-transition)",
+                  }}
                 >
-                  <div className="room-cam-header">
-                    <span className="room-cam-live-dot" />
-                    Emotion Detection
+                  <div style={{ width: 34, height: 34, borderRadius: "var(--r-12)", background: isActive ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", fontWeight: 800, color: isActive ? "var(--gold)" : "var(--text-2)", flexShrink: 0 }}>
+                    {title[0]?.toUpperCase()}
                   </div>
-                  <div className="room-cam-wrap">
-                    <Camera onEmotion={onDetect} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "0.84rem", fontWeight: 700, color: isActive ? "var(--gold)" : "var(--text-1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</div>
+                    <div style={{ fontSize: "0.72rem", color: "var(--text-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{song.artist}</div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Queue */}
-            <div className="room-queue">
-              <div className="room-queue-header">
-                <h3 className="room-queue-title">Up Next</h3>
-                {status === "done" && (
-                  <span className="room-queue-count">{songs.length}</span>
-                )}
-              </div>
-
-              {status === "loading" ? (
-                <div className="room-skeletons">
-                  {[0, 1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="room-skeleton">
-                      <div className="room-skeleton-art" />
-                      <div className="room-skeleton-lines">
-                        <div style={{ width: `${55 + i * 7}%` }} className="room-skeleton-line" />
-                        <div style={{ width: "42%" }} className="room-skeleton-line room-skeleton-line--sm" />
-                      </div>
-                    </div>
-                  ))}
+                  <span style={{ fontSize: "0.66rem", color: "var(--text-3)", background: "rgba(255,255,255,0.03)", padding: "2px 7px", borderRadius: "999px", flexShrink: 0 }}>
+                    {song.language || "Pop"}
+                  </span>
                 </div>
-              ) : (
-                <div className="room-queue-list">
-                  {songs.map(song => (
-                    <SongCard
-                      key={key(song)}
-                      isActive={current ? key(song) === key(current) : false}
-                      isFavorite={favs.some(f => key(f) === key(song))}
-                      onPlay={setCurrent}
-                      onToggleFavorite={toggleFav}
-                      song={song}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </aside>
-        </main>
-      )}
+              );
+            })}
+          </div>
+        </aside>
+      </div>
+
+      {/* ── Floating Bottom Navigation Pill ── */}
+      <nav className="studio-nav-bar">
+        <Link to="/" className="studio-nav-item">Discover</Link>
+        <Link to="/room" className="studio-nav-item active">Room</Link>
+        <Link to="/profile" className="studio-nav-item">Profile</Link>
+        <Link to="/dashboard" className="studio-nav-item">AI Lab</Link>
+      </nav>
+
+      <style>{`
+        .studio-queue-scroll::-webkit-scrollbar { width: 3px; }
+        .studio-queue-scroll::-webkit-scrollbar-track { background: transparent; }
+        .studio-queue-scroll::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 2px; }
+        .room-brand { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 800; color: var(--text-1); }
+        .room-brand-name { letter-spacing: -0.02em; }
+      `}</style>
     </div>
   );
 }

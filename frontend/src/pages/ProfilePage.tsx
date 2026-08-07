@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import type { Song, UserProfile } from "../types";
-import { BarChart3, Heart, Sparkles, ArrowRight, ShieldCheck, Plus, Trash2, Upload } from "lucide-react";
+import { BarChart3, Heart, Sparkles, ArrowRight, ShieldCheck, Plus, Trash2, Upload, Disc } from "lucide-react";
 
 /* ── AI-generated default avatars (5 themes) ─────────────────── */
 const AI_AVATARS = [
@@ -110,19 +110,14 @@ export default function ProfilePage() {
   return (
     <div className="pr-root">
       {/* ── NAV ──────────────────────────────────────────────── */}
-      <header className="room-nav">
-        <div className="room-brand">
-          <span className="room-brand-icon">🪞</span>
-          <span className="room-brand-name">Music Mirror</span>
-          <span className="room-brand-v2">V2</span>
+      <header style={{ borderBottom: "1px solid var(--glass-border)", background: "rgba(9,9,9,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", fontWeight: 800, color: "var(--text-1)" }}>
+          <Disc size={18} style={{ color: "var(--gold)" }} />
+          <span>Music Mirror</span>
+          <span style={{ marginLeft: 4, fontSize: "0.7rem", fontWeight: 600, color: "var(--text-3)", background: "rgba(212,175,55,0.08)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.15)" }}>Profile</span>
         </div>
-        <nav className="room-nav-tabs">
-          <Link to="/room"    className="room-nav-tab">Music Room</Link>
-          <Link to="/profile" className="room-nav-tab active">Profile</Link>
-          <Link to="/summary" className="room-nav-tab">Summary</Link>
-        </nav>
-        <div className="room-nav-end">
-          <button className="pill-button primary small" onClick={() => navigate("/room")} type="button">
+        <div style={{ marginLeft: "auto" }}>
+          <button className="pill-button primary small" onClick={() => navigate("/room")} type="button" style={{ display: "flex", alignItems: "center", gap: 6 }}>
             Enter Room <ArrowRight size={14} />
           </button>
         </div>
@@ -358,6 +353,14 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
+
+      {/* ── Floating Bottom Navigation Pill ── */}
+      <nav className="studio-nav-bar">
+        <Link to="/" className="studio-nav-item">Discover</Link>
+        <Link to="/room" className="studio-nav-item">Room</Link>
+        <Link to="/profile" className="studio-nav-item active">Profile</Link>
+        <Link to="/dashboard" className="studio-nav-item">AI Lab</Link>
+      </nav>
     </div>
   );
 }
