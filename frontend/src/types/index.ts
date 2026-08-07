@@ -18,8 +18,13 @@ export interface Song {
   spotify_url?: string;
   youtubeId?: string;
   source?: string;
+  valence?: number;
+  energy_numeric?: number;
+  tempo?: number;
+  popularity?: number;
   recommendation_score?: number;
   recommendation_reason?: string;
+  note?: string;
   audio_features?: {
     valence: number;
     energy: number;

@@ -6,7 +6,12 @@ router = APIRouter()
 
 @router.post("", response_model=RecommendationResponse)
 async def get_recommendations(req: EmotionRequest):
-    normalized_emotion, songs = RecommendationService.recommend(req.emotion, req.genre, req.goal)
+    normalized_emotion, songs = RecommendationService.recommend(
+        req.emotion,
+        req.genre,
+        req.goal,
+        preferred_languages=req.languages,
+    )
     return RecommendationResponse(
         emotion=req.emotion,
         normalized_emotion=normalized_emotion,

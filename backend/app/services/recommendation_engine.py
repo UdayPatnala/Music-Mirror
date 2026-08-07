@@ -182,7 +182,8 @@ class RecommendationService:
         user_goal: str | None = None, 
         limit: int = 20,
         min_score: float | None = None,
-        genre_filter: str | None = None
+        genre_filter: str | None = None,
+        preferred_languages: list[str] | None = None,
     ) -> tuple[str, list[dict[str, Any]]]:
         normalized = cls.normalize_emotion(emotion)
         
@@ -247,8 +248,21 @@ class RecommendationService:
             # 5. Discovery / Novelty Score
             popularity = float(song.get("popularity", 50)) / 100.0
             novelty = (popularity - 0.5) * 0.05
-            
-            final_score = similarity + context + preference + novelty - penalty
+
+            # 6. Language Preference Boost
+            lang_boost = 0.0
+            if preferred_languages:
+                song_lang = str(song.get("language", "")).strip()
+                if song_lang:
+                    try:
+                        priority_idx = [l.lower() for l in preferred_languages].index(song_lang.lower())
+                        # First language = 0.25 boost, second = 0.15, third = 0.08, rest = 0.02
+                        boosts = [0.25, 0.15, 0.08, 0.02]
+                        lang_boost = boosts[priority_idx] if priority_idx < len(boosts) else 0.02
+                    except ValueError:
+                        lang_boost = -0.05  # Not in preferred list — slight penalty
+
+            final_score = similarity + context + preference + novelty + lang_boost - penalty
             final_score = max(0.0, min(1.0, final_score))
             
             artist = song.get("artist", "Unknown")

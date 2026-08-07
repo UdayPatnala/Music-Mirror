@@ -1,118 +1,66 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Play, Pause, Heart, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Heart } from "lucide-react";
 import type { Song } from "../types";
 
-interface SongCardProps {
-  isActive: boolean;
-  isFavorite: boolean;
-  onPlay: (song: Song) => void;
-  onToggleFavorite: (song: Song) => void;
-  song: Song;
+interface Props {
+  isActive:        boolean;
+  isFavorite:      boolean;
+  onPlay:          (song: Song) => void;
+  onToggleFavorite:(song: Song) => void;
+  song:            Song;
 }
 
-export default function SongCard({
-  isActive,
-  isFavorite,
-  onPlay,
-  onToggleFavorite,
-  song,
-}: SongCardProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+const ART_COLORS = [
+  "#7c3aed","#0891b2","#be185d","#b45309","#065f46","#1d4ed8","#9d174d",
+];
 
-  useEffect(() => {
-    if (isActive && isPlaying && audioRef.current) {
-      audioRef.current.play().catch(() => setIsPlaying(false));
-    } else if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  }, [isActive, isPlaying]);
+function artColor(title: string): string {
+  let h = 0;
+  for (let i = 0; i < title.length; i++) h = (h * 31 + title.charCodeAt(i)) & 0xffffffff;
+  return ART_COLORS[Math.abs(h) % ART_COLORS.length];
+}
 
-  const handlePlayToggle = () => {
-    if (!isActive) {
-      onPlay(song);
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggleFavorite(song);
-  };
-
-  const albumArt =
-    song.album_art ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      song.title || song.name || "Track"
-    )}&background=random&color=fff&size=128`;
+export default function SongCard({ isActive, isFavorite, onPlay, onToggleFavorite, song }: Props) {
+  const [imgErr, setImgErr] = useState(false);
+  const title  = song.title || song.name || "Unknown";
+  const artist = song.artist || "Unknown Artist";
+  const art    = !imgErr && song.album_art ? song.album_art : null;
+  const bg     = artColor(title);
 
   return (
-    <article className={`song-card ${isActive ? "active" : ""}`}>
-      <div className="song-card-art">
-        <img src={albumArt} alt="Album Art" />
-        {song.preview_url ? (
-          <button
-            className={`play-overlay ${isPlaying && isActive ? "playing" : ""}`}
-            onClick={handlePlayToggle}
-            type="button"
-            aria-label={isPlaying && isActive ? "Pause preview" : "Play preview"}
-          >
-            {isPlaying && isActive ? <Pause size={24} /> : <Play size={24} />}
-          </button>
+    <article
+      className={`qc ${isActive ? "qc--active" : ""}`}
+      onClick={() => onPlay(song)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && onPlay(song)}
+      aria-label={`Play ${title} by ${artist}`}
+    >
+      {/* Album art */}
+      <div className="qc-art" style={{ background: bg }}>
+        {art ? (
+          <img src={art} alt={title} onError={() => setImgErr(true)} />
         ) : (
-          <div className="no-preview-overlay">No Preview</div>
+          <span className="qc-art-initial">{title[0]?.toUpperCase()}</span>
         )}
+        {isActive && <span className="qc-playing-dot" />}
       </div>
 
-      <div className="song-card-body">
-        <div className="song-card-meta">
-          <h4>{song.title || song.name}</h4>
-          <p>{song.artist}</p>
-        </div>
-
-        <div className="song-card-actions">
-          <button
-            className={`favorite-btn ${isFavorite ? "active" : ""}`}
-            onClick={handleFavoriteClick}
-            type="button"
-            aria-label="Toggle favorite"
-          >
-            <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
-          </button>
-          
-          {song.spotify_url && (
-            <a
-              href={song.spotify_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="spotify-link"
-              title="Open in Spotify"
-            >
-              <ExternalLink size={20} />
-            </a>
-          )}
-        </div>
+      {/* Info */}
+      <div className="qc-info">
+        <p className="qc-title">{title}</p>
+        <p className="qc-artist">{artist}</p>
       </div>
-      
-      {/* EXPLAINABLE AI TRANSPARENCY UI */}
-      {song.recommendation_reason && (
-        <div className="recommendation-reason" style={{ fontSize: '0.75rem', marginTop: '8px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic', padding: '0 8px 8px 8px' }}>
-          ✨ {song.recommendation_reason}
-        </div>
-      )}
 
-      {song.preview_url && (
-        <audio
-          ref={audioRef}
-          src={song.preview_url}
-          onEnded={() => setIsPlaying(false)}
-          onPause={() => setIsPlaying(false)}
-          onPlay={() => setIsPlaying(true)}
-          style={{ display: "none" }}
-        />
-      )}
+      {/* Favorite */}
+      <button
+        className={`qc-fav ${isFavorite ? "qc-fav--active" : ""}`}
+        onClick={(e) => { e.stopPropagation(); onToggleFavorite(song); }}
+        type="button"
+        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+      >
+        <Heart size={15} fill={isFavorite ? "currentColor" : "none"} />
+      </button>
     </article>
   );
 }
