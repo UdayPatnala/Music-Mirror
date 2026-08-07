@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Any
 
 class EmotionRequest(BaseModel):
     emotion: str = Field(..., max_length=50, description="The detected facial emotion")
@@ -6,14 +7,25 @@ class EmotionRequest(BaseModel):
     goal: str | None = Field("Match my mood", max_length=100, description="User cognitive goal")
 
 class SongResponse(BaseModel):
-    name: str
+    title: str | None = None
+    name: str | None = None
     artist: str
+    genre: str | None = None
     album_art: str | None = None
     preview_url: str | None = None
     spotify_url: str | None = None
     recommendation_score: float | None = None
+    audio_features: dict[str, Any] | None = None
+    recommendation_reason: str | None = None
+
+    def model_post_init(self, __context: Any) -> None:
+        if not self.name and self.title:
+            self.name = self.title
+        elif not self.title and self.name:
+            self.title = self.name
 
 class RecommendationResponse(BaseModel):
     emotion: str
     normalized_emotion: str
     songs: list[SongResponse]
+

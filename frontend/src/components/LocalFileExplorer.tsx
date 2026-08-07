@@ -47,6 +47,7 @@ export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFi
   const [backendParent, setBackendParent] = useState<string | null>(null);
   const [backendItems, setBackendItems] = useState<any[]>([]);
   const [backendAudioCount, setBackendAudioCount] = useState<number>(0);
+  const [availableDrives, setAvailableDrives] = useState<string[]>([]);
   const [loadingBackend, setLoadingBackend] = useState<boolean>(false);
   const [backendError, setBackendError] = useState<string | null>(null);
 
@@ -62,6 +63,9 @@ export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFi
         setBackendParent(res.data.parent_path);
         setBackendItems(res.data.items || []);
         setBackendAudioCount(res.data.audio_count || 0);
+        if (res.data.available_drives) {
+          setAvailableDrives(res.data.available_drives);
+        }
       }
     } catch (err: any) {
       setBackendError(err?.response?.data?.detail || 'Failed to scan backend local directory');
@@ -72,7 +76,7 @@ export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFi
 
   useEffect(() => {
     if (explorerMode === 'backend') {
-      fetchBackendDirectory(backendPath);
+      fetchBackendDirectory(backendPath || undefined);
     }
   }, [explorerMode]);
 
@@ -305,17 +309,52 @@ export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFi
               </button>
             )}
 
-            <div className="path-display-box">
-              <Folder size={16} /> 
-              <span>{backendPath}</span>
+            {availableDrives.length > 0 && (
+              <div className="drives-selector" style={{ display: 'flex', gap: '0.4rem' }}>
+                {availableDrives.map((drive) => (
+                  <button
+                    key={drive}
+                    className={`pill-button small ${backendPath.toLowerCase().startsWith(drive.toLowerCase()) ? 'primary' : 'secondary'}`}
+                    onClick={() => fetchBackendDirectory(drive)}
+                    disabled={loadingBackend}
+                    title={`Switch to ${drive}`}
+                  >
+                    <HardDrive size={12} /> {drive.replace('\\', '')}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="path-display-box" style={{ flex: 1, minWidth: '220px', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', padding: '0.25rem 0.75rem', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <Folder size={16} style={{ color: 'var(--color-primary-light, #a78bfa)', flexShrink: 0 }} /> 
+              <input 
+                type="text" 
+                value={backendPath}
+                onChange={(e) => setBackendPath(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    fetchBackendDirectory(backendPath);
+                  }
+                }}
+                placeholder="Enter directory path (e.g. D:\PROJECT\Music Mirror)..."
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#fff',
+                  width: '100%',
+                  fontSize: '0.875rem',
+                  fontFamily: 'monospace'
+                }}
+              />
             </div>
 
             <button 
-              className="pill-button secondary small"
+              className="pill-button primary small"
               onClick={() => fetchBackendDirectory(backendPath)}
               disabled={loadingBackend}
             >
-              <RefreshCw size={14} className={loadingBackend ? 'spin' : ''} /> Refresh
+              <RefreshCw size={14} className={loadingBackend ? 'spin' : ''} /> Scan Path
             </button>
           </div>
 

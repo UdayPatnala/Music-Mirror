@@ -1,4 +1,5 @@
 import os
+import string
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -6,10 +7,21 @@ from typing import List, Optional
 
 router = APIRouter()
 
-AUDIO_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac', '.wma'}
+AUDIO_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac', '.wma', '.mp4'}
+
+AUDIO_MIME_TYPES = {
+    '.mp3': 'audio/mpeg',
+    '.m4a': 'audio/mp4',
+    '.wav': 'audio/wav',
+    '.ogg': 'audio/ogg',
+    '.flac': 'audio/flac',
+    '.aac': 'audio/aac',
+    '.wma': 'audio/x-ms-wma',
+    '.mp4': 'audio/mp4'
+}
 
 class FileItem(BaseModel):
-    name: string if False else str
+    name: str
     path: str
     relative_path: str
     is_dir: bool
@@ -23,13 +35,25 @@ class DirectoryListingResponse(BaseModel):
     parent_path: Optional[str]
     items: List[FileItem]
     audio_count: int
+    available_drives: List[str] = []
+
+def get_available_drives() -> List[str]:
+    drives = []
+    if os.name == 'nt':
+        for drive_letter in string.ascii_uppercase:
+            drive_path = f"{drive_letter}:\\"
+            if os.path.exists(drive_path):
+                drives.append(drive_path)
+    else:
+        drives.append("/")
+    return drives
 
 @router.get("/files", response_model=DirectoryListingResponse)
 async def list_local_directory(path: Optional[str] = Query(default=None)):
     target_path = path if path and os.path.exists(path) else os.path.abspath(os.curdir)
     
     if not os.path.exists(target_path) or not os.path.isdir(target_path):
-        raise HTTPException(status_code=400, detail="Invalid directory path")
+        target_path = os.path.abspath(os.curdir)
     
     items = []
     audio_count = 0
@@ -76,7 +100,8 @@ async def list_local_directory(path: Optional[str] = Query(default=None)):
         current_path=target_path,
         parent_path=parent_dir,
         items=items,
-        audio_count=audio_count
+        audio_count=audio_count,
+        available_drives=get_available_drives()
     )
 
 @router.get("/stream")
@@ -85,11 +110,14 @@ async def stream_local_audio(file_path: str = Query(...)):
         raise HTTPException(status_code=404, detail="File not found")
         
     _, ext = os.path.splitext(file_path)
-    if ext.lower() not in AUDIO_EXTENSIONS:
+    ext_clean = ext.lower()
+    if ext_clean not in AUDIO_EXTENSIONS:
         raise HTTPException(status_code=400, detail="File format not supported for audio streaming")
         
+    media_type = AUDIO_MIME_TYPES.get(ext_clean, f"audio/{ext_clean.replace('.', '')}")
     return FileResponse(
         file_path,
-        media_type=f"audio/{ext.lower().replace('.', '')}",
+        media_type=media_type,
         filename=os.path.basename(file_path)
     )
+

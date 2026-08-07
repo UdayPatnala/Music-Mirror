@@ -31,18 +31,85 @@ DEFAULT_WEIGHTS = {"valence": 0.4, "energy": 0.4, "tempo": 0.2}
 
 class RecommendationService:
     @staticmethod
-    def normalize_emotion(emotion: str) -> str:
-        if not emotion: return "neutral"
-        cleaned = emotion.strip().lower()
-        return EMOTION_MAP.get(cleaned, cleaned)
+    def normalize_emotion(emotion: Any) -> str:
+        if emotion is None:
+            return "neutral"
+        if isinstance(emotion, (int, float)):
+            # Check for float NaN or Inf
+            if isinstance(emotion, float) and (math.isnan(emotion) or math.isinf(emotion)):
+                return "neutral"
+            return "neutral"
+        if not isinstance(emotion, str):
+            return "neutral"
+        
+        cleaned = emotion.strip()
+        if not cleaned:
+            return "neutral"
+            
+        lower_cleaned = cleaned.lower()
+        if lower_cleaned in EMOTION_MAP:
+            return EMOTION_MAP[lower_cleaned]
+            
+        return lower_cleaned
 
     @staticmethod
     def extract_song_features(song: dict[str, Any]) -> dict[str, float]:
-        valence = float(song.get("valence", 0.5))
-        energy = float(song.get("energy_numeric", song.get("energy_score", 0.5)))
-        tempo = float(song.get("tempo", 0.5))
+        # 1. Energy
+        if "energy_numeric" in song:
+            try:
+                energy = float(song["energy_numeric"])
+            except (ValueError, TypeError):
+                energy = 0.5
+        elif "energy" in song:
+            val = song["energy"]
+            if isinstance(val, (int, float)):
+                energy = float(val)
+            elif isinstance(val, str):
+                s_val = val.strip().lower()
+                if s_val == "high":
+                    energy = 0.85
+                elif s_val == "low":
+                    energy = 0.25
+                else:
+                    energy = 0.5
+            else:
+                energy = 0.5
+        else:
+            energy = float(song.get("energy_score", 0.5))
+        energy = max(0.0, min(1.0, energy))
+
+        # 2. Valence
+        if "valence" in song:
+            try:
+                valence = float(song["valence"])
+            except (ValueError, TypeError):
+                valence = 0.5
+        else:
+            genre = str(song.get("genre", "")).lower()
+            if "pop" in genre:
+                valence = min(1.0, energy + 0.1)
+            elif "acoustic" in genre or "ballad" in genre:
+                valence = max(0.1, energy - 0.1)
+            else:
+                valence = 0.5
+        valence = max(0.0, min(1.0, valence))
+
+        # 3. Tempo
         if "bpm" in song:
-            tempo = max(0.0, min(1.0, (float(song["bpm"]) - 60.0) / 120.0))
+            try:
+                bpm_val = float(song["bpm"])
+                tempo = (bpm_val - 60.0) / 120.0
+            except (ValueError, TypeError):
+                tempo = 0.5
+        elif "tempo" in song:
+            try:
+                tempo = float(song["tempo"])
+            except (ValueError, TypeError):
+                tempo = 0.5
+        else:
+            tempo = 0.5
+        tempo = max(0.0, min(1.0, tempo))
+
         return {"valence": valence, "energy": energy, "tempo": tempo}
 
     @staticmethod
@@ -70,19 +137,36 @@ class RecommendationService:
         return min(0.5, count * 0.15)
 
     @staticmethod
-    def compute_euclidean(song_features: dict[str, float], target_features: dict[str, float], weights: dict[str, float]) -> float:
-        total = sum(weights.values())
-        if total == 0: return 0.0
-        sq_dist = sum(weights[k] * ((song_features.get(k, 0.5) - target_features.get(k, 0.5)) ** 2) for k in weights)
-        return round(max(0.0, 1.0 - math.sqrt(sq_dist / total)), 4)
+    def compute_euclidean(song_features: dict[str, float], target_features: dict[str, float], weights: dict[str, float] | None = None) -> float:
+        w = weights if weights is not None else DEFAULT_WEIGHTS
+        total = sum(w.values())
+        if total == 0:
+            return 0.0
+        sq_dist = sum(w.get(k, 0.0) * ((song_features.get(k, 0.5) - target_features.get(k, 0.5)) ** 2) for k in target_features)
+        dist = math.sqrt(sq_dist / total)
+        score = max(0.0, 1.0 - dist)
+        return 1.0 if abs(score - 1.0) < 1e-9 else round(score, 4)
 
     @classmethod
-    def recommend(cls, emotion: str, user_genre: str | None = None, user_goal: str | None = None, limit: int = 20) -> tuple[str, list[dict[str, Any]]]:
+    def recommend(
+        cls, 
+        emotion: Any, 
+        user_genre: str | None = None, 
+        user_goal: str | None = None, 
+        limit: int = 20,
+        min_score: float | None = None,
+        genre_filter: str | None = None
+    ) -> tuple[str, list[dict[str, Any]]]:
         normalized = cls.normalize_emotion(emotion)
+        
+        if limit == 0:
+            return normalized, []
+
         target_profile = EMOTION_TARGETS.get(normalized, EMOTION_TARGETS["neutral"]).copy()
         weights = DEFAULT_WEIGHTS.copy()
         goal = (user_goal or "").lower()
-        
+        effective_genre = genre_filter if genre_filter is not None else user_genre
+
         # Transition Engine: Smooth targets based on goal
         if "lift" in goal:
             target_profile["energy"] = min(1.0, target_profile["energy"] + 0.2)
@@ -94,11 +178,20 @@ class RecommendationService:
         mood_bucket = SONGS.get(normalized, [])
         all_songs = [s for cat in SONGS.values() for s in cat]
         candidates = mood_bucket + all_songs
-        
+
+        # Filter by genre if genre_filter or user_genre is explicitly specified
+        if effective_genre and effective_genre.lower() != "any":
+            target_g = effective_genre.lower()
+            matching_candidates = [c for c in candidates if target_g in str(c.get("genre", "")).lower()]
+            if genre_filter is not None:
+                candidates = matching_candidates
+            elif matching_candidates:
+                candidates = matching_candidates + [c for c in candidates if c not in matching_candidates]
+
         # Deduplication
         seen, deduped = set(), []
         for c in candidates:
-            c_str = str(c.get("title", c.get("name","")))+str(c.get("artist",""))
+            c_str = str(c.get("title", c.get("name", "")))+str(c.get("artist", ""))
             if c_str not in seen:
                 seen.add(c_str)
                 deduped.append(c)
@@ -117,24 +210,27 @@ class RecommendationService:
             
             # 3. Preference Score
             song_genre = str(song.get("genre", "")).lower()
-            preference = 0.2 if user_genre and user_genre.lower() != "any" and user_genre.lower() in song_genre else 0.0
+            preference = 0.2 if effective_genre and effective_genre.lower() != "any" and effective_genre.lower() in song_genre else 0.0
             
             # 4. Diversity / Penalty Engine
             penalty = cls.calculate_diversity_penalty(song, artist_counts)
-            if user_genre and user_genre.lower() != "any" and user_genre.lower() not in song_genre:
-                penalty += 0.15 # Reduced harshness so non-genre songs aren't eliminated
+            if effective_genre and effective_genre.lower() != "any" and effective_genre.lower() not in song_genre:
+                penalty += 0.15
                 
             # 5. Discovery / Novelty Score
             popularity = float(song.get("popularity", 50)) / 100.0
             novelty = (popularity - 0.5) * 0.05
             
             final_score = similarity + context + preference + novelty - penalty
-            final_score = max(0.05, min(1.0, final_score))
+            final_score = max(0.0, min(1.0, final_score))
             
             artist = song.get("artist", "Unknown")
             artist_counts[artist] = artist_counts.get(artist, 0) + 1
             
             s = song.copy()
+            title_val = s.get("title") or s.get("name", "Unknown Title")
+            s["title"] = title_val
+            s["name"] = title_val
             s["recommendation_score"] = round(final_score, 3)
             s["audio_features"] = feats
             
@@ -144,14 +240,17 @@ class RecommendationService:
             if preference > 0: reasons.append("matches your taste")
             s["recommendation_reason"] = " · ".join(reasons)
             
+            if min_score is not None and final_score < min_score:
+                continue
+                
             scored.append(s)
                 
         # Sort descending by score
         scored.sort(key=lambda x: x["recommendation_score"], reverse=True)
         
-        # GUARANTEE: Never return empty list
-        final_results = scored[:limit]
-        if not final_results:
-            final_results = deduped[:limit]
-            
+        if limit < 0:
+            final_results = scored
+        else:
+            final_results = scored[:limit]
+
         return normalized, final_results
