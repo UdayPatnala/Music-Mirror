@@ -279,8 +279,32 @@ export default function MoodRoom() {
     };
   }, [favorites.length, history]);
 
+  const handleMoodJourney = async (targetEmotion) => {
+    setRequestState("loading");
+    setErrorMessage("");
+    try {
+      const response = await apiClient.post("/recommend/transition", {
+        start_emotion: requestedEmotion || "neutral",
+        target_emotion: targetEmotion,
+        steps: 4,
+        genre: profile?.genre,
+      });
+
+      const journeySongs = Array.isArray(response.data.journey) ? response.data.journey : [];
+      setSongs(journeySongs);
+      setPlaylistEmotion(targetEmotion);
+      setRequestState(journeySongs.length > 0 ? "success" : "empty");
+      if (journeySongs.length > 0) {
+        setSelectedSong(journeySongs[0]);
+      }
+    } catch (err) {
+      setErrorMessage("Failed to generate transition journey");
+      setRequestState("empty");
+    }
+  };
+
   return (
-    <div className="app-shell" id="topbar-root" style={{ overflowY: "auto" }}>
+    <div className={`app-shell ambient-mood-${activeMood}`} id="topbar-root" style={{ overflowY: "auto" }}>
       <div className="app-noise" />
 
       {/* HEADER */}
@@ -403,6 +427,26 @@ export default function MoodRoom() {
                     {emotionLabels[emotion] || emotion}
                   </button>
                 ))}
+              </div>
+
+              <div className="mood-journey-card glass-card" style={{ marginTop: '1.25rem', padding: '1rem', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <small style={{ textTransform: 'uppercase', letterSpacing: '1px', color: '#a78bfa', fontWeight: '700' }}>✨ Mood Journey Engine</small>
+                  <small style={{ color: 'rgba(255,255,255,0.6)' }}>Transition from {emotionLabels[activeMood] || 'Current'}</small>
+                </div>
+                <p style={{ fontSize: '0.825rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.75rem 0' }}>Generate a 4-step acoustic gradient playlist to shift your emotion:</p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {["happy", "sad", "angry", "surprise", "neutral"].map((target) => (
+                    <button
+                      key={`journey-${target}`}
+                      className="pill-button secondary small"
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                      onClick={() => handleMoodJourney(target)}
+                    >
+                      🚀 Shift to {emotionLabels[target] || target}
+                    </button>
+                  ))}
+                </div>
               </div>
             </section>
 

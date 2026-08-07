@@ -1,5 +1,6 @@
 // @ts-nocheck
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Volume2, VolumeX, Play, Pause, Music, Sliders } from 'lucide-react';
 
 const SPOTIFY_PLAYLISTS = {
   happy: {
@@ -29,6 +30,14 @@ const SPOTIFY_PLAYLISTS = {
   },
 };
 
+const MOOD_COLORS = {
+  happy: ['#f59e0b', '#ec4899', '#8b5cf6'],
+  sad: ['#3b82f6', '#1d4ed8', '#6366f1'],
+  angry: ['#ef4444', '#b91c1c', '#dc2626'],
+  surprise: ['#06b6d4', '#10b981', '#3b82f6'],
+  neutral: ['#8b5cf6', '#6366f1', '#a78bfa']
+};
+
 function embedUrl(youtubeId) {
   return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
 }
@@ -39,7 +48,7 @@ function thumbnailUrl(youtubeId) {
 }
 
 export default function NowPlaying({
-  activeMood,
+  activeMood = 'neutral',
   activeMoodLabel,
   onPlayerModeChange,
   playerMode,
@@ -47,6 +56,57 @@ export default function NowPlaying({
   song,
 }) {
   const spotifyPlaylist = SPOTIFY_PLAYLISTS[activeMood] || SPOTIFY_PLAYLISTS.neutral;
+  const audioRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+
+  // Web Audio Canvas Visualizer Animation
+  useEffect(() => {
+    if (!song?.preview_url || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    const colors = MOOD_COLORS[activeMood] || MOOD_COLORS.neutral;
+
+    const renderVisualizer = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const barCount = 32;
+      const barWidth = canvas.width / barCount;
+      const time = Date.now() * 0.005;
+
+      for (let i = 0; i < barCount; i++) {
+        const heightMultiplier = Math.sin(time + i * 0.3) * 0.4 + 0.6;
+        const barHeight = (canvas.height * 0.8) * heightMultiplier * (isPlaying ? 1 : 0.2);
+
+        const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+        gradient.addColorStop(0, colors[0]);
+        gradient.addColorStop(0.5, colors[1]);
+        gradient.addColorStop(1, colors[2]);
+
+        ctx.fillStyle = gradient;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = colors[0];
+
+        const x = i * barWidth;
+        const y = canvas.height - barHeight;
+        
+        ctx.beginPath();
+        ctx.roundRect(x + 2, y, barWidth - 4, barHeight, [4, 4, 0, 0]);
+        ctx.fill();
+      }
+
+      animationFrameId = requestAnimationFrame(renderVisualizer);
+    };
+
+    renderVisualizer();
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [song?.preview_url, activeMood, isPlaying]);
 
   if (!song) {
     return (
@@ -63,6 +123,33 @@ export default function NowPlaying({
   }
 
   const isDirectAudio = Boolean(song.preview_url || song.source);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleVolumeChange = (e) => {
+    const newVol = parseFloat(e.target.value);
+    setVolume(newVol);
+    if (audioRef.current) {
+      audioRef.current.volume = newVol;
+      setIsMuted(newVol === 0);
+    }
+  };
 
   return (
     <section className="player-panel">
@@ -100,21 +187,51 @@ export default function NowPlaying({
         key={isDirectAudio ? song.preview_url : playerMode === "spotify" ? spotifyPlaylist.url : song.youtubeId}
       >
         {isDirectAudio ? (
-          <div className="direct-audio-player-wrapper glass-card">
-            <div className="audio-visualizer-bars">
-              <span className="bar bar1"></span>
-              <span className="bar bar2"></span>
-              <span className="bar bar3"></span>
-              <span className="bar bar4"></span>
-              <span className="bar bar5"></span>
+          <div className="direct-audio-player-wrapper glass-card" style={{ padding: '1.25rem', borderRadius: '16px', background: 'rgba(15,15,25,0.75)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="visualizer-container" style={{ position: 'relative', width: '100%', height: '100px', marginBottom: '1rem', overflow: 'hidden', borderRadius: '12px', background: 'rgba(0,0,0,0.3)' }}>
+              <canvas 
+                ref={canvasRef} 
+                width={500} 
+                height={100} 
+                style={{ width: '100%', height: '100%', display: 'block' }}
+              />
             </div>
+
             <audio 
+              ref={audioRef}
               controls 
               autoPlay 
               src={song.preview_url} 
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
               className="native-audio-element" 
-              style={{ width: '100%', marginTop: '1rem' }}
+              style={{ width: '100%', marginTop: '0.5rem', borderRadius: '8px' }}
             />
+
+            <div className="custom-audio-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.75rem', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button className="pill-button primary small" onClick={togglePlay}>
+                  {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+                  {isPlaying ? 'Pause' : 'Play'}
+                </button>
+                <button className="pill-button secondary small" onClick={toggleMute}>
+                  {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, maxWidth: '160px' }}>
+                <Sliders size={12} style={{ color: 'rgba(255,255,255,0.6)' }} />
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="1" 
+                  step="0.05" 
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  style={{ flex: 1, accentColor: 'var(--color-primary-light, #a78bfa)' }}
+                />
+              </div>
+            </div>
           </div>
         ) : playerMode === "spotify" ? (
           <iframe

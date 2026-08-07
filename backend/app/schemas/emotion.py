@@ -29,3 +29,16 @@ class RecommendationResponse(BaseModel):
     normalized_emotion: str
     songs: list[SongResponse]
 
+class TransitionRequest(BaseModel):
+    start_emotion: str = Field(..., description="Current detected emotion")
+    target_emotion: str = Field(..., description="Desired target emotion")
+    steps: int = Field(4, ge=2, le=10, description="Number of transition steps")
+    genre: str | None = Field(None, description="Preferred genre")
+
+class TransitionResponse(BaseModel):
+    start_emotion: str
+    target_emotion: str
+    steps: int
+    journey: list[SongResponse]
+
+

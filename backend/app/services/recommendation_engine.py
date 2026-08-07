@@ -254,3 +254,61 @@ class RecommendationService:
             final_results = scored[:limit]
 
         return normalized, final_results
+
+    @classmethod
+    def recommend_transition_journey(
+        cls,
+        start_emotion: str,
+        target_emotion: str,
+        steps: int = 4,
+        user_genre: str | None = None
+    ) -> list[dict[str, Any]]:
+        norm_start = cls.normalize_emotion(start_emotion)
+        norm_target = cls.normalize_emotion(target_emotion)
+
+        start_profile = EMOTION_TARGETS.get(norm_start, EMOTION_TARGETS["neutral"])
+        target_profile = EMOTION_TARGETS.get(norm_target, EMOTION_TARGETS["happy"])
+
+        all_songs = [s for cat in SONGS.values() for s in cat]
+        journey_songs = []
+        used_titles = set()
+
+        for step in range(steps):
+            ratio = step / float(steps - 1) if steps > 1 else 1.0
+            step_profile = {
+                "valence": start_profile["valence"] * (1.0 - ratio) + target_profile["valence"] * ratio,
+                "energy": start_profile["energy"] * (1.0 - ratio) + target_profile["energy"] * ratio,
+                "tempo": start_profile["tempo"] * (1.0 - ratio) + target_profile["tempo"] * ratio,
+            }
+
+            best_song = None
+            best_score = -1.0
+
+            for song in all_songs:
+                title_val = song.get("title") or song.get("name", "")
+                if title_val in used_titles:
+                    continue
+
+                feats = cls.extract_song_features(song)
+                sim = cls.compute_euclidean(feats, step_profile, DEFAULT_WEIGHTS)
+                
+                if user_genre and user_genre.lower() in str(song.get("genre", "")).lower():
+                    sim += 0.1
+
+                if sim > best_score:
+                    best_score = sim
+                    best_song = song
+
+            if best_song:
+                title_val = best_song.get("title") or best_song.get("name", "Unknown Title")
+                used_titles.add(title_val)
+                s = best_song.copy()
+                s["title"] = title_val
+                s["name"] = title_val
+                s["recommendation_score"] = round(best_score, 3)
+                s["recommendation_reason"] = f"Journey Step {step+1}/{steps} ({int(ratio*100)}% to {norm_target})"
+                s["audio_features"] = cls.extract_song_features(best_song)
+                journey_songs.append(s)
+
+        return journey_songs
+
