@@ -86,3 +86,23 @@ export interface DirectoryListingResponse {
   audio_count: number;
   available_drives?: string[];
 }
+
+export interface EyeControlSettings {
+  enabled: boolean;
+  calibrated: boolean;
+  calibrationScore: number; // 0 - 100
+  dwellTime: number; // ms, 400 - 1500
+  sensitivity: number; // 1 - 10
+  cursorVisible: boolean;
+  highlightColor: string;
+  eyeSmoothing: number; // 0.1 - 0.9
+  trackingPaused: boolean;
+}
+
+export interface GazeEvent {
+  x: number;
+  y: number;
+  confidence: number;
+  timestamp: number;
+}
+

@@ -352,6 +352,112 @@ export default function ProfilePage() {
             </section>
           </div>
         </div>
+
+        {/* ── ACCESSIBILITY & EYE CONTROL PANEL ──────────────── */}
+        <section className="panel" style={{ marginTop: 24, borderTop: "4px solid var(--gold)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            <div>
+              <span style={{ fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--gold)" }}>Accessibility & Interaction</span>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--text-1)", margin: "4px 0 0 0" }}>Eye Control System</h2>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: "0.75rem", color: "var(--text-3)", fontWeight: 600 }}>Enable Eye Control</span>
+              <label className="lp-toggle" style={{ position: "relative", display: "inline-block", width: 44, height: 24 }}>
+                <input
+                  type="checkbox"
+                  checked={useAppStore.getState().eyeControlSettings.enabled}
+                  onChange={(e) => {
+                    useAppStore.getState().setEyeControlSettings({ enabled: e.target.checked });
+                  }}
+                  style={{ opacity: 0, width: 0, height: 0 }}
+                />
+                <span
+                  style={{
+                    position: "absolute", cursor: "pointer", inset: 0,
+                    background: useAppStore.getState().eyeControlSettings.enabled ? "var(--gold)" : "rgba(255,255,255,0.1)",
+                    borderRadius: 24, transition: "0.3s",
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute", height: 18, width: 18, left: 3, bottom: 3,
+                      background: "#090909", borderRadius: "50%", transition: "0.3s",
+                      transform: useAppStore.getState().eyeControlSettings.enabled ? "translateX(20px)" : "none",
+                    }}
+                  />
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <p style={{ fontSize: "0.86rem", color: "var(--text-2)", lineHeight: 1.6, marginBottom: 20 }}>
+            Hands-free, gaze-driven music navigation. Enables effortless play, pause, next track, and room panel expansion simply by looking at elements.
+          </p>
+
+          {/* Privacy Guarantee Box */}
+          <div style={{ background: "rgba(212,175,55,0.04)", border: "1px solid rgba(212,175,55,0.15)", borderRadius: "var(--r-16)", padding: "16px 20px", marginBottom: 24, display: "flex", gap: 14, alignItems: "flex-start" }}>
+            <ShieldCheck size={20} style={{ color: "var(--gold)", flexShrink: 0, marginTop: 2 }} />
+            <div style={{ fontSize: "0.82rem", color: "var(--text-2)", lineHeight: 1.6 }}>
+              <strong style={{ color: "var(--text-1)", display: "block", marginBottom: 4 }}>100% Private & Processed Locally</strong>
+              Camera feed is processed entirely inside your browser for gaze estimation. No images or video are recorded, stored, or transmitted anywhere. Disabling Eye Control immediately terminates all camera processing.
+            </div>
+          </div>
+
+          {useAppStore.getState().eyeControlSettings.enabled && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, paddingTop: 12, borderTop: "1px solid var(--glass-border)" }}>
+              {/* Calibration & Status */}
+              <div style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "var(--r-16)", padding: "18px" }}>
+                <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>Calibration Status</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                  <span style={{ fontSize: "1rem", fontWeight: 800, color: useAppStore.getState().eyeControlSettings.calibrated ? "var(--gold)" : "var(--text-2)" }}>
+                    {useAppStore.getState().eyeControlSettings.calibrated ? `Calibrated (${useAppStore.getState().eyeControlSettings.calibrationScore}%)` : "Not Calibrated"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if ((window as any).startEyeCalibration) (window as any).startEyeCalibration();
+                    }}
+                    className="pill-button primary small"
+                  >
+                    Start 9-Point Calibration
+                  </button>
+                </div>
+                <p style={{ fontSize: "0.78rem", color: "var(--text-3)", margin: 0 }}>
+                  Recalibrating improves gaze accuracy across your specific screen dimensions and lighting.
+                </p>
+              </div>
+
+              {/* Dwell & Sensitivity Controls */}
+              <div style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "var(--r-16)", padding: "18px", display: "flex", flexDirection: "column", gap: 14 }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6 }}>
+                    <span>Dwell Activation Time</span>
+                    <span style={{ color: "var(--gold)" }}>{useAppStore.getState().eyeControlSettings.dwellTime} ms</span>
+                  </div>
+                  <input
+                    type="range" min="400" max="1500" step="50"
+                    value={useAppStore.getState().eyeControlSettings.dwellTime}
+                    onChange={(e) => useAppStore.getState().setEyeControlSettings({ dwellTime: Number(e.target.value) })}
+                    style={{ width: "100%", accentColor: "var(--gold)", cursor: "pointer" }}
+                  />
+                </div>
+
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6 }}>
+                    <span>Gaze Smoothing & Jitter Filter</span>
+                    <span style={{ color: "var(--gold)" }}>{Math.round(useAppStore.getState().eyeControlSettings.eyeSmoothing * 100)}%</span>
+                  </div>
+                  <input
+                    type="range" min="0.1" max="0.9" step="0.05"
+                    value={useAppStore.getState().eyeControlSettings.eyeSmoothing}
+                    onChange={(e) => useAppStore.getState().setEyeControlSettings({ eyeSmoothing: Number(e.target.value) })}
+                    style={{ width: "100%", accentColor: "var(--gold)", cursor: "pointer" }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
       </main>
 
       {/* ── Floating Bottom Navigation Pill ── */}

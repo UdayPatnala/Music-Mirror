@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { UserProfile, Song } from '../types';
+import type { UserProfile, Song, EyeControlSettings } from '../types';
 
 interface AppState {
     profile: UserProfile | null;
@@ -18,6 +18,12 @@ interface AppState {
     setPlayerMode: (mode: 'youtube' | 'spotify') => void;
     favs: Song[];
     toggleFav: (song: Song) => void;
+
+    // Eye Control System State
+    eyeControlSettings: EyeControlSettings;
+    setEyeControlSettings: (settings: Partial<EyeControlSettings>) => void;
+    calibrationData: Array<{ targetX: number; targetY: number; eyeX: number; eyeY: number }> | null;
+    setCalibrationData: (data: Array<{ targetX: number; targetY: number; eyeX: number; eyeY: number }> | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -50,6 +56,24 @@ export const useAppStore = create<AppState>()(
                     : [song, ...state.favs].slice(0, 20);
                 return { favs: nextFavs };
             }),
+
+            // Eye Control Defaults (Default OFF)
+            eyeControlSettings: {
+                enabled: false,
+                calibrated: false,
+                calibrationScore: 0,
+                dwellTime: 700,
+                sensitivity: 5,
+                cursorVisible: true,
+                highlightColor: '#D4AF37',
+                eyeSmoothing: 0.5,
+                trackingPaused: false,
+            },
+            setEyeControlSettings: (newSettings) => set((state) => ({
+                eyeControlSettings: { ...state.eyeControlSettings, ...newSettings }
+            })),
+            calibrationData: null,
+            setCalibrationData: (calibrationData) => set({ calibrationData }),
         }),
         { name: 'music-mirror-storage-v2' }
     )

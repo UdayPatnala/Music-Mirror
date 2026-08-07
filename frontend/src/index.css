@@ -1105,4 +1105,24 @@ img { max-width: 100%; display: block; }
 .studio-nav-item:hover { color: var(--text-1); background: rgba(255,255,255,0.04); }
 .studio-nav-item.active { color: var(--gold); background: rgba(212,175,55,0.12); }
 
+/* ── Eye Control Interactive States ──────────────────────────── */
+.gaze-focused {
+  outline: 2px solid var(--gold) !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.35), 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, outline 0.2s ease !important;
+}
+
+.gaze-activated {
+  animation: gazePulse 0.4s ease-out !important;
+}
+
+@keyframes gazePulse {
+  0% { transform: scale(1.02); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); }
+  50% { transform: scale(0.96); box-shadow: 0 0 32px 12px rgba(212, 175, 55, 0.4); }
+  100% { transform: scale(1.0); box-shadow: 0 0 0 0 transparent; }
+}
+
+
 
