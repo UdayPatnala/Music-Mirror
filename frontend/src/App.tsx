@@ -10,9 +10,24 @@ const SummaryPage = lazy(() => import('./pages/SummaryPage'));
 
 const queryClient = new QueryClient();
 
+const DEFAULT_GUEST_PROFILE = {
+    name: "Guest Listener",
+    email: "guest@musicmirror.ai",
+    genre: "Pop",
+    goal: "Match my mood",
+    languages: ["Telugu", "English", "Tamil", "Hindi"],
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const profile = useAppStore(state => state.profile);
-    if (!profile) return <Navigate to="/" replace />;
+    const setProfile = useAppStore(state => state.setProfile);
+
+    React.useEffect(() => {
+        if (!profile) {
+            setProfile(DEFAULT_GUEST_PROFILE);
+        }
+    }, [profile, setProfile]);
+
     return <>{children}</>;
 };
 

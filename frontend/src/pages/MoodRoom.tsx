@@ -61,9 +61,17 @@ export default function MoodRoom() {
   const batchRef = useRef<any[]>([]);
   const BATCH = 3;
 
+  const DEFAULT_GUEST_PROFILE = {
+    name: "Guest Listener",
+    email: "guest@musicmirror.ai",
+    genre: "Pop",
+    goal: "Match my mood",
+    languages: ["Telugu", "English", "Tamil", "Hindi"],
+  };
+  const activeProfile = profile || DEFAULT_GUEST_PROFILE;
+
   /* fetch recommendations */
   useEffect(() => {
-    if (!profile) return;
     let dead = false;
     let t: ReturnType<typeof setTimeout>;
 
@@ -72,8 +80,8 @@ export default function MoodRoom() {
       t = setTimeout(() => { if (!dead) setWaking(true); }, 2500);
       try {
         const res = await apiClient.post("/recommend", {
-          emotion: mood, genre: profile.genre, goal: profile.goal,
-          languages: profile.languages,
+          emotion: mood, genre: activeProfile.genre, goal: activeProfile.goal,
+          languages: activeProfile.languages,
         });
         clearTimeout(t);
         if (dead) return;
@@ -94,7 +102,7 @@ export default function MoodRoom() {
     };
     go();
     return () => { dead = true; clearTimeout(t); };
-  }, [mood, profile]);
+  }, [mood, activeProfile]);
 
   const onDetect = useCallback((d: any) => {
     setEmotion(d);
