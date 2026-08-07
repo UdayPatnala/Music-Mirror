@@ -329,8 +329,8 @@ export default function MoodRoom() {
               <strong>{selectedSong?.source ? selectedSong.source : activeMoodLabel}</strong>
             </div>
             <div>
-              <span className="meta-label">Top pattern</span>
-              <strong>{emotionLabels[insightSummary.topMood] || "Neutral"}</strong>
+              <span className="meta-label">Languages</span>
+              <strong>{profile?.languages ? profile.languages.join(", ") : "Telugu, English, Tamil, Hindi"}</strong>
             </div>
             <div>
               <span className="meta-label">Saved tracks</span>

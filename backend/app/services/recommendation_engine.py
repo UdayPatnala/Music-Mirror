@@ -258,6 +258,8 @@ class RecommendationService:
             title_val = s.get("title") or s.get("name", "Unknown Title")
             s["title"] = title_val
             s["name"] = title_val
+            s["language"] = s.get("language") or "English"
+            s["source_provider"] = s.get("source_provider") or "YouTube"
             s["youtubeId"] = s.get("youtubeId") or TRACK_YOUTUBE_IDS.get(title_val.lower(), "4NRXx6U8ABQ")
             s["recommendation_score"] = round(final_score, 3)
             s["audio_features"] = feats

@@ -3,6 +3,7 @@ export interface UserProfile {
   email: string;
   genre: string;
   goal: string;
+  languages?: string[];
 }
 
 export interface Song {
@@ -10,6 +11,8 @@ export interface Song {
   name?: string;
   artist: string;
   genre?: string;
+  language?: string;
+  source_provider?: string;
   album_art?: string;
   preview_url?: string;
   spotify_url?: string;
