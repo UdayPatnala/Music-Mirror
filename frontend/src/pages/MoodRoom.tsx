@@ -13,12 +13,17 @@ import LocalFileExplorer from "../components/LocalFileExplorer";
 
 /* ─── Mood metadata ─────────────────────────────────────────── */
 const MOOD: Record<string, { emoji: string; glow: string }> = {
-  happy:    { emoji: "😊", glow: "rgba(245,158,11,0.25)"  },
-  sad:      { emoji: "😔", glow: "rgba(59,130,246,0.25)"  },
-  angry:    { emoji: "😤", glow: "rgba(239,68,68,0.25)"   },
-  neutral:  { emoji: "😐", glow: "rgba(139,92,246,0.25)"  },
-  surprise: { emoji: "😲", glow: "rgba(6,182,212,0.25)"   },
+  happy:     { emoji: "😊", glow: "rgba(245,158,11,0.25)"  },
+  sad:       { emoji: "😔", glow: "rgba(59,130,246,0.25)"  },
+  angry:     { emoji: "😤", glow: "rgba(239,68,68,0.25)"   },
+  neutral:   { emoji: "😐", glow: "rgba(139,92,246,0.25)"  },
+  surprise:  { emoji: "😲", glow: "rgba(6,182,212,0.25)"   },
+  surprised: { emoji: "😲", glow: "rgba(6,182,212,0.25)"   },
+  fearful:   { emoji: "😔", glow: "rgba(59,130,246,0.25)"  },
+  disgusted: { emoji: "😤", glow: "rgba(239,68,68,0.25)"   },
 };
+
+const getMoodMeta = (m: string) => MOOD[m] || MOOD.neutral;
 
 const MOODS = ["happy", "neutral", "sad", "angry", "surprise"];
 
@@ -130,7 +135,7 @@ export default function MoodRoom() {
       : [song, ...f].slice(0, 20));
   }, []);
 
-  const moodMeta = MOOD[mood] || MOOD.neutral;
+  const moodMeta = getMoodMeta(mood);
   const moodLabel = emotionLabels[mood] || mood;
   const confidence = Math.round((emotion.confidence || 0) * 100);
 
@@ -184,7 +189,7 @@ export default function MoodRoom() {
         {pending && (
           <motion.div className="room-nudge"
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
-            <span>{MOOD[pending]?.emoji} New mood detected: <strong>{emotionLabels[pending] || pending}</strong></span>
+            <span>{getMoodMeta(pending).emoji} New mood detected: <strong>{emotionLabels[pending] || pending}</strong></span>
             <button onClick={() => { setMood(pending!); setPending(null); }}>Switch</button>
             <button className="room-nudge-dismiss" onClick={() => setPending(null)}>✕</button>
           </motion.div>
