@@ -38,13 +38,58 @@ const MOOD_COLORS = {
   neutral: ['#8b5cf6', '#6366f1', '#a78bfa']
 };
 
+const TRACK_YOUTUBE_IDS = {
+  "blinding lights": "4NRXx6U8ABQ",
+  "levitating": "TUVcZfQe-Kw",
+  "can't stop the feeling!": "ru0K8uYEZWw",
+  "uptown funk": "OPf0YbXqDm0",
+  "happy": "ZbZSe6N_BXs",
+  "good as hell": "smDa04GcnzA",
+  "walking on sunshine": "iPUmE-tne5U",
+  "sugar": "09R8_2nJtjg",
+  "sunflower": "ApXoWvfEYVU",
+  "don't start now": "oygrmJFKYZY",
+  "shake it off": "nfWlot6h_JM",
+  "someone like you": "hLQl3WQQoQ0",
+  "sunset lover": "1G4isv_Fylg",
+  "resonance": "8GW6sLrK40k",
+  "fix you": "k4V3Mo61hJM",
+  "drivers license": "ZmDBbnmKpqQ",
+  "all of me": "450p7goxZqg",
+  "believer": "7wtfhZwyrYY",
+  "radioactive": "ktvTqWscGsw",
+  "eye of the tiger": "btPJPFnesV4",
+  "stronger": "PsO6ZnUZI0g",
+  "numb": "kXYiU_JCYtU",
+  "weightless": "UfcAVejslrU",
+  "clair de lune": "WNcsUNKlAKw"
+};
+
+function getYouTubeId(song) {
+  if (!song) return '4NRXx6U8ABQ';
+  if (song.youtubeId && song.youtubeId !== 'undefined') return song.youtubeId;
+  const key = (song.title || song.name || '').toLowerCase().trim();
+  return TRACK_YOUTUBE_IDS[key] || '4NRXx6U8ABQ';
+}
+
 function embedUrl(youtubeId) {
-  return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+  const safeId = youtubeId && youtubeId !== 'undefined' ? youtubeId : '4NRXx6U8ABQ';
+  return `https://www.youtube.com/embed/${safeId}?autoplay=1&rel=0`;
+}
+
+function getSpotifyEmbedUrl(song, activeMood) {
+  if (song?.spotify_url && song.spotify_url.includes('/track/')) {
+    const trackId = song.spotify_url.split('/track/')[1]?.split('?')[0];
+    if (trackId) {
+      return `https://open.spotify.com/embed/track/${trackId}?utm_source=generator`;
+    }
+  }
+  return (SPOTIFY_PLAYLISTS[activeMood] || SPOTIFY_PLAYLISTS.neutral).url;
 }
 
 function thumbnailUrl(youtubeId) {
-  if (!youtubeId) return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80';
-  return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+  const safeId = youtubeId && youtubeId !== 'undefined' ? youtubeId : '4NRXx6U8ABQ';
+  return `https://img.youtube.com/vi/${safeId}/hqdefault.jpg`;
 }
 
 export default function NowPlaying({

@@ -29,6 +29,33 @@ EMOTION_TARGETS = {
 
 DEFAULT_WEIGHTS = {"valence": 0.4, "energy": 0.4, "tempo": 0.2}
 
+TRACK_YOUTUBE_IDS = {
+    "blinding lights": "4NRXx6U8ABQ",
+    "levitating": "TUVcZfQe-Kw",
+    "can't stop the feeling!": "ru0K8uYEZWw",
+    "uptown funk": "OPf0YbXqDm0",
+    "happy": "ZbZSe6N_BXs",
+    "good as hell": "smDa04GcnzA",
+    "walking on sunshine": "iPUmE-tne5U",
+    "sugar": "09R8_2nJtjg",
+    "sunflower": "ApXoWvfEYVU",
+    "don't start now": "oygrmJFKYZY",
+    "shake it off": "nfWlot6h_JM",
+    "someone like you": "hLQl3WQQoQ0",
+    "sunset lover": "1G4isv_Fylg",
+    "resonance": "8GW6sLrK40k",
+    "fix you": "k4V3Mo61hJM",
+    "drivers license": "ZmDBbnmKpqQ",
+    "all of me": "450p7goxZqg",
+    "believer": "7wtfhZwyrYY",
+    "radioactive": "ktvTqWscGsw",
+    "eye of the tiger": "btPJPFnesV4",
+    "stronger": "PsO6ZnUZI0g",
+    "numb": "kXYiU_JCYtU",
+    "weightless": "UfcAVejslrU",
+    "clair de lune": "WNcsUNKlAKw"
+}
+
 class RecommendationService:
     @staticmethod
     def normalize_emotion(emotion: Any) -> str:
@@ -231,6 +258,7 @@ class RecommendationService:
             title_val = s.get("title") or s.get("name", "Unknown Title")
             s["title"] = title_val
             s["name"] = title_val
+            s["youtubeId"] = s.get("youtubeId") or TRACK_YOUTUBE_IDS.get(title_val.lower(), "4NRXx6U8ABQ")
             s["recommendation_score"] = round(final_score, 3)
             s["audio_features"] = feats
             
@@ -305,6 +333,7 @@ class RecommendationService:
                 s = best_song.copy()
                 s["title"] = title_val
                 s["name"] = title_val
+                s["youtubeId"] = s.get("youtubeId") or TRACK_YOUTUBE_IDS.get(title_val.lower(), "4NRXx6U8ABQ")
                 s["recommendation_score"] = round(best_score, 3)
                 s["recommendation_reason"] = f"Journey Step {step+1}/{steps} ({int(ratio*100)}% to {norm_target})"
                 s["audio_features"] = cls.extract_song_features(best_song)

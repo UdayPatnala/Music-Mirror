@@ -327,12 +327,6 @@ export default function MoodRoom() {
           >
             📂 Local Explorer
           </button>
-          <button 
-            className={`nav-tab-btn ${activeNavTab === 'git-explorer' ? 'active' : ''}`}
-            onClick={() => setActiveNavTab('git-explorer')}
-          >
-            🐙 Git Repository
-          </button>
         </nav>
 
         <div className="topbar-actions">
@@ -352,10 +346,10 @@ export default function MoodRoom() {
       {/* POSTER HERO */}
       <section className="poster">
         <div className="poster-copy">
-          <p className="eyebrow">Studio & Repository Ecosystem</p>
-          <h2>Music that adapts to your face, local files, and git code.</h2>
+          <p className="eyebrow">Studio & Local Explorer Ecosystem</p>
+          <h2>Music that adapts to your face and local audio files.</h2>
           <p className="poster-text">
-            Scan your face for mood picks, browse local audio files on your computer, or explore GitHub repository code & music tracks.
+            Scan your face for mood picks or browse and stream local audio files directly on your computer.
           </p>
 
           <div className="poster-meta">
@@ -385,12 +379,6 @@ export default function MoodRoom() {
       </section>
 
       {/* DYNAMIC TAB WORKSPACE CONTENT */}
-      {activeNavTab === 'git-explorer' && (
-        <main className="workspace-single">
-          <GitRepoExplorer onPlayTrack={handleExternalPlayTrack} />
-        </main>
-      )}
-
       {activeNavTab === 'local-explorer' && (
         <main className="workspace-single">
           <LocalFileExplorer onPlayTrack={handleExternalPlayTrack} />

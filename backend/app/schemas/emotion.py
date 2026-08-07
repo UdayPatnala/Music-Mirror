@@ -14,6 +14,7 @@ class SongResponse(BaseModel):
     album_art: str | None = None
     preview_url: str | None = None
     spotify_url: str | None = None
+    youtubeId: str | None = None
     recommendation_score: float | None = None
     audio_features: dict[str, Any] | None = None
     recommendation_reason: str | None = None
