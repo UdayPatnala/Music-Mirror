@@ -1,6 +1,108 @@
 {
   "happy": [
     {
+      "title": "Buttabomma",
+      "artist": "Armaan Malik",
+      "genre": "Telugu Pop",
+      "language": "Telugu",
+      "valence": 0.92,
+      "energy_numeric": 0.85,
+      "tempo": 120,
+      "popularity": 95,
+      "youtubeId": "ZbZSe6N_BXs"
+    },
+    {
+      "title": "Samajavaragamana",
+      "artist": "Sid Sriram",
+      "genre": "Telugu Soul",
+      "language": "Telugu",
+      "valence": 0.88,
+      "energy_numeric": 0.78,
+      "tempo": 110,
+      "popularity": 94,
+      "youtubeId": "4NRXx6U8ABQ"
+    },
+    {
+      "title": "Ramuloo Ramulaa",
+      "artist": "Anurag Kulkarni & Mangli",
+      "genre": "Folk Pop",
+      "language": "Telugu",
+      "valence": 0.94,
+      "energy_numeric": 0.9,
+      "tempo": 130,
+      "popularity": 92
+    },
+    {
+      "title": "Inkem Inkem Inkem Kaavale",
+      "artist": "Sid Sriram",
+      "genre": "Romantic Pop",
+      "language": "Telugu",
+      "valence": 0.85,
+      "energy_numeric": 0.72,
+      "tempo": 105,
+      "popularity": 93
+    },
+    {
+      "title": "Srivalli",
+      "artist": "Sid Sriram",
+      "genre": "Telugu Melodic",
+      "language": "Telugu",
+      "valence": 0.89,
+      "energy_numeric": 0.75,
+      "tempo": 108,
+      "popularity": 96
+    },
+    {
+      "title": "Rowdy Baby",
+      "artist": "Dhanush & Dhee",
+      "genre": "Tamil Dance",
+      "language": "Tamil",
+      "valence": 0.95,
+      "energy_numeric": 0.92,
+      "tempo": 125,
+      "popularity": 95
+    },
+    {
+      "title": "Arabic Kuthu",
+      "artist": "Anirudh Ravichander & Jonita Gandhi",
+      "genre": "Kuthu",
+      "language": "Tamil",
+      "valence": 0.93,
+      "energy_numeric": 0.94,
+      "tempo": 132,
+      "popularity": 94
+    },
+    {
+      "title": "Vaathi Coming",
+      "artist": "Anirudh Ravichander",
+      "genre": "Tamil Folk",
+      "language": "Tamil",
+      "valence": 0.91,
+      "energy_numeric": 0.95,
+      "tempo": 135,
+      "popularity": 91
+    },
+    {
+      "title": "Badtameez Dil",
+      "artist": "Benoit Gomes & Pritam",
+      "genre": "Bollywood Dance",
+      "language": "Hindi",
+      "valence": 0.95,
+      "energy_numeric": 0.93,
+      "tempo": 140,
+      "popularity": 92
+    },
+    {
+      "title": "Gallan Goodiyan",
+      "artist": "Yashita Sharma & Shankar Mahadevan",
+      "genre": "Bollywood Celebration",
+      "language": "Hindi",
+      "valence": 0.96,
+      "energy_numeric": 0.91,
+      "tempo": 128,
+      "popularity": 90
+    },
+    {
       "title": "Blinding Lights",
       "artist": "The Weeknd",
       "genre": "Synthpop",
@@ -9,7 +111,8 @@
       "tempo": 171,
       "popularity": 95,
       "spotify_url": "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b",
-      "preview_url": "https://p.scdn.co/mp3-preview/b2e2d9"
+      "preview_url": "https://p.scdn.co/mp3-preview/b2e2d9",
+      "language": "English"
     },
     {
       "title": "Levitating",
@@ -19,7 +122,8 @@
       "energy_numeric": 0.84,
       "tempo": 103,
       "popularity": 90,
-      "spotify_url": "https://open.spotify.com/track/46spSG9b9y21pe2xySuYFi"
+      "spotify_url": "https://open.spotify.com/track/46spSG9b9y21pe2xySuYFi",
+      "language": "English"
     },
     {
       "title": "Can't Stop the Feeling!",
@@ -28,7 +132,8 @@
       "valence": 0.96,
       "energy_numeric": 0.83,
       "tempo": 113,
-      "popularity": 88
+      "popularity": 88,
+      "language": "English"
     },
     {
       "title": "Uptown Funk",
@@ -37,7 +142,8 @@
       "valence": 0.93,
       "energy_numeric": 0.89,
       "tempo": 115,
-      "popularity": 92
+      "popularity": 92,
+      "language": "English"
     },
     {
       "title": "Happy",
@@ -46,7 +152,8 @@
       "valence": 0.96,
       "energy_numeric": 0.72,
       "tempo": 160,
-      "popularity": 89
+      "popularity": 89,
+      "language": "English"
     },
     {
       "title": "Good as Hell",
@@ -55,7 +162,8 @@
       "valence": 0.88,
       "energy_numeric": 0.89,
       "tempo": 96,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     },
     {
       "title": "Walking on Sunshine",
@@ -64,7 +172,8 @@
       "valence": 0.94,
       "energy_numeric": 0.94,
       "tempo": 110,
-      "popularity": 80
+      "popularity": 80,
+      "language": "English"
     },
     {
       "title": "Sugar",
@@ -73,7 +182,8 @@
       "valence": 0.88,
       "energy_numeric": 0.79,
       "tempo": 120,
-      "popularity": 87
+      "popularity": 87,
+      "language": "English"
     },
     {
       "title": "Sunflower",
@@ -82,7 +192,8 @@
       "valence": 0.91,
       "energy_numeric": 0.52,
       "tempo": 90,
-      "popularity": 94
+      "popularity": 94,
+      "language": "English"
     },
     {
       "title": "Don't Start Now",
@@ -91,7 +202,8 @@
       "valence": 0.84,
       "energy_numeric": 0.79,
       "tempo": 124,
-      "popularity": 89
+      "popularity": 89,
+      "language": "English"
     },
     {
       "title": "Shake It Off",
@@ -100,7 +212,8 @@
       "valence": 0.94,
       "energy_numeric": 0.8,
       "tempo": 160,
-      "popularity": 91
+      "popularity": 91,
+      "language": "English"
     },
     {
       "title": "Feels",
@@ -109,7 +222,8 @@
       "valence": 0.87,
       "energy_numeric": 0.74,
       "tempo": 102,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "I Gotta Feeling",
@@ -118,7 +232,8 @@
       "valence": 0.96,
       "energy_numeric": 0.76,
       "tempo": 128,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Dynamite",
@@ -127,7 +242,8 @@
       "valence": 0.9,
       "energy_numeric": 0.77,
       "tempo": 114,
-      "popularity": 88
+      "popularity": 88,
+      "language": "English"
     },
     {
       "title": "24K Magic",
@@ -136,7 +252,8 @@
       "valence": 0.86,
       "energy_numeric": 0.8,
       "tempo": 107,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     },
     {
       "title": "As It Was",
@@ -145,7 +262,8 @@
       "valence": 0.89,
       "energy_numeric": 0.73,
       "tempo": 174,
-      "popularity": 96
+      "popularity": 96,
+      "language": "English"
     },
     {
       "title": "Dance The Night",
@@ -154,7 +272,8 @@
       "valence": 0.86,
       "energy_numeric": 0.84,
       "tempo": 110,
-      "popularity": 92
+      "popularity": 92,
+      "language": "English"
     },
     {
       "title": "I'm Good (Blue)",
@@ -163,7 +282,8 @@
       "valence": 0.81,
       "energy_numeric": 0.96,
       "tempo": 128,
-      "popularity": 91
+      "popularity": 91,
+      "language": "English"
     },
     {
       "title": "Shut Up and Dance",
@@ -172,7 +292,8 @@
       "valence": 0.87,
       "energy_numeric": 0.88,
       "tempo": 128,
-      "popularity": 84
+      "popularity": 84,
+      "language": "English"
     },
     {
       "title": "High Hopes",
@@ -181,10 +302,111 @@
       "valence": 0.88,
       "energy_numeric": 0.9,
       "tempo": 82,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     }
   ],
   "sad": [
+    {
+      "title": "Ennenno Janmala",
+      "artist": "Sid Sriram",
+      "genre": "Telugu Melodic",
+      "language": "Telugu",
+      "valence": 0.22,
+      "energy_numeric": 0.35,
+      "tempo": 75,
+      "popularity": 89
+    },
+    {
+      "title": "Emai Poye",
+      "artist": "Sid Sriram",
+      "genre": "Telugu Emotional",
+      "language": "Telugu",
+      "valence": 0.18,
+      "energy_numeric": 0.3,
+      "tempo": 70,
+      "popularity": 88
+    },
+    {
+      "title": "Neeli Neeli Aakasam",
+      "artist": "Sid Sriram & Sunitha",
+      "genre": "Telugu Romantic",
+      "language": "Telugu",
+      "valence": 0.28,
+      "energy_numeric": 0.4,
+      "tempo": 80,
+      "popularity": 91
+    },
+    {
+      "title": "Telusa Telusa",
+      "artist": "Sameera Bharadwaj",
+      "genre": "Telugu Sad",
+      "language": "Telugu",
+      "valence": 0.2,
+      "energy_numeric": 0.28,
+      "tempo": 72,
+      "popularity": 84
+    },
+    {
+      "title": "Kannazhaga",
+      "artist": "Dhanush & Shruti Haasan",
+      "genre": "Tamil Acoustic",
+      "language": "Tamil",
+      "valence": 0.25,
+      "energy_numeric": 0.32,
+      "tempo": 78,
+      "popularity": 90
+    },
+    {
+      "title": "Po Ve Po",
+      "artist": "Anirudh Ravichander & Mohit Chauhan",
+      "genre": "Tamil Sad",
+      "language": "Tamil",
+      "valence": 0.15,
+      "energy_numeric": 0.29,
+      "tempo": 68,
+      "popularity": 89
+    },
+    {
+      "title": "Naan Pizhai",
+      "artist": "Anirudh Ravichander & Shashaa Tirupati",
+      "genre": "Tamil Melodic",
+      "language": "Tamil",
+      "valence": 0.3,
+      "energy_numeric": 0.38,
+      "tempo": 82,
+      "popularity": 87
+    },
+    {
+      "title": "Tum Hi Ho",
+      "artist": "Arijit Singh",
+      "genre": "Bollywood Ballad",
+      "language": "Hindi",
+      "valence": 0.19,
+      "energy_numeric": 0.33,
+      "tempo": 76,
+      "popularity": 96
+    },
+    {
+      "title": "Channa Mereya",
+      "artist": "Arijit Singh",
+      "genre": "Bollywood Sad",
+      "language": "Hindi",
+      "valence": 0.16,
+      "energy_numeric": 0.42,
+      "tempo": 84,
+      "popularity": 95
+    },
+    {
+      "title": "Agar Tum Saath Ho",
+      "artist": "Arijit Singh & Alka Yagnik",
+      "genre": "Bollywood Emotional",
+      "language": "Hindi",
+      "valence": 0.21,
+      "energy_numeric": 0.36,
+      "tempo": 78,
+      "popularity": 94
+    },
     {
       "title": "Someone Like You",
       "artist": "Adele",
@@ -193,7 +415,8 @@
       "energy_numeric": 0.33,
       "tempo": 67,
       "popularity": 90,
-      "spotify_url": "https://open.spotify.com/track/10IsK2vF3V43e06N0fH96g"
+      "spotify_url": "https://open.spotify.com/track/10IsK2vF3V43e06N0fH96g",
+      "language": "English"
     },
     {
       "title": "Fix You",
@@ -202,7 +425,8 @@
       "valence": 0.22,
       "energy_numeric": 0.42,
       "tempo": 138,
-      "popularity": 88
+      "popularity": 88,
+      "language": "English"
     },
     {
       "title": "All of Me",
@@ -211,7 +435,8 @@
       "valence": 0.35,
       "energy_numeric": 0.26,
       "tempo": 120,
-      "popularity": 89
+      "popularity": 89,
+      "language": "English"
     },
     {
       "title": "Drivers License",
@@ -220,7 +445,8 @@
       "valence": 0.13,
       "energy_numeric": 0.43,
       "tempo": 144,
-      "popularity": 91
+      "popularity": 91,
+      "language": "English"
     },
     {
       "title": "Say Something",
@@ -229,7 +455,8 @@
       "valence": 0.09,
       "energy_numeric": 0.15,
       "tempo": 96,
-      "popularity": 82
+      "popularity": 82,
+      "language": "English"
     },
     {
       "title": "The Scientist",
@@ -238,7 +465,8 @@
       "valence": 0.21,
       "energy_numeric": 0.44,
       "tempo": 146,
-      "popularity": 87
+      "popularity": 87,
+      "language": "English"
     },
     {
       "title": "Skinny Love",
@@ -247,7 +475,8 @@
       "valence": 0.14,
       "energy_numeric": 0.26,
       "tempo": 76,
-      "popularity": 80
+      "popularity": 80,
+      "language": "English"
     },
     {
       "title": "Whiskey Lullaby",
@@ -256,7 +485,8 @@
       "valence": 0.19,
       "energy_numeric": 0.31,
       "tempo": 87,
-      "popularity": 78
+      "popularity": 78,
+      "language": "English"
     },
     {
       "title": "Hallelujah",
@@ -265,7 +495,8 @@
       "valence": 0.09,
       "energy_numeric": 0.17,
       "tempo": 115,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "Supermarket Flowers",
@@ -274,7 +505,8 @@
       "valence": 0.24,
       "energy_numeric": 0.22,
       "tempo": 90,
-      "popularity": 81
+      "popularity": 81,
+      "language": "English"
     },
     {
       "title": "Glimpse of Us",
@@ -283,7 +515,8 @@
       "valence": 0.11,
       "energy_numeric": 0.31,
       "tempo": 170,
-      "popularity": 92
+      "popularity": 92,
+      "language": "English"
     },
     {
       "title": "Another Love",
@@ -292,7 +525,8 @@
       "valence": 0.13,
       "energy_numeric": 0.53,
       "tempo": 123,
-      "popularity": 94
+      "popularity": 94,
+      "language": "English"
     },
     {
       "title": "Lucid Dreams",
@@ -301,7 +535,8 @@
       "valence": 0.22,
       "energy_numeric": 0.57,
       "tempo": 84,
-      "popularity": 91
+      "popularity": 91,
+      "language": "English"
     },
     {
       "title": "Traitor",
@@ -310,7 +545,8 @@
       "valence": 0.21,
       "energy_numeric": 0.34,
       "tempo": 100,
-      "popularity": 88
+      "popularity": 88,
+      "language": "English"
     },
     {
       "title": "Stay With Me",
@@ -319,7 +555,8 @@
       "valence": 0.18,
       "energy_numeric": 0.42,
       "tempo": 84,
-      "popularity": 87
+      "popularity": 87,
+      "language": "English"
     },
     {
       "title": "Breathe Me",
@@ -328,7 +565,8 @@
       "valence": 0.16,
       "energy_numeric": 0.47,
       "tempo": 120,
-      "popularity": 79
+      "popularity": 79,
+      "language": "English"
     },
     {
       "title": "Tears in Heaven",
@@ -337,7 +575,8 @@
       "valence": 0.36,
       "energy_numeric": 0.25,
       "tempo": 77,
-      "popularity": 82
+      "popularity": 82,
+      "language": "English"
     },
     {
       "title": "Sound of Silence",
@@ -346,7 +585,8 @@
       "valence": 0.28,
       "energy_numeric": 0.2,
       "tempo": 108,
-      "popularity": 84
+      "popularity": 84,
+      "language": "English"
     },
     {
       "title": "Hurt",
@@ -355,7 +595,8 @@
       "valence": 0.14,
       "energy_numeric": 0.35,
       "tempo": 92,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "Numb",
@@ -364,10 +605,91 @@
       "valence": 0.18,
       "energy_numeric": 0.41,
       "tempo": 110,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     }
   ],
   "angry": [
+    {
+      "title": "Dookudu Title Song",
+      "artist": "Shankar Mahadevan",
+      "genre": "Telugu Mass Rock",
+      "language": "Telugu",
+      "valence": 0.3,
+      "energy_numeric": 0.95,
+      "tempo": 140,
+      "popularity": 87
+    },
+    {
+      "title": "Sainika",
+      "artist": "Vishal Dadlani",
+      "genre": "Telugu Patriotic Rock",
+      "language": "Telugu",
+      "valence": 0.35,
+      "energy_numeric": 0.92,
+      "tempo": 135,
+      "popularity": 86
+    },
+    {
+      "title": "Fear Song",
+      "artist": "Anirudh Ravichander",
+      "genre": "Tamil Mass Anthem",
+      "language": "Tamil",
+      "valence": 0.28,
+      "energy_numeric": 0.97,
+      "tempo": 138,
+      "popularity": 92
+    },
+    {
+      "title": "Surviva",
+      "artist": "Anirudh Ravichander & Yogi B",
+      "genre": "Tamil Hip-Hop Metal",
+      "language": "Tamil",
+      "valence": 0.32,
+      "energy_numeric": 0.96,
+      "tempo": 142,
+      "popularity": 89
+    },
+    {
+      "title": "Naa Ready",
+      "artist": "Anirudh Ravichander & Thalapathy Vijay",
+      "genre": "Tamil Mass Dance",
+      "language": "Tamil",
+      "valence": 0.38,
+      "energy_numeric": 0.98,
+      "tempo": 145,
+      "popularity": 94
+    },
+    {
+      "title": "Apna Time Aayega",
+      "artist": "Ranveer Singh & DIVINE",
+      "genre": "Indian Hip-Hop",
+      "language": "Hindi",
+      "valence": 0.35,
+      "energy_numeric": 0.91,
+      "tempo": 95,
+      "popularity": 93
+    },
+    {
+      "title": "Zinda",
+      "artist": "Siddharth Mahadevan",
+      "genre": "Bollywood Rock",
+      "language": "Hindi",
+      "valence": 0.33,
+      "energy_numeric": 0.94,
+      "tempo": 130,
+      "popularity": 88
+    },
+    {
+      "title": "Aarambh",
+      "artist": "Piyush Mishra",
+      "genre": "Bollywood Classical Rock",
+      "language": "Hindi",
+      "valence": 0.29,
+      "energy_numeric": 0.96,
+      "tempo": 138,
+      "popularity": 90
+    },
     {
       "title": "Break Stuff",
       "artist": "Limp Bizkit",
@@ -375,7 +697,8 @@
       "valence": 0.32,
       "energy_numeric": 0.95,
       "tempo": 110,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     },
     {
       "title": "Killing in the Name",
@@ -384,7 +707,8 @@
       "valence": 0.29,
       "energy_numeric": 0.97,
       "tempo": 89,
-      "popularity": 87
+      "popularity": 87,
+      "language": "English"
     },
     {
       "title": "In the End",
@@ -393,7 +717,8 @@
       "valence": 0.38,
       "energy_numeric": 0.86,
       "tempo": 105,
-      "popularity": 92
+      "popularity": 92,
+      "language": "English"
     },
     {
       "title": "Duality",
@@ -402,7 +727,8 @@
       "valence": 0.15,
       "energy_numeric": 0.98,
       "tempo": 144,
-      "popularity": 84
+      "popularity": 84,
+      "language": "English"
     },
     {
       "title": "Chop Suey!",
@@ -411,7 +737,8 @@
       "valence": 0.41,
       "energy_numeric": 0.93,
       "tempo": 127,
-      "popularity": 89
+      "popularity": 89,
+      "language": "English"
     },
     {
       "title": "Bulls On Parade",
@@ -420,7 +747,8 @@
       "valence": 0.35,
       "energy_numeric": 0.91,
       "tempo": 83,
-      "popularity": 81
+      "popularity": 81,
+      "language": "English"
     },
     {
       "title": "Down with the Sickness",
@@ -429,7 +757,8 @@
       "valence": 0.24,
       "energy_numeric": 0.96,
       "tempo": 90,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "Monster",
@@ -438,7 +767,8 @@
       "valence": 0.33,
       "energy_numeric": 0.94,
       "tempo": 135,
-      "popularity": 82
+      "popularity": 82,
+      "language": "English"
     },
     {
       "title": "Look At Me!",
@@ -447,7 +777,8 @@
       "valence": 0.25,
       "energy_numeric": 0.88,
       "tempo": 138,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Last Resort",
@@ -456,7 +787,8 @@
       "valence": 0.31,
       "energy_numeric": 0.92,
       "tempo": 91,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     },
     {
       "title": "Smells Like Teen Spirit",
@@ -465,7 +797,8 @@
       "valence": 0.45,
       "energy_numeric": 0.91,
       "tempo": 117,
-      "popularity": 92
+      "popularity": 92,
+      "language": "English"
     },
     {
       "title": "Toxicity",
@@ -474,7 +807,8 @@
       "valence": 0.39,
       "energy_numeric": 0.94,
       "tempo": 117,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Head Like a Hole",
@@ -483,7 +817,8 @@
       "valence": 0.3,
       "energy_numeric": 0.93,
       "tempo": 115,
-      "popularity": 76
+      "popularity": 76,
+      "language": "English"
     },
     {
       "title": "Guerrilla Radio",
@@ -492,7 +827,8 @@
       "valence": 0.36,
       "energy_numeric": 0.95,
       "tempo": 92,
-      "popularity": 78
+      "popularity": 78,
+      "language": "English"
     },
     {
       "title": "Dragula",
@@ -501,7 +837,8 @@
       "valence": 0.4,
       "energy_numeric": 0.96,
       "tempo": 125,
-      "popularity": 80
+      "popularity": 80,
+      "language": "English"
     },
     {
       "title": "Psychosocial",
@@ -510,7 +847,8 @@
       "valence": 0.22,
       "energy_numeric": 0.99,
       "tempo": 135,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "Before I Forget",
@@ -519,7 +857,8 @@
       "valence": 0.28,
       "energy_numeric": 0.98,
       "tempo": 127,
-      "popularity": 80
+      "popularity": 80,
+      "language": "English"
     },
     {
       "title": "Master of Puppets",
@@ -528,7 +867,8 @@
       "valence": 0.35,
       "energy_numeric": 0.93,
       "tempo": 212,
-      "popularity": 88
+      "popularity": 88,
+      "language": "English"
     },
     {
       "title": "I Prevail",
@@ -537,7 +877,8 @@
       "valence": 0.19,
       "energy_numeric": 0.97,
       "tempo": 140,
-      "popularity": 77
+      "popularity": 77,
+      "language": "English"
     },
     {
       "title": "Riot",
@@ -546,10 +887,81 @@
       "valence": 0.33,
       "energy_numeric": 0.95,
       "tempo": 150,
-      "popularity": 81
+      "popularity": 81,
+      "language": "English"
     }
   ],
   "neutral": [
+    {
+      "title": "Oke Oka Lokam",
+      "artist": "Sid Sriram",
+      "genre": "Telugu Ambient Melodic",
+      "language": "Telugu",
+      "valence": 0.5,
+      "energy_numeric": 0.45,
+      "tempo": 90,
+      "popularity": 93
+    },
+    {
+      "title": "Manasa",
+      "artist": "Sid Sriram",
+      "genre": "Telugu Gentle",
+      "language": "Telugu",
+      "valence": 0.48,
+      "energy_numeric": 0.42,
+      "tempo": 85,
+      "popularity": 88
+    },
+    {
+      "title": "Vaseegara",
+      "artist": "Bombay Jayashri",
+      "genre": "Tamil Classic Chill",
+      "language": "Tamil",
+      "valence": 0.52,
+      "energy_numeric": 0.38,
+      "tempo": 80,
+      "popularity": 92
+    },
+    {
+      "title": "Moongil Thottam",
+      "artist": "Abhay Jodhpurkar & Harini",
+      "genre": "Tamil Acoustic",
+      "language": "Tamil",
+      "valence": 0.49,
+      "energy_numeric": 0.4,
+      "tempo": 84,
+      "popularity": 87
+    },
+    {
+      "title": "Kun Faya Kun",
+      "artist": "A.R. Rahman, Javed Ali & Mohit Chauhan",
+      "genre": "Sufi Spiritual",
+      "language": "Hindi",
+      "valence": 0.45,
+      "energy_numeric": 0.35,
+      "tempo": 75,
+      "popularity": 96
+    },
+    {
+      "title": "Iktara",
+      "artist": "Kavita Seth & Tochi Raina",
+      "genre": "Bollywood Folk Chill",
+      "language": "Hindi",
+      "valence": 0.55,
+      "energy_numeric": 0.46,
+      "tempo": 92,
+      "popularity": 91
+    },
+    {
+      "title": "Tum Se Hi",
+      "artist": "Mohit Chauhan",
+      "genre": "Bollywood Acoustic",
+      "language": "Hindi",
+      "valence": 0.53,
+      "energy_numeric": 0.5,
+      "tempo": 98,
+      "popularity": 93
+    },
     {
       "title": "Weightless",
       "artist": "Marconi Union",
@@ -557,7 +969,8 @@
       "valence": 0.1,
       "energy_numeric": 0.08,
       "tempo": 60,
-      "popularity": 75
+      "popularity": 75,
+      "language": "English"
     },
     {
       "title": "Clair de Lune",
@@ -566,16 +979,18 @@
       "valence": 0.12,
       "energy_numeric": 0.05,
       "tempo": 65,
-      "popularity": 82
+      "popularity": 82,
+      "language": "English"
     },
     {
-      "title": "Gymnop\u00e9die No. 1",
+      "title": "Gymnopédie No. 1",
       "artist": "Erik Satie",
       "genre": "Classical",
       "valence": 0.2,
       "energy_numeric": 0.04,
       "tempo": 72,
-      "popularity": 80
+      "popularity": 80,
+      "language": "English"
     },
     {
       "title": "Sunset Lover",
@@ -584,7 +999,8 @@
       "valence": 0.5,
       "energy_numeric": 0.45,
       "tempo": 91,
-      "popularity": 84
+      "popularity": 84,
+      "language": "English"
     },
     {
       "title": "Resonance",
@@ -593,7 +1009,8 @@
       "valence": 0.55,
       "energy_numeric": 0.48,
       "tempo": 84,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Breathe",
@@ -602,16 +1019,18 @@
       "valence": 0.45,
       "energy_numeric": 0.38,
       "tempo": 96,
-      "popularity": 77
+      "popularity": 77,
+      "language": "English"
     },
     {
       "title": "Spiegel im Spiegel",
-      "artist": "Arvo P\u00e4rt",
+      "artist": "Arvo Pärt",
       "genre": "Ambient Classical",
       "valence": 0.15,
       "energy_numeric": 0.03,
       "tempo": 55,
-      "popularity": 73
+      "popularity": 73,
+      "language": "English"
     },
     {
       "title": "River Flows in You",
@@ -620,7 +1039,8 @@
       "valence": 0.32,
       "energy_numeric": 0.2,
       "tempo": 67,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     },
     {
       "title": "Porcelain",
@@ -629,7 +1049,8 @@
       "valence": 0.42,
       "energy_numeric": 0.49,
       "tempo": 95,
-      "popularity": 78
+      "popularity": 78,
+      "language": "English"
     },
     {
       "title": "Day One",
@@ -638,7 +1059,8 @@
       "valence": 0.25,
       "energy_numeric": 0.3,
       "tempo": 104,
-      "popularity": 81
+      "popularity": 81,
+      "language": "English"
     },
     {
       "title": "Intro",
@@ -647,7 +1069,8 @@
       "valence": 0.48,
       "energy_numeric": 0.51,
       "tempo": 100,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Deep Blue Day",
@@ -656,7 +1079,8 @@
       "valence": 0.3,
       "energy_numeric": 0.12,
       "tempo": 70,
-      "popularity": 72
+      "popularity": 72,
+      "language": "English"
     },
     {
       "title": "Experience",
@@ -665,7 +1089,8 @@
       "valence": 0.38,
       "energy_numeric": 0.54,
       "tempo": 134,
-      "popularity": 88
+      "popularity": 88,
+      "language": "English"
     },
     {
       "title": "Teardrop",
@@ -674,7 +1099,8 @@
       "valence": 0.4,
       "energy_numeric": 0.46,
       "tempo": 77,
-      "popularity": 81
+      "popularity": 81,
+      "language": "English"
     },
     {
       "title": "Midnight City (Slowed)",
@@ -683,7 +1109,8 @@
       "valence": 0.52,
       "energy_numeric": 0.44,
       "tempo": 85,
-      "popularity": 79
+      "popularity": 79,
+      "language": "English"
     },
     {
       "title": "Avril 14th",
@@ -692,7 +1119,8 @@
       "valence": 0.35,
       "energy_numeric": 0.15,
       "tempo": 76,
-      "popularity": 80
+      "popularity": 80,
+      "language": "English"
     },
     {
       "title": "Luv(sic) Pt. 3",
@@ -701,7 +1129,8 @@
       "valence": 0.58,
       "energy_numeric": 0.52,
       "tempo": 88,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "Space Song",
@@ -710,7 +1139,8 @@
       "valence": 0.42,
       "energy_numeric": 0.56,
       "tempo": 147,
-      "popularity": 90
+      "popularity": 90,
+      "language": "English"
     },
     {
       "title": "An Ending (Ascent)",
@@ -719,7 +1149,8 @@
       "valence": 0.18,
       "energy_numeric": 0.09,
       "tempo": 60,
-      "popularity": 74
+      "popularity": 74,
+      "language": "English"
     },
     {
       "title": "Time",
@@ -728,10 +1159,61 @@
       "valence": 0.19,
       "energy_numeric": 0.38,
       "tempo": 125,
-      "popularity": 87
+      "popularity": 87,
+      "language": "English"
     }
   ],
   "surprise": [
+    {
+      "title": "Naatu Naatu",
+      "artist": "Rahul Sipligunj & Kaala Bhairava",
+      "genre": "Telugu High Energy Folk",
+      "language": "Telugu",
+      "valence": 0.95,
+      "energy_numeric": 0.98,
+      "tempo": 160,
+      "popularity": 99
+    },
+    {
+      "title": "Kurchi Madathapetti",
+      "artist": "Thaman S & Sri Krishna",
+      "genre": "Telugu Folk Party",
+      "language": "Telugu",
+      "valence": 0.96,
+      "energy_numeric": 0.97,
+      "tempo": 155,
+      "popularity": 95
+    },
+    {
+      "title": "Hukum",
+      "artist": "Anirudh Ravichander",
+      "genre": "Tamil Mass Theme",
+      "language": "Tamil",
+      "valence": 0.9,
+      "energy_numeric": 0.96,
+      "tempo": 140,
+      "popularity": 97
+    },
+    {
+      "title": "Malhari",
+      "artist": "Vishal Dadlani",
+      "genre": "Bollywood Celebration",
+      "language": "Hindi",
+      "valence": 0.92,
+      "energy_numeric": 0.97,
+      "tempo": 148,
+      "popularity": 92
+    },
+    {
+      "title": "Kar Har Maidaan Fateh",
+      "artist": "Sukhwinder Singh & Shreya Ghoshal",
+      "genre": "Bollywood Anthem",
+      "language": "Hindi",
+      "valence": 0.85,
+      "energy_numeric": 0.9,
+      "tempo": 135,
+      "popularity": 91
+    },
     {
       "title": "Bohemian Rhapsody",
       "artist": "Queen",
@@ -739,7 +1221,8 @@
       "valence": 0.72,
       "energy_numeric": 0.81,
       "tempo": 144,
-      "popularity": 95
+      "popularity": 95,
+      "language": "English"
     },
     {
       "title": "Sicko Mode",
@@ -748,7 +1231,8 @@
       "valence": 0.68,
       "energy_numeric": 0.82,
       "tempo": 155,
-      "popularity": 92
+      "popularity": 92,
+      "language": "English"
     },
     {
       "title": "Bang!",
@@ -757,7 +1241,8 @@
       "valence": 0.79,
       "energy_numeric": 0.86,
       "tempo": 140,
-      "popularity": 84
+      "popularity": 84,
+      "language": "English"
     },
     {
       "title": "Take On Me",
@@ -766,7 +1251,8 @@
       "valence": 0.86,
       "energy_numeric": 0.9,
       "tempo": 169,
-      "popularity": 89
+      "popularity": 89,
+      "language": "English"
     },
     {
       "title": "Starlight",
@@ -775,7 +1261,8 @@
       "valence": 0.74,
       "energy_numeric": 0.88,
       "tempo": 121,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "Superstition",
@@ -784,7 +1271,8 @@
       "valence": 0.89,
       "energy_numeric": 0.81,
       "tempo": 100,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Dog Days Are Over",
@@ -793,7 +1281,8 @@
       "valence": 0.76,
       "energy_numeric": 0.87,
       "tempo": 150,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     },
     {
       "title": "Firework",
@@ -802,7 +1291,8 @@
       "valence": 0.77,
       "energy_numeric": 0.83,
       "tempo": 124,
-      "popularity": 88
+      "popularity": 88,
+      "language": "English"
     },
     {
       "title": "Unstoppable",
@@ -811,7 +1301,8 @@
       "valence": 0.71,
       "energy_numeric": 0.84,
       "tempo": 158,
-      "popularity": 91
+      "popularity": 91,
+      "language": "English"
     },
     {
       "title": "Believer",
@@ -820,7 +1311,8 @@
       "valence": 0.66,
       "energy_numeric": 0.78,
       "tempo": 125,
-      "popularity": 93
+      "popularity": 93,
+      "language": "English"
     },
     {
       "title": "Electric Feel",
@@ -829,7 +1321,8 @@
       "valence": 0.8,
       "energy_numeric": 0.82,
       "tempo": 103,
-      "popularity": 84
+      "popularity": 84,
+      "language": "English"
     },
     {
       "title": "Radioactive",
@@ -838,7 +1331,8 @@
       "valence": 0.62,
       "energy_numeric": 0.78,
       "tempo": 136,
-      "popularity": 87
+      "popularity": 87,
+      "language": "English"
     },
     {
       "title": "Starboy",
@@ -847,7 +1341,8 @@
       "valence": 0.75,
       "energy_numeric": 0.82,
       "tempo": 186,
-      "popularity": 94
+      "popularity": 94,
+      "language": "English"
     },
     {
       "title": "Midnight City",
@@ -856,7 +1351,8 @@
       "valence": 0.69,
       "energy_numeric": 0.9,
       "tempo": 105,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Tongue Tied",
@@ -865,16 +1361,18 @@
       "valence": 0.84,
       "energy_numeric": 0.92,
       "tempo": 113,
-      "popularity": 82
+      "popularity": 82,
+      "language": "English"
     },
     {
       "title": "We Are Young",
-      "artist": "fun. ft. Janelle Mon\u00e1e",
+      "artist": "fun. ft. Janelle Monáe",
       "genre": "Indie Pop",
       "valence": 0.73,
       "energy_numeric": 0.85,
       "tempo": 184,
-      "popularity": 86
+      "popularity": 86,
+      "language": "English"
     },
     {
       "title": "Pumped Up Kicks",
@@ -883,7 +1381,8 @@
       "valence": 0.82,
       "energy_numeric": 0.71,
       "tempo": 128,
-      "popularity": 89
+      "popularity": 89,
+      "language": "English"
     },
     {
       "title": "Safe and Sound",
@@ -892,7 +1391,8 @@
       "valence": 0.87,
       "energy_numeric": 0.82,
       "tempo": 118,
-      "popularity": 83
+      "popularity": 83,
+      "language": "English"
     },
     {
       "title": "Feel It Still",
@@ -901,7 +1401,8 @@
       "valence": 0.86,
       "energy_numeric": 0.79,
       "tempo": 79,
-      "popularity": 85
+      "popularity": 85,
+      "language": "English"
     },
     {
       "title": "Titanium",
@@ -910,7 +1411,8 @@
       "valence": 0.73,
       "energy_numeric": 0.91,
       "tempo": 126,
-      "popularity": 87
+      "popularity": 87,
+      "language": "English"
     }
   ]
 }
