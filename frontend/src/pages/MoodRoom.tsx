@@ -11,63 +11,71 @@ import SongCard from "../components/SongCard";
 import Camera from "../components/Camera";
 import LocalFileExplorer from "../components/LocalFileExplorer";
 
-/* ─── Mood metadata ─────────────────────────────────────────── */
-const MOOD: Record<string, { emoji: string; glow: string }> = {
-  happy:     { emoji: "😊", glow: "rgba(245,158,11,0.25)"  },
-  sad:       { emoji: "😔", glow: "rgba(59,130,246,0.25)"  },
-  angry:     { emoji: "😤", glow: "rgba(239,68,68,0.25)"   },
-  neutral:   { emoji: "😐", glow: "rgba(139,92,246,0.25)"  },
-  surprise:  { emoji: "😲", glow: "rgba(6,182,212,0.25)"   },
-  surprised: { emoji: "😲", glow: "rgba(6,182,212,0.25)"   },
-  fearful:   { emoji: "😔", glow: "rgba(59,130,246,0.25)"  },
-  disgusted: { emoji: "😤", glow: "rgba(239,68,68,0.25)"   },
+/* ─── Mood metadata — no emojis ──────────────────────────────── */
+const MOOD_COLOR: Record<string, string> = {
+  happy:     "#D4AF37",
+  sad:       "#2563EB",
+  angry:     "#B91C1C",
+  neutral:   "#7E22CE",
+  surprise:  "#16A34A",
+  surprised: "#16A34A",
+  fearful:   "#2563EB",
+  disgusted: "#B91C1C",
 };
 
-const getMoodMeta = (m: string) => MOOD[m] || MOOD.neutral;
+const MOOD_LABEL: Record<string, string> = {
+  happy:     "Happy",
+  sad:       "Reflective",
+  angry:     "Intense",
+  neutral:   "Calm",
+  surprise:  "Surprised",
+  surprised: "Surprised",
+  fearful:   "Anxious",
+  disgusted: "Displeased",
+};
 
-const MOODS = ["happy", "neutral", "sad", "angry", "surprise"];
+const MOODS = ["happy", "neutral", "sad", "angry", "surprise"] as const;
 
 const FALLBACK: Song[] = [
-  { title: "Buttabomma",       artist: "Armaan Malik",      genre: "Telugu Pop",  language: "Telugu"  },
-  { title: "Samajavaragamana", artist: "Sid Sriram",        genre: "Telugu Soul", language: "Telugu"  },
-  { title: "Blinding Lights",  artist: "The Weeknd",        genre: "Synthpop",   language: "English" },
-  { title: "Ennenno Janmala",  artist: "Sid Sriram",        genre: "Telugu Soul", language: "Telugu"  },
-  { title: "As It Was",        artist: "Harry Styles",      genre: "Indie Pop",  language: "English" },
-  { title: "Kannazhaga",       artist: "Mohit Chauhan",     genre: "Tamil Soul",  language: "Tamil"   },
-  { title: "Levitating",       artist: "Dua Lipa",          genre: "Pop",        language: "English" },
+  { title: "Buttabomma",       artist: "Armaan Malik",          genre: "Telugu Pop",  language: "Telugu"  },
+  { title: "Samajavaragamana", artist: "Sid Sriram",            genre: "Telugu Soul", language: "Telugu"  },
+  { title: "Ennenno Janmala",  artist: "Sid Sriram",            genre: "Telugu Soul", language: "Telugu"  },
+  { title: "Blinding Lights",  artist: "The Weeknd",            genre: "Synthpop",    language: "English" },
+  { title: "Kannazhaga",       artist: "Mohit Chauhan",         genre: "Tamil Soul",  language: "Tamil"   },
+  { title: "Levitating",       artist: "Dua Lipa",              genre: "Pop",         language: "English" },
+  { title: "Naatu Naatu",      artist: "Rahul Sipligunj",       genre: "Telugu Mass", language: "Telugu"  },
 ];
 
-function key(s: any) { return `${s.title || s.name}::${s.artist}`; }
+function key(s: Song): string { return `${s.title || s.name}::${s.artist}`; }
 
 function stable(batch: any[]): string {
   const c: Record<string, number> = {};
   batch.forEach(({ emotion }) => { c[emotion] = (c[emotion] || 0) + 1; });
-  const t = Object.entries(c).sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+  const t = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
   return (!t || t[1] === 1) ? batch[batch.length - 1].emotion : t[0];
 }
 
-/* ─── Component ─────────────────────────────────────────────── */
+/* ─── Component ──────────────────────────────────────────────── */
 export default function MoodRoom() {
-  const profile     = useAppStore((s) => s.profile);
-  const clearProfile = useAppStore((s) => s.clearProfile);
+  const profile      = useAppStore(s => s.profile);
+  const clearProfile = useAppStore(s => s.clearProfile);
 
-  const [emotion,  setEmotion]  = useState<any>({ emotion: "", confidence: 0, scores: [], source: "camera" });
-  const [mood,     setMood]     = useState("happy");
-  const [songs,    setSongs]    = useState<Song[]>([]);
-  const [current,  setCurrent]  = useState<Song | null>(null);
-  const [mode,     setMode]     = useState("youtube");
-  const [status,   setStatus]   = useState<"idle"|"loading"|"done">("idle");
-  const [camOpen,  setCamOpen]  = useState(true);
+  const [emotion,   setEmotion]   = useState<any>({ emotion: "", confidence: 0, scores: [], source: "camera" });
+  const [mood,      setMood]      = useState("happy");
+  const [songs,     setSongs]     = useState<Song[]>([]);
+  const [current,   setCurrent]   = useState<Song | null>(null);
+  const [mode,      setMode]      = useState("youtube");
+  const [status,    setStatus]    = useState<"idle" | "loading" | "done">("idle");
+  const [camOpen,   setCamOpen]   = useState(true);
   const [showLocal, setShowLocal] = useState(false);
-  const [pending,  setPending]  = useState<string | null>(null);
-  const [waking,   setWaking]   = useState(false);
-  const [favs,     setFavs]     = useState<Song[]>([]);
+  const [pending,   setPending]   = useState<string | null>(null);
+  const [waking,    setWaking]    = useState(false);
+  const [favs,      setFavs]      = useState<Song[]>([]);
 
   const batchRef = useRef<any[]>([]);
   const BATCH = 3;
 
-  // Stable profile object — must not re-create on every render or the
-  // useEffect([mood, activeProfile]) dependency fires an infinite fetch loop.
+  /* Stable profile — prevents infinite re-fetch from new object reference */
   const activeProfile = useMemo(() => profile ?? {
     name: "Guest Listener",
     email: "guest@musicmirror.ai",
@@ -77,7 +85,7 @@ export default function MoodRoom() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.name, profile?.genre, profile?.goal, JSON.stringify(profile?.languages)]);
 
-  /* fetch recommendations */
+  /* Fetch recommendations */
   useEffect(() => {
     let dead = false;
     let t: ReturnType<typeof setTimeout>;
@@ -87,7 +95,9 @@ export default function MoodRoom() {
       t = setTimeout(() => { if (!dead) setWaking(true); }, 2500);
       try {
         const res = await apiClient.post("/recommend", {
-          emotion: mood, genre: activeProfile.genre, goal: activeProfile.goal,
+          emotion: mood,
+          genre: activeProfile.genre,
+          goal: activeProfile.goal,
           languages: activeProfile.languages,
         });
         clearTimeout(t);
@@ -96,7 +106,6 @@ export default function MoodRoom() {
         const list: Song[] = Array.isArray(res.data.songs) ? res.data.songs : [];
         const resolved = list.length ? list : FALLBACK;
         setSongs(resolved);
-        // Guard: c may be null on first load — don't call key(null)
         setCurrent(c => c && resolved.some(s => key(s) === key(c)) ? c : resolved[0]);
         setStatus("done");
         if (list[0]) sendTelemetry("recommendation_success", list[0].title, mood);
@@ -134,21 +143,19 @@ export default function MoodRoom() {
 
   const toggleFav = useCallback((song: Song) => {
     const k = key(song);
-    setFavs(f => f.some(x => key(x) === k)
-      ? f.filter(x => key(x) !== k)
-      : [song, ...f].slice(0, 20));
+    setFavs(f => f.some(x => key(x) === k) ? f.filter(x => key(x) !== k) : [song, ...f].slice(0, 20));
   }, []);
 
-  const moodMeta = getMoodMeta(mood);
-  const moodLabel = emotionLabels[mood] || mood;
+  const moodColor  = MOOD_COLOR[mood] || MOOD_COLOR.neutral;
+  const moodLabel  = MOOD_LABEL[mood] || emotionLabels[mood] || mood;
   const confidence = Math.round((emotion.confidence || 0) * 100);
 
   return (
-    <div className={`room-root ambient-mood-${mood}`}>
-      {/* Ambient glow */}
-      <div className="room-glow" style={{ background: moodMeta.glow }} />
-
-      {/* ── NAV ─────────────────────────────────────────── */}
+    <div
+      className={`room-root ambient-mood-${mood}`}
+      style={{ "--mood-glow": `${moodColor}22`, "--mood-color": moodColor } as any}
+    >
+      {/* ── NAV ──────────────────────────────────────────────── */}
       <header className="room-nav">
         <div className="room-brand">
           <span className="room-brand-icon">🪞</span>
@@ -157,51 +164,51 @@ export default function MoodRoom() {
         </div>
 
         <nav className="room-nav-tabs">
-          <button
-            className={`room-nav-tab ${!showLocal ? "active" : ""}`}
-            onClick={() => setShowLocal(false)}
-          >
+          <button className={`room-nav-tab ${!showLocal ? "active" : ""}`} onClick={() => setShowLocal(false)}>
             Music Room
           </button>
-          <button
-            className={`room-nav-tab ${showLocal ? "active" : ""}`}
-            onClick={() => setShowLocal(true)}
-          >
+          <button className={`room-nav-tab ${showLocal ? "active" : ""}`} onClick={() => setShowLocal(true)}>
             Local Files
           </button>
         </nav>
 
         <div className="room-nav-end">
-          <Link to="/profile" className="room-nav-link">👤 Profile</Link>
-          <Link to="/summary" className="room-nav-link">📊 Summary</Link>
-          <button className="room-nav-exit" onClick={clearProfile} title="Sign out">→</button>
+          <Link to="/profile" className="room-nav-link">Profile</Link>
+          <Link to="/summary" className="room-nav-link">Summary</Link>
+          <button className="room-nav-exit" onClick={clearProfile} title="Sign out" aria-label="Sign out">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+          </button>
         </div>
       </header>
 
-      {/* ── SERVER WAKING ───────────────────────────────── */}
+      {/* ── SERVER WAKING ─────────────────────────────────────── */}
       <AnimatePresence>
         {waking && (
           <motion.div className="room-wake-bar"
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
             <span className="room-wake-dot" />
-            AI server waking up — takes ~30s on first load (Render free tier)
+            AI server waking up — first load may take ~30s (Render free tier)
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── PENDING MOOD NUDGE ──────────────────────────── */}
+      {/* ── PENDING MOOD NUDGE ─────────────────────────────────── */}
       <AnimatePresence>
         {pending && (
           <motion.div className="room-nudge"
-            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
-            <span>{getMoodMeta(pending).emoji} New mood detected: <strong>{emotionLabels[pending] || pending}</strong></span>
+            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}>
+            <span style={{ color: "var(--text-2)" }}>
+              New mood detected: <strong style={{ color: MOOD_COLOR[pending] }}>{MOOD_LABEL[pending] || pending}</strong>
+            </span>
             <button onClick={() => { setMood(pending!); setPending(null); }}>Switch</button>
-            <button className="room-nudge-dismiss" onClick={() => setPending(null)}>✕</button>
+            <button className="room-nudge-dismiss" onClick={() => setPending(null)}>Dismiss</button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── LOCAL EXPLORER ──────────────────────────────── */}
+      {/* ── LOCAL EXPLORER ────────────────────────────────────── */}
       {showLocal && (
         <main className="room-local">
           <LocalFileExplorer onPlayTrack={(t: any) => {
@@ -211,23 +218,24 @@ export default function MoodRoom() {
         </main>
       )}
 
-      {/* ── MUSIC ROOM ──────────────────────────────────── */}
+      {/* ── MUSIC ROOM ────────────────────────────────────────── */}
       {!showLocal && (
         <main className="room-body">
 
-          {/* ── STAGE (left, primary) ─────────────────── */}
+          {/* ── STAGE (left, hero) ─────────────────────────── */}
           <section className="room-stage">
-            {/* Mood status pill */}
+
+            {/* Mood status bar */}
             <div className="room-mood-status">
-              <span className="room-mood-emoji">{moodMeta.emoji}</span>
+              <span className="room-mood-indicator" style={{ background: moodColor, boxShadow: `0 0 12px ${moodColor}` }} />
               <span className="room-mood-label">{moodLabel}</span>
               {emotion.source === "camera" && confidence > 0 && (
                 <span className="room-mood-conf">{confidence}% confidence</span>
               )}
-              {status === "loading" && <span className="room-loading-ring" />}
+              {status === "loading" && <span className="room-loading-ring" style={{ marginLeft: "auto" }} />}
             </div>
 
-            {/* Now Playing — the hero */}
+            {/* Now Playing */}
             <div className="room-player-wrap">
               <NowPlaying
                 activeMood={mood}
@@ -239,35 +247,37 @@ export default function MoodRoom() {
               />
             </div>
 
-            {/* Mood selector strip */}
+            {/* Mood selector strip — text only, no emojis */}
             <div className="room-mood-strip">
               <span className="room-strip-label">Mood</span>
-              {MOODS.map((m) => (
+              {MOODS.map(m => (
                 <button
                   key={m}
                   className={`room-mood-btn ${mood === m ? "active" : ""}`}
                   onClick={() => pickMood(m)}
-                  title={emotionLabels[m] || m}
+                  title={MOOD_LABEL[m] || m}
                 >
-                  <span>{MOOD[m].emoji}</span>
-                  <span className="room-mood-btn-label">{emotionLabels[m] || m}</span>
+                  {MOOD_LABEL[m] || m}
                 </button>
               ))}
               <div className="room-strip-divider" />
               <button
                 className={`room-cam-toggle ${camOpen ? "active" : ""}`}
                 onClick={() => setCamOpen(v => !v)}
-                title="Toggle camera"
+                title={camOpen ? "Hide camera" : "Show camera"}
+                aria-label="Toggle camera"
               >
-                📷
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 7 16 12l7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
               </button>
             </div>
           </section>
 
-          {/* ── PANEL (right) ─────────────────────────── */}
+          {/* ── PANEL (right) ──────────────────────────────── */}
           <aside className="room-panel">
 
-            {/* Camera (collapsible) */}
+            {/* Camera — collapsible */}
             <AnimatePresence>
               {camOpen && (
                 <motion.div
@@ -275,11 +285,11 @@ export default function MoodRoom() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.28 }}
                 >
                   <div className="room-cam-header">
                     <span className="room-cam-live-dot" />
-                    <span>Live Detection</span>
+                    Emotion Detection
                   </div>
                   <div className="room-cam-wrap">
                     <Camera onEmotion={onDetect} />
@@ -299,19 +309,19 @@ export default function MoodRoom() {
 
               {status === "loading" ? (
                 <div className="room-skeletons">
-                  {[0,1,2,3,4,5].map(i => (
+                  {[0, 1, 2, 3, 4, 5].map(i => (
                     <div key={i} className="room-skeleton">
                       <div className="room-skeleton-art" />
                       <div className="room-skeleton-lines">
                         <div style={{ width: `${55 + i * 7}%` }} className="room-skeleton-line" />
-                        <div style={{ width: "40%" }} className="room-skeleton-line room-skeleton-line--sm" />
+                        <div style={{ width: "42%" }} className="room-skeleton-line room-skeleton-line--sm" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="room-queue-list">
-                  {songs.map((song) => (
+                  {songs.map(song => (
                     <SongCard
                       key={key(song)}
                       isActive={current ? key(song) === key(current) : false}

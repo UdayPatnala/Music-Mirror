@@ -160,7 +160,7 @@ export default function Camera({ onEmotion }: CameraProps) {
               faceLostTimer.current = setTimeout(() => {
                 lastKnownEmotion.current = null;
                 emotionHistory.current = [];
-              }, 3000);
+              }, 2000);
             }
           }
         } catch (e) {
@@ -168,7 +168,7 @@ export default function Camera({ onEmotion }: CameraProps) {
         }
       }
 
-      setTimeout(detectLoop, 300);
+      setTimeout(detectLoop, 200);
     };
 
     detectLoop();
@@ -204,9 +204,9 @@ export default function Camera({ onEmotion }: CameraProps) {
 
       {cameraState === "active" && (
         <div className="camera-indicators" style={{ position: "absolute", bottom: "12px", left: "12px", display: "flex", gap: "8px", flexDirection: "column" }}>
-          <div className="camera-indicator" style={{ background: "rgba(0,0,0,0.6)", padding: "4px 8px", borderRadius: "12px", fontSize: "0.75rem", color: "#fff", display: "flex", alignItems: "center", gap: "6px" }}>
-            <span className="live-dot" style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", display: "inline-block" }} /> 
-            Live Face Tracking (Temporal Fusion)
+          <div className="camera-indicator" style={{ background: "rgba(0,0,0,0.7)", padding: "4px 10px", borderRadius: "999px", fontSize: "0.72rem", color: "var(--text-2)", display: "flex", alignItems: "center", gap: "6px", backdropFilter: "blur(8px)" }}>
+            <span className="live-dot" style={{ width: "7px", height: "7px", borderRadius: "50%", background: "var(--success)", boxShadow: "0 0 8px var(--success)", display: "inline-block", animation: "pulse 2s ease-in-out infinite" }} />
+            Emotion Active
           </div>
 
           {lightingCondition === "low" && (

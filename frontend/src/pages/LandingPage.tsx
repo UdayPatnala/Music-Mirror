@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import CustomDropdown from "../components/CustomDropdown";
 import type { UserProfile } from "../types";
+import { Scan, Brain, Play, Globe, Sparkles } from "lucide-react";
 
 const genreOptions = ["Pop", "Acoustic", "Rock", "Lo-fi", "Indie"];
 const goalOptions = [
@@ -14,37 +15,19 @@ const goalOptions = [
 ];
 
 const LANGUAGES = [
-  { code: "te", label: "తెలుగు", english: "Telugu", color: "#f97316" },
-  { code: "en", label: "English", english: "English", color: "#a855f7" },
-  { code: "ta", label: "தமிழ்", english: "Tamil", color: "#06b6d4" },
-  { code: "hi", label: "हिंदी", english: "Hindi", color: "#ec4899" },
+  { code: "te", label: "తెలుగు", english: "Telugu", color: "#D4AF37" },
+  { code: "en", label: "English", english: "English", color: "#2563EB" },
+  { code: "ta", label: "தமிழ்", english: "Tamil", color: "#16A34A" },
+  { code: "hi", label: "हिंदी", english: "Hindi", color: "#7E22CE" },
 ];
 
-const FEATURE_BADGES = [
-  { icon: "👁️", text: "Live Face Scan" },
-  { icon: "🧠", text: "Emotion AI" },
-  { icon: "🎵", text: "Instant Playback" },
-  { icon: "🌐", text: "Multi-Language" },
+// Rotating tagline
+const taglines = [
+  "The app that knows your mood before you do.",
+  "Music that matches your face, not your playlist.",
+  "Emotion-driven. Hands-free. Beautifully immersive.",
+  "Your face is the remote control.",
 ];
-
-// Animated audio wave bars component
-function AudioBars({ count = 32, active = true }: { count?: number; active?: boolean }) {
-  return (
-    <div className="lp-audio-bars" aria-hidden>
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="lp-bar"
-          style={{
-            animationDelay: `${(i * 0.07).toFixed(2)}s`,
-            animationDuration: `${(0.8 + Math.random() * 0.7).toFixed(2)}s`,
-            opacity: active ? 1 : 0.15,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -54,24 +37,18 @@ export default function LandingPage() {
     ["Telugu", "English", "Tamil", "Hindi"]
   );
   const [showProfile, setShowProfile] = useState(false);
+  const [taglineIdx, setTaglineIdx] = useState(0);
+
   const [form, setForm] = useState<UserProfile>({
-    name: "Listener",
-    email: "user@musicmirror.ai",
+    name: "Patnala Uday Kumar",
+    email: "uday@musicmirror.ai",
     genre: "Pop",
     goal: "Match my mood",
     languages: ["Telugu", "English", "Tamil", "Hindi"],
   });
 
-  // Rotating tagline
-  const taglines = [
-    "The app that knows your mood before you do.",
-    "Music that matches your face, not your playlist.",
-    "Emotion-driven. Hands-free. Beautifully immersive.",
-    "Your face is the remote control.",
-  ];
-  const [taglineIdx, setTaglineIdx] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setTaglineIdx((i) => (i + 1) % taglines.length), 3500);
+    const t = setInterval(() => setTaglineIdx((i) => (i + 1) % taglines.length), 4000);
     return () => clearInterval(t);
   }, []);
 
@@ -106,16 +83,16 @@ export default function LandingPage() {
 
   return (
     <div className="lp-root">
-      {/* ── Ambient background layers ── */}
+      {/* Ambient background layers */}
       <div className="lp-bg-orb lp-orb-1" />
       <div className="lp-bg-orb lp-orb-2" />
       <div className="lp-bg-orb lp-orb-3" />
       <div className="lp-grid-overlay" aria-hidden />
 
-      {/* ── Top nav ── */}
+      {/* Top nav */}
       <header className="lp-nav">
         <div className="lp-brand">
-          <span className="lp-brand-icon">🪞</span>
+          <span style={{ fontSize: "1.3rem", color: "var(--gold)" }}><Sparkles size={20} /></span>
           <span className="lp-brand-name">Music Mirror</span>
           <span className="lp-brand-v2">V2</span>
         </div>
@@ -125,7 +102,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* ── Hero ── */}
+      {/* Hero layout */}
       <main className="lp-hero">
         <motion.div
           className="lp-hero-content"
@@ -147,7 +124,7 @@ export default function LandingPage() {
             Before You Ask.
           </h1>
 
-          {/* Rotating tagline */}
+          {/* Tagline */}
           <div className="lp-tagline-container">
             <AnimatePresence mode="wait">
               <motion.p
@@ -163,29 +140,50 @@ export default function LandingPage() {
             </AnimatePresence>
           </div>
 
-          {/* Feature pills */}
+          {/* Feature pills — No Emojis, clean Lucide Icons */}
           <div className="lp-feature-pills">
-            {FEATURE_BADGES.map((b) => (
-              <div key={b.text} className="lp-feature-pill">
-                <span>{b.icon}</span>
-                <span>{b.text}</span>
-              </div>
-            ))}
+            <div className="lp-feature-pill">
+              <Scan size={14} style={{ color: "var(--gold)" }} />
+              <span>Live Face Scan</span>
+            </div>
+            <div className="lp-feature-pill">
+              <Brain size={14} style={{ color: "var(--sapphire-lt)" }} />
+              <span>Emotion AI</span>
+            </div>
+            <div className="lp-feature-pill">
+              <Play size={14} style={{ color: "var(--emerald-lt)" }} />
+              <span>Instant Playback</span>
+            </div>
+            <div className="lp-feature-pill">
+              <Globe size={14} style={{ color: "var(--purple-lt)" }} />
+              <span>Multi-Language</span>
+            </div>
           </div>
 
-          {/* Audio wave visualizer */}
+          {/* Animated audio wave visualizer */}
           <div className="lp-visualizer">
-            <AudioBars count={40} active />
+            <div className="lp-audio-bars">
+              {Array.from({ length: 42 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="lp-bar"
+                  style={{
+                    animationDelay: `${(i * 0.04).toFixed(2)}s`,
+                    animationDuration: `${(0.7 + Math.random() * 0.6).toFixed(2)}s`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Language priority selector */}
           <div className="lp-lang-section">
             <div className="lp-lang-label">
-              <span>🌐</span>
+              <Globe size={14} style={{ color: "var(--gold)" }} />
               <span>Preferred Language Priority</span>
             </div>
             <div className="lp-lang-chips">
-              {LANGUAGES.map((lang, _idx) => {
+              {LANGUAGES.map((lang) => {
                 const isSelected = selectedLanguages.includes(lang.english);
                 const priority = selectedLanguages.indexOf(lang.english) + 1;
                 return (
@@ -197,7 +195,7 @@ export default function LandingPage() {
                     style={isSelected ? ({ "--chip-color": lang.color } as React.CSSProperties) : {}}
                   >
                     {isSelected && (
-                      <span className="lp-lang-priority">{priority}</span>
+                      <span className="lp-lang-priority" style={{ background: lang.color }}>{priority}</span>
                     )}
                     <span className="lp-lang-native">{lang.label}</span>
                     <span className="lp-lang-en">{lang.english}</span>
@@ -208,17 +206,17 @@ export default function LandingPage() {
           </div>
 
           {/* Primary CTA */}
-          <motion.button
-            type="button"
-            onClick={handleGuestEntry}
-            className="lp-cta-btn"
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <span className="lp-cta-icon">▶</span>
-            <span>Try Now — Instant Hands-Free</span>
-            <span className="lp-cta-arrow">→</span>
-          </motion.button>
+          <div className="lp-cta-row">
+            <button
+              type="button"
+              onClick={handleGuestEntry}
+              className="lp-cta-btn"
+            >
+              <Play size={16} fill="currentColor" />
+              <span>Try Now — Instant Hands-Free</span>
+              <span className="lp-cta-arrow">→</span>
+            </button>
+          </div>
 
           <p className="lp-cta-note">No sign-up required · Camera permission needed for AI scan</p>
 
@@ -300,21 +298,23 @@ export default function LandingPage() {
               <div className="lp-vinyl-groove lp-groove-2" />
               <div className="lp-vinyl-groove lp-groove-3" />
               <div className="lp-vinyl-center">
-                <span>🪞</span>
+                <span style={{ color: "#090909" }}><Sparkles size={28} /></span>
               </div>
             </div>
           </div>
 
-          {/* Floating emotion cards */}
+          {/* Floating active stats cards — No Emojis, clean Lucide Icons */}
           <motion.div
             className="lp-float-card lp-float-card--1"
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
           >
-            <span className="lp-float-emoji">😊</span>
+            <span className="lp-float-emoji">
+              <Scan size={14} style={{ color: "var(--gold)" }} />
+            </span>
             <div>
               <div className="lp-float-label">Detected Mood</div>
-              <div className="lp-float-value">Happy</div>
+              <div className="lp-float-value">Calm</div>
             </div>
           </motion.div>
 
@@ -323,10 +323,12 @@ export default function LandingPage() {
             animate={{ y: [0, 10, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 1 }}
           >
-            <span className="lp-float-emoji">🎵</span>
+            <span className="lp-float-emoji">
+              <Play size={14} style={{ color: "var(--gold)" }} />
+            </span>
             <div>
               <div className="lp-float-label">Now Playing</div>
-              <div className="lp-float-value">Nuvvante Naa Jeevanam</div>
+              <div className="lp-float-value">Buttabomma</div>
             </div>
           </motion.div>
 
@@ -335,9 +337,11 @@ export default function LandingPage() {
             animate={{ y: [0, -8, 0] }}
             transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut", delay: 0.5 }}
           >
-            <span className="lp-float-emoji">🌐</span>
+            <span className="lp-float-emoji">
+              <Globe size={14} style={{ color: "var(--gold)" }} />
+            </span>
             <div>
-              <div className="lp-float-label">Language</div>
+              <div className="lp-float-label">Active Languages</div>
               <div className="lp-float-value">Telugu · English</div>
             </div>
           </motion.div>
