@@ -1,4 +1,6 @@
 // @ts-nocheck
+import React from 'react';
+
 const SPOTIFY_PLAYLISTS = {
   happy: {
     label: "Happy mix",
@@ -32,6 +34,7 @@ function embedUrl(youtubeId) {
 }
 
 function thumbnailUrl(youtubeId) {
+  if (!youtubeId) return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80';
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
@@ -53,46 +56,67 @@ export default function NowPlaying({
         <p className="player-copy">
           {requestState === "loading"
             ? "Your next track is loading."
-            : "Start the camera or pick a mood to load a playable recommendation."}
+            : "Start the camera, pick a mood, or select a track from Git/Local explorer."}
         </p>
       </section>
     );
   }
 
+  const isDirectAudio = Boolean(song.preview_url || song.source);
+
   return (
     <section className="player-panel">
       <div className="player-header">
         <div>
-          <p className="section-kicker">Now playing</p>
-          <h3>{song.title}</h3>
+          <p className="section-kicker">{song.source ? `Source: ${song.source}` : "Now playing"}</p>
+          <h3>{song.title || song.name}</h3>
         </div>
-        <span className="live-badge">{activeMoodLabel}</span>
+        <span className="live-badge">{activeMoodLabel || song.source || 'Active'}</span>
       </div>
 
-      <div className="player-mode-switch" role="tablist" aria-label="Player source">
-        <button
-          className={`player-mode-btn ${playerMode === "youtube" ? "active" : ""}`}
-          onClick={() => onPlayerModeChange("youtube")}
-          aria-pressed={playerMode === "youtube"}
-          type="button"
-        >
-          Track player
-        </button>
-        <button
-          className={`player-mode-btn ${playerMode === "spotify" ? "active" : ""}`}
-          onClick={() => onPlayerModeChange("spotify")}
-          aria-pressed={playerMode === "spotify"}
-          type="button"
-        >
-          Spotify mood mix
-        </button>
-      </div>
+      {!isDirectAudio && (
+        <div className="player-mode-switch" role="tablist" aria-label="Player source">
+          <button
+            className={`player-mode-btn ${playerMode === "youtube" ? "active" : ""}`}
+            onClick={() => onPlayerModeChange("youtube")}
+            aria-pressed={playerMode === "youtube"}
+            type="button"
+          >
+            Track player
+          </button>
+          <button
+            className={`player-mode-btn ${playerMode === "spotify" ? "active" : ""}`}
+            onClick={() => onPlayerModeChange("spotify")}
+            aria-pressed={playerMode === "spotify"}
+            type="button"
+          >
+            Spotify mood mix
+          </button>
+        </div>
+      )}
 
       <div
-        className={`player-frame ${playerMode === "spotify" ? "spotify" : ""}`}
-        key={playerMode === "spotify" ? spotifyPlaylist.url : song.youtubeId}
+        className={`player-frame ${playerMode === "spotify" ? "spotify" : ""} ${isDirectAudio ? "direct-audio" : ""}`}
+        key={isDirectAudio ? song.preview_url : playerMode === "spotify" ? spotifyPlaylist.url : song.youtubeId}
       >
-        {playerMode === "spotify" ? (
+        {isDirectAudio ? (
+          <div className="direct-audio-player-wrapper glass-card">
+            <div className="audio-visualizer-bars">
+              <span className="bar bar1"></span>
+              <span className="bar bar2"></span>
+              <span className="bar bar3"></span>
+              <span className="bar bar4"></span>
+              <span className="bar bar5"></span>
+            </div>
+            <audio 
+              controls 
+              autoPlay 
+              src={song.preview_url} 
+              className="native-audio-element" 
+              style={{ width: '100%', marginTop: '1rem' }}
+            />
+          </div>
+        ) : playerMode === "spotify" ? (
           <iframe
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy"
@@ -116,14 +140,16 @@ export default function NowPlaying({
         />
         <div>
           <p className="player-copy">
-            {playerMode === "spotify" ? spotifyPlaylist.label : song.artist}
+            {isDirectAudio ? (song.artist || 'Direct Audio Stream') : playerMode === "spotify" ? spotifyPlaylist.label : song.artist}
           </p>
           <p className="player-copy muted">
-            {playerMode === "spotify"
-              ? `Open a fuller Spotify playlist tuned for the ${activeMoodLabel.toLowerCase()} lane.`
+            {isDirectAudio 
+              ? `Playing audio file directly from ${song.source || 'Local/Git Explorer'}.`
+              : playerMode === "spotify"
+              ? `Open a fuller Spotify playlist tuned for the ${(activeMoodLabel || 'neutral').toLowerCase()} lane.`
               : song.note}
           </p>
-          {playerMode === "spotify" && (
+          {!isDirectAudio && playerMode === "spotify" && (
             <a
               className="text-link"
               href={spotifyPlaylist.openUrl}

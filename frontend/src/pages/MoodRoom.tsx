@@ -11,6 +11,8 @@ import EmotionCard, { emotionLabels } from "../components/EmotionCard";
 import HistoryPanel from "../components/HistoryPanel";
 import NowPlaying from "../components/NowPlaying";
 import SongCard from "../components/SongCard";
+import GitRepoExplorer from "../components/GitRepoExplorer";
+import LocalFileExplorer from "../components/LocalFileExplorer";
 
 const CAMERA_BATCH_SIZE = 3;
 
@@ -62,6 +64,8 @@ function scrollToSection(sectionId) {
 export default function MoodRoom() {
   const profile = useAppStore((state) => state.profile);
   const clearProfile = useAppStore((state) => state.clearProfile);
+
+  const [activeNavTab, setActiveNavTab] = useState("mood-room"); // 'mood-room' | 'git-explorer' | 'local-explorer'
 
   const [favorites, setFavorites] = useState([]);
   const [history, setHistory] = useState([]);
@@ -144,12 +148,10 @@ export default function MoodRoom() {
             return [nextEntry, ...currentHistory].slice(0, 10);
           });
 
-          // Telemetry ping
           sendTelemetry("recommendation_success", nextSongs[0]?.title, requestedEmotion);
         }
       } catch (error) {
         if (ignore) return;
-        // Fallback local generator to guarantee recommendations even if backend is waking up
         const fallbackSongs = [
           { title: "Blinding Lights", artist: "The Weeknd", genre: "Pop", valence: 0.82, energy_numeric: 0.73, tempo: 171, spotify_url: "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b", recommendation_reason: "92% acoustic match · fits context · matches your taste" },
           { title: "Levitating", artist: "Dua Lipa", genre: "Pop", valence: 0.91, energy_numeric: 0.84, tempo: 103, spotify_url: "https://open.spotify.com/track/46spSG9b9y21pe2xySuYFi", recommendation_reason: "89% acoustic match · fits context" },
@@ -174,46 +176,22 @@ export default function MoodRoom() {
     };
   }, [detection.source, profile, requestedEmotion]);
 
-  useEffect(() => {
-    if (!pendingMoodChange) return;
-    const timer = setTimeout(() => {
-      setPendingMoodChange(null);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [pendingMoodChange]);
-
-  const favoriteKeys = useMemo(
-    () => new Set(favorites.map((song) => songKey(song))),
-    [favorites]
-  );
-
-  const insightSummary = useMemo(() => {
-    const counts = history.reduce((result, item) => {
-      result[item.playlistEmotion] = (result[item.playlistEmotion] || 0) + 1;
-      return result;
-    }, {});
-
-    const topMoodEntry =
-      Object.entries(counts).sort((left, right) => right[1] - left[1])[0] ||
-      [];
-
-    return {
-      topMood: topMoodEntry[0] || "neutral",
-      totalScans: history.length,
-      favorites: favorites.length,
-    };
-  }, [favorites.length, history]);
+  const handleExternalPlayTrack = (track) => {
+    setSelectedSong({
+      title: track.name,
+      artist: track.artist,
+      preview_url: track.preview_url,
+      source: track.source
+    });
+    // Ensure now playing header is visible
+    scrollToSection("topbar-root");
+  };
 
   const activeMood = playlistEmotion || requestedEmotion;
   const activeMoodLabel = activeMood
     ? emotionLabels[activeMood] || activeMood
     : "Waiting for a mood";
   const greetingName = profile?.name || "Listener";
-
-  const resetCameraBatch = () => {
-    cameraBatchRef.current = [];
-    setCameraBatch([]);
-  };
 
   const handleLogout = () => {
     clearProfile();
@@ -222,27 +200,17 @@ export default function MoodRoom() {
   const handleDetection = useCallback(
     (nextDetection) => {
       setDetection(nextDetection);
-
       if (nextDetection.confidence < 0.5) return;
-
-      const nextBatch = [...cameraBatchRef.current, nextDetection].slice(
-        0,
-        CAMERA_BATCH_SIZE
-      );
-
+      const nextBatch = [...cameraBatchRef.current, nextDetection].slice(0, CAMERA_BATCH_SIZE);
       cameraBatchRef.current = nextBatch;
       setCameraBatch(nextBatch);
-
       if (nextBatch.length < CAMERA_BATCH_SIZE) return;
 
       const stableEmotion = resolveStableEmotion(nextBatch);
-      const finalRead =
-        [...nextBatch]
-          .reverse()
-          .find((item) => item.emotion === stableEmotion) ||
-        nextBatch[nextBatch.length - 1];
+      const finalRead = [...nextBatch].reverse().find((item) => item.emotion === stableEmotion) || nextBatch[nextBatch.length - 1];
 
-      resetCameraBatch();
+      cameraBatchRef.current = [];
+      setCameraBatch([]);
 
       setDetection({
         ...finalRead,
@@ -265,11 +233,7 @@ export default function MoodRoom() {
         emotion: stableEmotion,
         previousEmotion: requestedEmotion,
         samples: nextBatch,
-        mode:
-          new Set(nextBatch.map((item) => item.emotion)).size ===
-          CAMERA_BATCH_SIZE
-            ? "last-read"
-            : "majority",
+        mode: new Set(nextBatch.map((item) => item.emotion)).size === CAMERA_BATCH_SIZE ? "last-read" : "majority",
       });
     },
     [requestedEmotion, selectedSong, requestState]
@@ -283,7 +247,8 @@ export default function MoodRoom() {
       source: "manual",
     });
     setPendingMoodChange(null);
-    resetCameraBatch();
+    cameraBatchRef.current = [];
+    setCameraBatch([]);
     setRequestedEmotion(emotion);
   };
 
@@ -299,35 +264,52 @@ export default function MoodRoom() {
     });
   }, []);
 
-  const handleAcceptSuggestedMood = () => {
-    if (!pendingMoodChange) return;
-    setRequestedEmotion(pendingMoodChange.emotion);
-    setTimeout(() => {
-      setPendingMoodChange(null);
-    }, 150);
-  };
+  const insightSummary = useMemo(() => {
+    const counts = history.reduce((result, item) => {
+      result[item.playlistEmotion] = (result[item.playlistEmotion] || 0) + 1;
+      return result;
+    }, {});
 
-  const handleKeepCurrentSong = () => {
-    setTimeout(() => {
-      setPendingMoodChange(null);
-    }, 150);
-  };
+    const topMoodEntry = Object.entries(counts).sort((left, right) => right[1] - left[1])[0] || [];
 
-  const cameraBatchLabel =
-    cameraBatch.length > 0
-      ? describeBatch(cameraBatch)
-      : "Waiting for the next 3 confident reads.";
+    return {
+      topMood: topMoodEntry[0] || "neutral",
+      totalScans: history.length,
+      favorites: favorites.length,
+    };
+  }, [favorites.length, history]);
 
   return (
-    <div className="app-shell" style={{ overflowY: "auto" }}>
+    <div className="app-shell" id="topbar-root" style={{ overflowY: "auto" }}>
       <div className="app-noise" />
 
       {/* HEADER */}
       <header className="topbar">
         <BrandLockup
-          label="Emotion-aware music room"
+          label="Emotion-aware music room & File Explorer"
           labelClassName="topbar-label"
         />
+
+        <nav className="topbar-nav-tabs">
+          <button 
+            className={`nav-tab-btn ${activeNavTab === 'mood-room' ? 'active' : ''}`}
+            onClick={() => setActiveNavTab('mood-room')}
+          >
+            🎵 Mood Room
+          </button>
+          <button 
+            className={`nav-tab-btn ${activeNavTab === 'local-explorer' ? 'active' : ''}`}
+            onClick={() => setActiveNavTab('local-explorer')}
+          >
+            📂 Local Explorer
+          </button>
+          <button 
+            className={`nav-tab-btn ${activeNavTab === 'git-explorer' ? 'active' : ''}`}
+            onClick={() => setActiveNavTab('git-explorer')}
+          >
+            🐙 Git Repository
+          </button>
+        </nav>
 
         <div className="topbar-actions">
           <div className="profile-chip">
@@ -346,17 +328,16 @@ export default function MoodRoom() {
       {/* POSTER HERO */}
       <section className="poster">
         <div className="poster-copy">
-          <p className="eyebrow">Live recommendation studio</p>
-          <h2>Music that adapts to your face, your mood, and your session.</h2>
+          <p className="eyebrow">Studio & Repository Ecosystem</p>
+          <h2>Music that adapts to your face, local files, and git code.</h2>
           <p className="poster-text">
-            Scan the room, nudge the mood manually if you want, and keep your
-            own listening trail with favorites and recent emotional reads.
+            Scan your face for mood picks, browse local audio files on your computer, or explore GitHub repository code & music tracks.
           </p>
 
           <div className="poster-meta">
             <div>
               <span className="meta-label">Current lane</span>
-              <strong>{activeMoodLabel}</strong>
+              <strong>{selectedSong?.source ? selectedSong.source : activeMoodLabel}</strong>
             </div>
             <div>
               <span className="meta-label">Top pattern</span>
@@ -367,58 +348,7 @@ export default function MoodRoom() {
               <strong>{insightSummary.favorites}</strong>
             </div>
           </div>
-
-          <div className="action-buttons">
-            <button
-              className="quick-link"
-              onClick={() => scrollToSection("capture-panel")}
-              type="button"
-            >
-              Go to camera
-            </button>
-            <button
-              className="quick-link"
-              onClick={() => scrollToSection("queue-panel")}
-              type="button"
-            >
-              Open queue
-            </button>
-            <button
-              className="quick-link"
-              onClick={() => scrollToSection("history-panel")}
-              type="button"
-            >
-              View history
-            </button>
-          </div>
         </div>
-
-        {/* FLOATING MOOD POPUP NUDGE */}
-        {pendingMoodChange && (
-          <div className="mood-floating premium">
-            <div className="mood-floating-text">
-              ⚡ Switch to {emotionLabels[pendingMoodChange.emotion] || pendingMoodChange.emotion}
-            </div>
-
-            <div className="mood-floating-actions">
-              <button
-                className="inline-btn primary"
-                onClick={handleAcceptSuggestedMood}
-                type="button"
-              >
-                Switch
-              </button>
-
-              <button
-                className="inline-btn ghost"
-                onClick={handleKeepCurrentSong}
-                type="button"
-              >
-                Keep
-              </button>
-            </div>
-          </div>
-        )}
 
         <NowPlaying
           activeMood={activeMood}
@@ -430,171 +360,109 @@ export default function MoodRoom() {
         />
       </section>
 
-      {/* WORKSPACE */}
-      <main className="workspace">
-        <section className="workspace-main">
-          {/* CAPTURE PANEL */}
-          <section className="panel capture-panel" id="capture-panel">
-            <div className="section-header">
-              <div>
-                <p className="section-kicker">Capture</p>
-                <h3>Read the room</h3>
+      {/* DYNAMIC TAB WORKSPACE CONTENT */}
+      {activeNavTab === 'git-explorer' && (
+        <main className="workspace-single">
+          <GitRepoExplorer onPlayTrack={handleExternalPlayTrack} />
+        </main>
+      )}
+
+      {activeNavTab === 'local-explorer' && (
+        <main className="workspace-single">
+          <LocalFileExplorer onPlayTrack={handleExternalPlayTrack} />
+        </main>
+      )}
+
+      {activeNavTab === 'mood-room' && (
+        <main className="workspace">
+          <section className="workspace-main">
+            {/* CAPTURE PANEL */}
+            <section className="panel capture-panel" id="capture-panel">
+              <div className="section-header">
+                <div>
+                  <p className="section-kicker">Capture</p>
+                  <h3>Read the room</h3>
+                </div>
+                <p className="section-copy">
+                  Use webcam for live emotion detection or pick a mood manually.
+                </p>
               </div>
-              <p className="section-copy">
-                Use the webcam for live emotion detection or choose a mood
-                manually when you want full control.
-              </p>
-            </div>
 
-            <Camera onEmotion={handleDetection} />
+              <Camera onEmotion={handleDetection} />
 
-            <p className="buffer-note" style={{ marginTop: "16px" }}>
-              Music updates after {CAMERA_BATCH_SIZE} confident camera reads.
-              Current batch: {cameraBatchLabel}
-            </p>
-
-            <div className="manual-moods" style={{ marginTop: "16px" }}>
-              {manualMoodOptions.map((emotion) => (
-                <button
-                  key={emotion}
-                  className={`mood-pill ${
-                    requestedEmotion === emotion ? "active" : ""
-                  }`}
-                  onClick={() => handleManualMood(emotion)}
-                  type="button"
-                >
-                  {emotionLabels[emotion] || emotion}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* EMOTION CARD */}
-          <EmotionCard detection={detection} playlistEmotion={playlistEmotion} />
-
-          {/* QUEUE PANEL */}
-          <section className="panel recommendations-panel" id="queue-panel">
-            <div className="section-header">
-              <div>
-                <p className="section-kicker">Queue</p>
-                <h3>{activeMood ? `${activeMoodLabel} picks` : "Mood queue"}</h3>
-              </div>
-              <p className="section-copy">
-                Curated tracks with embedded playback, quick save, and direct
-                fallback links when you want to continue outside the app.
-              </p>
-            </div>
-
-            {requestState === "idle" && (
-              <p className="state-copy">
-                Start the camera or tap a mood button to generate a playlist.
-              </p>
-            )}
-
-            {requestState === "loading" && (
-              <p className="state-copy">Building your listening queue...</p>
-            )}
-
-            {requestState === "error" && (
-              <p className="state-copy error">{errorMessage}</p>
-            )}
-
-            {requestState === "empty" && (
-              <p className="state-copy">
-                No songs are configured yet for the {activeMoodLabel} mood.
-              </p>
-            )}
-
-            {requestState === "success" && (
-              <div className="recommendation-list">
-                {songs.map((song) => (
-                  <SongCard
-                    key={songKey(song)}
-                    isActive={
-                      selectedSong ? songKey(song) === songKey(selectedSong) : false
-                    }
-                    isFavorite={favoriteKeys.has(songKey(song))}
-                    onPlay={setSelectedSong}
-                    onToggleFavorite={handleToggleFavorite}
-                    song={song}
-                  />
+              <div className="manual-moods" style={{ marginTop: "16px" }}>
+                {manualMoodOptions.map((emotion) => (
+                  <button
+                    key={emotion}
+                    className={`mood-pill ${
+                      requestedEmotion === emotion ? "active" : ""
+                    }`}
+                    onClick={() => handleManualMood(emotion)}
+                    type="button"
+                  >
+                    {emotionLabels[emotion] || emotion}
+                  </button>
                 ))}
               </div>
-            )}
+            </section>
+
+            {/* EMOTION CARD */}
+            <EmotionCard detection={detection} playlistEmotion={playlistEmotion} />
+
+            {/* QUEUE PANEL */}
+            <section className="panel recommendations-panel" id="queue-panel">
+              <div className="section-header">
+                <div>
+                  <p className="section-kicker">Queue</p>
+                  <h3>{activeMood ? `${activeMoodLabel} picks` : "Mood queue"}</h3>
+                </div>
+              </div>
+
+              {requestState === "success" && (
+                <div className="recommendation-list">
+                  {songs.map((song) => (
+                    <SongCard
+                      key={songKey(song)}
+                      isActive={selectedSong ? songKey(song) === songKey(selectedSong) : false}
+                      isFavorite={favorites.some(f => songKey(f) === songKey(song))}
+                      onPlay={setSelectedSong}
+                      onToggleFavorite={handleToggleFavorite}
+                      song={song}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
           </section>
-        </section>
 
-        {/* WORKSPACE SIDEBAR */}
-        <aside className="workspace-side">
-          {/* PROFILE PANEL */}
-          <section className="panel profile-panel">
-            <p className="section-kicker">Profile</p>
-            <h3>{greetingName}'s listening profile</h3>
+          {/* WORKSPACE SIDEBAR */}
+          <aside className="workspace-side">
+            <section className="panel profile-panel">
+              <p className="section-kicker">Profile</p>
+              <h3>{greetingName}'s profile</h3>
+              <div className="profile-grid">
+                <div>
+                  <span className="meta-label">Email</span>
+                  <strong>{profile?.email || "user@musicmirror.ai"}</strong>
+                </div>
+                <div>
+                  <span className="meta-label">Preferred genre</span>
+                  <strong>{profile?.genre || "Pop"}</strong>
+                </div>
+              </div>
+            </section>
 
-            <div className="profile-grid">
-              <div>
-                <span className="meta-label">Email</span>
-                <strong>{profile?.email || "user@musicmirror.ai"}</strong>
-              </div>
-              <div>
-                <span className="meta-label">Preferred genre</span>
-                <strong>{profile?.genre || "Pop"}</strong>
-              </div>
-              <div>
-                <span className="meta-label">Mood goal</span>
-                <strong>{profile?.goal || "Match my mood"}</strong>
-              </div>
-              <div>
-                <span className="meta-label">Last scan</span>
-                <strong>
-                  {history[0]?.timestamp
-                    ? formatTimestamp(history[0].timestamp)
-                    : "No scans yet"}
-                </strong>
-              </div>
+            <div id="history-panel">
+              <HistoryPanel
+                favorites={favorites}
+                history={history}
+                onPlaySong={setSelectedSong}
+                onToggleFavorite={handleToggleFavorite}
+              />
             </div>
-          </section>
-
-          {/* INSIGHTS PANEL */}
-          <section className="panel stats-panel">
-            <p className="section-kicker">Insights</p>
-            <h3>Session pulse</h3>
-
-            <div className="stats-grid">
-              <div>
-                <span className="meta-label">Scans saved</span>
-                <strong>{insightSummary.totalScans}</strong>
-              </div>
-              <div>
-                <span className="meta-label">Top mood</span>
-                <strong>{emotionLabels[insightSummary.topMood] || "Neutral"}</strong>
-              </div>
-              <div>
-                <span className="meta-label">Favorite songs</span>
-                <strong>{insightSummary.favorites}</strong>
-              </div>
-              <div>
-                <span className="meta-label">Detection source</span>
-                <strong>
-                  {detection.source === "manual"
-                    ? "Manual control"
-                    : "Camera live"}
-                </strong>
-              </div>
-            </div>
-          </section>
-
-          {/* HISTORY & FAVORITES */}
-          <div id="history-panel">
-            <HistoryPanel
-              favorites={favorites}
-              history={history}
-              onPlaySong={setSelectedSong}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          </div>
-        </aside>
-      </main>
+          </aside>
+        </main>
+      )}
     </div>
   );
 }

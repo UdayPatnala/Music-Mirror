@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import recommendations, health, telemetry
+from app.api.routes import recommendations, health, telemetry, local_explorer, git_explorer
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -16,3 +16,6 @@ app.add_middleware(
 app.include_router(health.router, prefix="/health", tags=["Health"])
 app.include_router(recommendations.router, prefix="/recommend", tags=["Recommendations"])
 app.include_router(telemetry.router, prefix="/telemetry", tags=["Telemetry"])
+app.include_router(local_explorer.router, prefix="/local-explorer", tags=["Local Explorer"])
+app.include_router(git_explorer.router, prefix="/git", tags=["Git Explorer"])
+
