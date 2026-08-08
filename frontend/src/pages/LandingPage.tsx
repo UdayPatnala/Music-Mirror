@@ -91,13 +91,6 @@ export default function LandingPage() {
   // idle → spin → open → eject → insert → done
   const [phase, setPhase] = useState<"idle"|"spin"|"open"|"eject"|"insert"|"done">("idle");
 
-  // CD subtle idle bob animation tick
-  const [idleTick, setIdleTick] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setIdleTick(p => p + 1), 80);
-    return () => clearInterval(t);
-  }, []);
-
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!heroRef.current) return;
     const rect = heroRef.current.getBoundingClientRect();
@@ -108,15 +101,7 @@ export default function LandingPage() {
   }, []);
 
   const handleEnter = () => {
-    if (phase !== "idle") return;
-    setPhase("spin");
-    setTimeout(() => setPhase("open"),   600);
-    setTimeout(() => setPhase("eject"),  1400);
-    setTimeout(() => setPhase("insert"), 2400);
-    setTimeout(() => {
-      setPhase("done");
-      navigate("/room");
-    }, 3600);
+    navigate("/room");
   };
 
   // Derived reflection values from cursor

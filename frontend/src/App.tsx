@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from './store/useAppStore';
 import GlobalPlayerHost from './components/GlobalPlayerHost';
-import GazeOverlay from './components/GazeOverlay';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const MoodRoom = lazy(() => import('./pages/MoodRoom'));
@@ -112,7 +111,6 @@ export default function App() {
                             </Routes>
                         </Suspense>
                         <GlobalPlayerHost />
-                        <GazeOverlay />
                     </div>
                 </BrowserRouter>
             </ErrorBoundary>
