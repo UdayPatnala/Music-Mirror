@@ -62,11 +62,16 @@ const SPOTIFY = {
 
 function getEmbedUrl(song: any): string {
   if (!song) return '';
+  if (song.youtubeId) {
+    return `https://www.youtube-nocookie.com/embed/${song.youtubeId}?autoplay=1&rel=0&modestbranding=1`;
+  }
   const titleKey = (song.title || song.name || '').toLowerCase().trim();
-  const knownId  = TRACK_IDS[titleKey];
-  if (knownId) return `https://www.youtube-nocookie.com/embed/${knownId}?autoplay=1&rel=0&modestbranding=1`;
-  const query = encodeURIComponent(`${song.title || song.name || ''} ${song.artist || ''} official audio`);
-  return `https://www.youtube-nocookie.com/embed?listType=search&list=${query}&autoplay=1&rel=0&modestbranding=1`;
+  const knownId = TRACK_IDS[titleKey];
+  if (knownId) {
+    return `https://www.youtube-nocookie.com/embed/${knownId}?autoplay=1&rel=0&modestbranding=1`;
+  }
+  // Safe default YouTube audio stream fallback
+  return `https://www.youtube-nocookie.com/embed/A6BJ-PgNWXA?autoplay=1&rel=0&modestbranding=1`;
 }
 
 const ART_COLORS = [

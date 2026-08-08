@@ -59,6 +59,8 @@ export default function ProfilePage() {
   const navigate  = useNavigate();
   const profile   = useAppStore(s => s.profile);
   const setProfile = useAppStore(s => s.setProfile);
+  const eyeControlSettings = useAppStore(s => s.eyeControlSettings);
+  const setEyeControlSettings = useAppStore(s => s.setEyeControlSettings);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isEditing, setIsEditing] = useState(!profile);
@@ -365,16 +367,14 @@ export default function ProfilePage() {
               <label className="lp-toggle" style={{ position: "relative", display: "inline-block", width: 44, height: 24 }}>
                 <input
                   type="checkbox"
-                  checked={useAppStore.getState().eyeControlSettings.enabled}
-                  onChange={(e) => {
-                    useAppStore.getState().setEyeControlSettings({ enabled: e.target.checked });
-                  }}
+                  checked={eyeControlSettings.enabled}
+                  onChange={(e) => setEyeControlSettings({ enabled: e.target.checked })}
                   style={{ opacity: 0, width: 0, height: 0 }}
                 />
                 <span
                   style={{
                     position: "absolute", cursor: "pointer", inset: 0,
-                    background: useAppStore.getState().eyeControlSettings.enabled ? "var(--gold)" : "rgba(255,255,255,0.1)",
+                    background: eyeControlSettings.enabled ? "var(--gold)" : "rgba(255,255,255,0.1)",
                     borderRadius: 24, transition: "0.3s",
                   }}
                 >
@@ -382,7 +382,7 @@ export default function ProfilePage() {
                     style={{
                       position: "absolute", height: 18, width: 18, left: 3, bottom: 3,
                       background: "#090909", borderRadius: "50%", transition: "0.3s",
-                      transform: useAppStore.getState().eyeControlSettings.enabled ? "translateX(20px)" : "none",
+                      transform: eyeControlSettings.enabled ? "translateX(20px)" : "none",
                     }}
                   />
                 </span>
@@ -403,14 +403,14 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {useAppStore.getState().eyeControlSettings.enabled && (
+          {eyeControlSettings.enabled && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, paddingTop: 12, borderTop: "1px solid var(--glass-border)" }}>
               {/* Calibration & Status */}
               <div style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "var(--r-16)", padding: "18px" }}>
                 <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", marginBottom: 8 }}>Calibration Status</div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                  <span style={{ fontSize: "1rem", fontWeight: 800, color: useAppStore.getState().eyeControlSettings.calibrated ? "var(--gold)" : "var(--text-2)" }}>
-                    {useAppStore.getState().eyeControlSettings.calibrated ? `Calibrated (${useAppStore.getState().eyeControlSettings.calibrationScore}%)` : "Not Calibrated"}
+                  <span style={{ fontSize: "1rem", fontWeight: 800, color: eyeControlSettings.calibrated ? "var(--gold)" : "var(--text-2)" }}>
+                    {eyeControlSettings.calibrated ? `Calibrated (${eyeControlSettings.calibrationScore}%)` : "Not Calibrated"}
                   </span>
                   <button
                     type="button"
@@ -432,12 +432,12 @@ export default function ProfilePage() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6 }}>
                     <span>Dwell Activation Time</span>
-                    <span style={{ color: "var(--gold)" }}>{useAppStore.getState().eyeControlSettings.dwellTime} ms</span>
+                    <span style={{ color: "var(--gold)" }}>{eyeControlSettings.dwellTime} ms</span>
                   </div>
                   <input
                     type="range" min="400" max="1500" step="50"
-                    value={useAppStore.getState().eyeControlSettings.dwellTime}
-                    onChange={(e) => useAppStore.getState().setEyeControlSettings({ dwellTime: Number(e.target.value) })}
+                    value={eyeControlSettings.dwellTime}
+                    onChange={(e) => setEyeControlSettings({ dwellTime: Number(e.target.value) })}
                     style={{ width: "100%", accentColor: "var(--gold)", cursor: "pointer" }}
                   />
                 </div>
@@ -445,12 +445,12 @@ export default function ProfilePage() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: 700, marginBottom: 6 }}>
                     <span>Gaze Smoothing & Jitter Filter</span>
-                    <span style={{ color: "var(--gold)" }}>{Math.round(useAppStore.getState().eyeControlSettings.eyeSmoothing * 100)}%</span>
+                    <span style={{ color: "var(--gold)" }}>{Math.round(eyeControlSettings.eyeSmoothing * 100)}%</span>
                   </div>
                   <input
                     type="range" min="0.1" max="0.9" step="0.05"
-                    value={useAppStore.getState().eyeControlSettings.eyeSmoothing}
-                    onChange={(e) => useAppStore.getState().setEyeControlSettings({ eyeSmoothing: Number(e.target.value) })}
+                    value={eyeControlSettings.eyeSmoothing}
+                    onChange={(e) => setEyeControlSettings({ eyeSmoothing: Number(e.target.value) })}
                     style={{ width: "100%", accentColor: "var(--gold)", cursor: "pointer" }}
                   />
                 </div>

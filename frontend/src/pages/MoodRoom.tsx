@@ -26,12 +26,12 @@ const MOOD_COLOR: Record<string, string> = {
 };
 
 const FALLBACK: Song[] = [
-  { title: "Buttabomma",       artist: "Armaan Malik",    genre: "Telugu Pop",  language: "Telugu",  source_provider: "YouTube" },
-  { title: "Samajavaragamana", artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "Spotify" },
-  { title: "Ennenno Janmala",  artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "JioSaavn" },
-  { title: "Blinding Lights",  artist: "The Weeknd",      genre: "Synthpop",    language: "English", source_provider: "YouTube" },
-  { title: "Kannazhaga",       artist: "Mohit Chauhan",   genre: "Tamil Soul",  language: "Tamil",   source_provider: "YouTube" },
-  { title: "Levitating",       artist: "Dua Lipa",        genre: "Pop",         language: "English", source_provider: "Spotify" },
+  { title: "Buttabomma",       artist: "Armaan Malik",    genre: "Telugu Pop",  language: "Telugu",  source_provider: "YouTube", youtubeId: "A6BJ-PgNWXA" },
+  { title: "Samajavaragamana", artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "Spotify", youtubeId: "E3BnMDc9ATE" },
+  { title: "Ennenno Janmala",  artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "JioSaavn", youtubeId: "_dXwkfq5YG8" },
+  { title: "Blinding Lights",  artist: "The Weeknd",      genre: "Synthpop",    language: "English", source_provider: "YouTube", youtubeId: "4NRXx6U8ABQ" },
+  { title: "Kannazhaga",       artist: "Mohit Chauhan",   genre: "Tamil Soul",  language: "Tamil",   source_provider: "YouTube", youtubeId: "9oNvxVFsm5U" },
+  { title: "Levitating",       artist: "Dua Lipa",        genre: "Pop",         language: "English", source_provider: "Spotify", youtubeId: "TUVcZfQe-Kw" },
 ];
 
 function key(s: Song): string { return `${s.title || s.name}::${s.artist}`; }

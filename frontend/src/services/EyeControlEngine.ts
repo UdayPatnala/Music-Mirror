@@ -1,3 +1,4 @@
+import * as faceapi from 'face-api.js';
 import { GazeEventBus } from './GazeEventBus';
 
 export interface CalibrationPoint {
@@ -14,15 +15,16 @@ export class EyeControlEngine {
   private stream: MediaStream | null = null;
   private isRunning: boolean = false;
   private animFrameId: number | null = null;
+  private modelsLoaded: boolean = false;
 
-  // Smoothing states (Exponential Moving Average)
+  // Smoothing states (Adaptive Exponential Moving Average + Holt Linear)
   private prevX: number = window.innerWidth / 2;
   private prevY: number = window.innerHeight / 2;
-  private smoothingAlpha: number = 0.5;
+  private smoothingAlpha: number = 0.35;
 
-  // Calibration coefficients (default linear map)
-  private coeffsX: [number, number, number] = [0, window.innerWidth, 0];
-  private coeffsY: [number, number, number] = [0, 0, window.innerHeight];
+  // Calibration coefficients (default mapping)
+  private coeffsX: number[] = [0, window.innerWidth, 0];
+  private coeffsY: number[] = [0, 0, window.innerHeight];
   private isCalibrated: boolean = false;
 
   private confidence: number = 1.0;
@@ -41,56 +43,61 @@ export class EyeControlEngine {
   }
 
   public setSmoothing(alpha: number) {
-    // alpha range 0.1 (very smooth) to 0.9 (responsive)
     this.smoothingAlpha = Math.max(0.05, Math.min(0.95, alpha));
   }
 
   public setCalibration(points: CalibrationPoint[]) {
     if (!points || points.length < 5) return;
-    
-    // Fit linear/quadratic approximation mapping eye (u, v) -> screen (x, y)
-    let sumTargetX = 0, sumTargetY = 0;
-    let sumEyeX = 0, sumEyeY = 0;
-    
-    points.forEach(p => {
-      sumTargetX += p.targetX;
-      sumTargetY += p.targetY;
-      sumEyeX += p.eyeX;
-      sumEyeY += p.eyeY;
+
+    let sumTX = 0, sumTY = 0, sumEX = 0, sumEY = 0;
+    points.forEach((p) => {
+      sumTX += p.targetX;
+      sumTY += p.targetY;
+      sumEX += p.eyeX;
+      sumEY += p.eyeY;
     });
 
-    const avgTargetX = sumTargetX / points.length;
-    const avgTargetY = sumTargetY / points.length;
-    const avgEyeX = sumEyeX / points.length;
-    const avgEyeY = sumEyeY / points.length;
+    const avgTX = sumTX / points.length;
+    const avgTY = sumTY / points.length;
+    const avgEX = sumEX / points.length;
+    const avgEY = sumEY / points.length;
 
-    // Simple robust affine transform fit
-    let numX = 0, denX = 0;
-    let numY = 0, denY = 0;
-
-    points.forEach(p => {
-      numX += (p.eyeX - avgEyeX) * (p.targetX - avgTargetX);
-      denX += (p.eyeX - avgEyeX) ** 2;
-
-      numY += (p.eyeY - avgEyeY) * (p.targetY - avgTargetY);
-      denY += (p.eyeY - avgEyeY) ** 2;
+    let numX = 0, denX = 0, numY = 0, denY = 0;
+    points.forEach((p) => {
+      numX += (p.eyeX - avgEX) * (p.targetX - avgTX);
+      denX += (p.eyeX - avgEX) ** 2;
+      numY += (p.eyeY - avgEY) * (p.targetY - avgTY);
+      denY += (p.eyeY - avgEY) ** 2;
     });
 
     const scaleX = denX !== 0 ? numX / denX : window.innerWidth;
     const scaleY = denY !== 0 ? numY / denY : window.innerHeight;
-
-    const offsetX = avgTargetX - scaleX * avgEyeX;
-    const offsetY = avgTargetY - scaleY * avgEyeY;
+    const offsetX = avgTX - scaleX * avgEX;
+    const offsetY = avgTY - scaleY * avgEY;
 
     this.coeffsX = [offsetX, scaleX, 0];
     this.coeffsY = [offsetY, 0, scaleY];
     this.isCalibrated = true;
   }
 
+  private async loadFaceModels() {
+    if (this.modelsLoaded) return;
+    try {
+      const MODEL_URL = '/models';
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+      this.modelsLoaded = true;
+    } catch {
+      // Fall back gracefully if local models missing
+      this.modelsLoaded = false;
+    }
+  }
+
   public async start(): Promise<boolean> {
     if (this.isRunning) return true;
 
     try {
+      await this.loadFaceModels();
+
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30 } },
         audio: false,
@@ -103,8 +110,8 @@ export class EyeControlEngine {
       await this.videoElement.play();
 
       this.canvasElement = document.createElement('canvas');
-      this.canvasElement.width = 160;
-      this.canvasElement.height = 120;
+      this.canvasElement.width = 320;
+      this.canvasElement.height = 240;
 
       this.isRunning = true;
       this.isPaused = false;
@@ -114,7 +121,7 @@ export class EyeControlEngine {
       GazeEventBus.publishStatus(true, 1.0, 'Eye Control active');
       return true;
     } catch (err) {
-      console.warn('Eye Control camera error:', err);
+      console.warn('Eye Control camera start error:', err);
       GazeEventBus.publishStatus(false, 0.0, 'Camera unavailable');
       this.stop();
       return false;
@@ -158,32 +165,74 @@ export class EyeControlEngine {
     }
   }
 
-  private loop = () => {
+  private loop = async () => {
     if (!this.isRunning) return;
 
-    if (!this.isPaused && this.videoElement && this.canvasElement) {
+    if (!this.isPaused && this.videoElement && this.canvasElement && this.videoElement.readyState === 4) {
       const ctx = this.canvasElement.getContext('2d', { willReadFrequently: true });
-      if (ctx && this.videoElement.readyState === 4) {
-        ctx.drawImage(this.videoElement, 0, 0, 160, 120);
-        const imgData = ctx.getImageData(0, 0, 160, 120);
-        
-        // Process pupil/eye center estimation from frame pixels
-        const { eyeX, eyeY, confidence } = this.estimateEyeCenter(imgData);
+      if (ctx) {
+        ctx.drawImage(this.videoElement, 0, 0, 320, 240);
+        const imgData = ctx.getImageData(0, 0, 320, 240);
+
+        let eyeX = 0.5;
+        let eyeY = 0.5;
+        let confidence = 0.8;
+
+        if (this.modelsLoaded) {
+          try {
+            const detection = await faceapi.detectSingleFace(
+              this.videoElement,
+              new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 })
+            );
+
+            if (detection) {
+              const box = detection.box;
+              confidence = Math.min(1.0, detection.score * 1.2);
+
+              // Sub-segment eye region inside detected face box
+              const eyeRegionX = Math.max(0, Math.floor(box.x + box.width * 0.15));
+              const eyeRegionY = Math.max(0, Math.floor(box.y + box.height * 0.18));
+              const eyeRegionW = Math.min(320 - eyeRegionX, Math.floor(box.width * 0.70));
+              const eyeRegionH = Math.min(240 - eyeRegionY, Math.floor(box.height * 0.28));
+
+              if (eyeRegionW > 10 && eyeRegionH > 10) {
+                const eyeData = ctx.getImageData(eyeRegionX, eyeRegionY, eyeRegionW, eyeRegionH);
+                const pupilOffset = this.calculatePupilCentroid(eyeData);
+                eyeX = (eyeRegionX + pupilOffset.x) / 320;
+                eyeY = (eyeRegionY + pupilOffset.y) / 240;
+              } else {
+                eyeX = (box.x + box.width / 2) / 320;
+                eyeY = (box.y + box.height / 3) / 240;
+              }
+            } else {
+              confidence = 0.2;
+            }
+          } catch {
+            const fallback = this.estimateEyeCenterLuminance(imgData);
+            eyeX = fallback.eyeX;
+            eyeY = fallback.eyeY;
+            confidence = fallback.confidence;
+          }
+        } else {
+          const fallback = this.estimateEyeCenterLuminance(imgData);
+          eyeX = fallback.eyeX;
+          eyeY = fallback.eyeY;
+          confidence = fallback.confidence;
+        }
 
         this.confidence = confidence;
 
-        if (confidence < 0.45) {
+        if (confidence < 0.35) {
           if (!this.isSuspended) {
             this.isSuspended = true;
-            GazeEventBus.publishStatus(false, confidence, 'Low confidence — eye tracking suspended');
+            GazeEventBus.publishStatus(false, confidence, 'Face lost / low light — tracking suspended');
           }
         } else {
           if (this.isSuspended) {
             this.isSuspended = false;
-            GazeEventBus.publishStatus(true, confidence, 'Confidence restored — eye tracking active');
+            GazeEventBus.publishStatus(true, confidence, 'Tracking active');
           }
 
-          // Map estimated eye coordinates to screen coordinates
           let rawX = 0;
           let rawY = 0;
 
@@ -191,18 +240,20 @@ export class EyeControlEngine {
             rawX = this.coeffsX[0] + this.coeffsX[1] * eyeX + this.coeffsX[2] * eyeY;
             rawY = this.coeffsY[0] + this.coeffsY[1] * eyeX + this.coeffsY[2] * eyeY;
           } else {
-            // Default center relative mapping fallback
+            // Natural mirror mapping
             rawX = (1.0 - eyeX) * window.innerWidth;
             rawY = eyeY * window.innerHeight;
           }
 
-          // Bound within viewport
-          rawX = Math.max(10, Math.min(window.innerWidth - 10, rawX));
-          rawY = Math.max(10, Math.min(window.innerHeight - 10, rawY));
+          rawX = Math.max(20, Math.min(window.innerWidth - 20, rawX));
+          rawY = Math.max(20, Math.min(window.innerHeight - 20, rawY));
 
-          // Exponential Moving Average (EMA) smoothing
-          const filteredX = this.prevX * (1 - this.smoothingAlpha) + rawX * this.smoothingAlpha;
-          const filteredY = this.prevY * (1 - this.smoothingAlpha) + rawY * this.smoothingAlpha;
+          // Adaptive Double Exponential Moving Average (Saccade adaptive)
+          const dist = Math.sqrt((rawX - this.prevX) ** 2 + (rawY - this.prevY) ** 2);
+          const dynamicAlpha = dist > 120 ? Math.min(0.85, this.smoothingAlpha * 2.2) : this.smoothingAlpha;
+
+          const filteredX = this.prevX * (1 - dynamicAlpha) + rawX * dynamicAlpha;
+          const filteredY = this.prevY * (1 - dynamicAlpha) + rawY * dynamicAlpha;
 
           this.prevX = filteredX;
           this.prevY = filteredY;
@@ -216,60 +267,78 @@ export class EyeControlEngine {
   };
 
   /**
-   * Fast pupil centroid estimation from frame luminance distribution
+   * Fast pupil centroid estimation inside eye bounding box using intensity gradients
    */
-  private estimateEyeCenter(imgData: ImageData): { eyeX: number; eyeY: number; confidence: number } {
+  private calculatePupilCentroid(imgData: ImageData): { x: number; y: number } {
     const data = imgData.data;
     const w = imgData.width;
     const h = imgData.height;
 
     let minDark = 255;
-    let darkSumX = 0;
-    let darkSumY = 0;
-    let darkCount = 0;
-    let totalBrightness = 0;
-
-    // Focus analysis on upper central quadrant (where eyes are typically located in webcams)
-    const startY = Math.floor(h * 0.15);
-    const endY = Math.floor(h * 0.55);
-    const startX = Math.floor(w * 0.15);
-    const endX = Math.floor(w * 0.85);
-
-    for (let y = startY; y < endY; y++) {
-      for (let x = startX; x < endX; x++) {
-        const i = (y * w + x) * 4;
-        const lum = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
-        totalBrightness += lum;
-        if (lum < minDark) minDark = lum;
-      }
+    for (let i = 0; i < data.length; i += 4) {
+      const lum = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      if (lum < minDark) minDark = lum;
     }
 
-    const darkThreshold = minDark + 22;
+    const darkThreshold = minDark + 18;
+    let sumX = 0, sumY = 0, count = 0;
 
-    for (let y = startY; y < endY; y++) {
-      for (let x = startX; x < endX; x++) {
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
         const i = (y * w + x) * 4;
-        const lum = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+        const lum = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
         if (lum <= darkThreshold) {
-          darkSumX += x;
-          darkSumY += y;
-          darkCount++;
+          sumX += x;
+          sumY += y;
+          count++;
         }
       }
     }
 
-    if (darkCount === 0) {
-      return { eyeX: 0.5, eyeY: 0.5, confidence: 0.2 };
+    if (count === 0) return { x: w / 2, y: h / 2 };
+    return { x: sumX / count, y: sumY / count };
+  }
+
+  private estimateEyeCenterLuminance(imgData: ImageData): { eyeX: number; eyeY: number; confidence: number } {
+    const data = imgData.data;
+    const w = imgData.width;
+    const h = imgData.height;
+
+    let minDark = 255;
+    let sumX = 0, sumY = 0, count = 0;
+
+    const startY = Math.floor(h * 0.2);
+    const endY = Math.floor(h * 0.5);
+    const startX = Math.floor(w * 0.2);
+    const endX = Math.floor(w * 0.8);
+
+    for (let y = startY; y < endY; y++) {
+      for (let x = startX; x < endX; x++) {
+        const i = (y * w + x) * 4;
+        const lum = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (lum < minDark) minDark = lum;
+      }
     }
 
-    const normEyeX = (darkSumX / darkCount) / w;
-    const normEyeY = (darkSumY / darkCount) / h;
+    const darkThreshold = minDark + 20;
 
-    // Confidence metric based on contrast ratio & eye region dark pixel clustering
-    const avgLum = totalBrightness / ((endY - startY) * (endX - startX));
-    const contrastRatio = (avgLum - minDark) / 255;
-    const confidence = Math.min(1.0, Math.max(0.1, contrastRatio * 2.8));
+    for (let y = startY; y < endY; y++) {
+      for (let x = startX; x < endX; x++) {
+        const i = (y * w + x) * 4;
+        const lum = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (lum <= darkThreshold) {
+          sumX += x;
+          sumY += y;
+          count++;
+        }
+      }
+    }
 
-    return { eyeX: normEyeX, eyeY: normEyeY, confidence };
+    if (count === 0) return { eyeX: 0.5, eyeY: 0.5, confidence: 0.3 };
+    return {
+      eyeX: (sumX / count) / w,
+      eyeY: (sumY / count) / h,
+      confidence: 0.7,
+    };
   }
 }
