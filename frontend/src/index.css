@@ -724,7 +724,8 @@ img { max-width: 100%; display: block; }
    CAMERA  —  camera-
 ══════════════════════════════════════════════════════════════ */
 .camera-container { position: relative; width: 100%; overflow: hidden; }
-.camera-container video { width: 100%; display: block; max-height: 200px; object-fit: cover; border-radius: 0; }
+.camera-container video { width: 100%; display: block; max-height: 200px; object-fit: cover; border-radius: 0; transform: scaleX(-1); }
+
 .camera-container video.active { opacity: 1; }
 .camera-overlay {
   position: absolute; inset: 0; z-index: 5;

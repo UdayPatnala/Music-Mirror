@@ -209,7 +209,9 @@ export default function Camera({ onEmotion }: CameraProps) {
         playsInline
         onPlay={handleVideoPlay}
         className={cameraState === "active" ? "active" : ""}
+        style={{ transform: "scaleX(-1)" }}
       />
+
 
       {cameraState === "active" && (
         <div className="camera-indicators" style={{ position: "absolute", bottom: "12px", left: "12px", display: "flex", gap: "8px", flexDirection: "column" }}>
