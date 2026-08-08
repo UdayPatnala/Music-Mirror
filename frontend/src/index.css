@@ -4,18 +4,32 @@
    Philosophy: Less Interface. More Music.
 ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap');
+/* Typography is pre-loaded in index.html via <link> for optimal performance */
+/* Space Grotesk: brand display font | Outfit: body text | JetBrains Mono: data/labels */
 
 /* ── Reset ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { background: #090909; scroll-behavior: smooth; }
 body {
-  font-family: "Outfit", "Inter", system-ui, sans-serif;
+  font-family: "Outfit", "Space Grotesk", system-ui, sans-serif;
   background: #090909;
   color: #ffffff;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Brand display class — use on headings, logo text, big numbers */
+.font-brand {
+  font-family: "Space Grotesk", "Outfit", system-ui, sans-serif;
+  font-feature-settings: "ss01" on, "cv01" on;
+  letter-spacing: -0.03em;
+}
+
+/* Mono data labels */
+.font-mono {
+  font-family: "JetBrains Mono", "Fira Mono", monospace;
+  font-feature-settings: "liga" 0;
 }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
@@ -104,6 +118,109 @@ img { max-width: 100%; display: block; }
 @keyframes fadeUp     { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 @keyframes scaleIn    { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
 @keyframes gradShift  { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+/* ── Themed background elements ─────────────────────────────── */
+/* Floating music note particles — sprinkled on landing/room pages */
+.mm-bg-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.mm-note {
+  position: absolute;
+  font-size: 1.4rem;
+  color: var(--gold);
+  opacity: 0;
+  user-select: none;
+  animation: mm-float var(--dur, 14s) var(--delay, 0s) ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes mm-float {
+  0%   { opacity: 0;    transform: translateY(0)       rotate(0deg) scale(0.8); }
+  15%  { opacity: 0.18; }
+  50%  { opacity: 0.10; transform: translateY(-120px)  rotate(12deg) scale(1); }
+  85%  { opacity: 0.18; }
+  100% { opacity: 0;    transform: translateY(-240px)  rotate(-6deg) scale(0.7); }
+}
+
+/* Waveform bars as background decoration */
+.mm-wave-bar {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(to top, rgba(212,175,55,0.12), transparent);
+  animation: mm-wave-pulse var(--dur, 2.4s) var(--delay, 0s) ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes mm-wave-pulse {
+  from { transform: scaleY(0.3); }
+  to   { transform: scaleY(1);   }
+}
+
+/* Face-outline watermark (subtle, decorative) */
+.mm-face-mark {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.028;
+  animation: mm-face-breathe 8s ease-in-out infinite alternate;
+}
+
+@keyframes mm-face-breathe {
+  from { opacity: 0.022; transform: scale(1); }
+  to   { opacity: 0.038; transform: scale(1.02); }
+}
+
+/* Logo mark in navbar */
+.mm-logo-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(212,175,55,0.35);
+  transition: box-shadow 0.3s ease;
+}
+.mm-logo-mark:hover {
+  box-shadow: 0 0 20px rgba(212,175,55,0.6);
+}
+
+/* Full wordmark lockup */
+.mm-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+}
+.mm-wordmark-text {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #FFFFFF 0%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+}
+.mm-wordmark-badge {
+  font-size: 0.55rem;
+  font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  padding: 2px 5px;
+  border: 1px solid var(--gold-border);
+  border-radius: 4px;
+  position: relative;
+  top: -3px;
+  text-transform: uppercase;
+}
 
 /* ══════════════════════════════════════════════════════════════
    GLASS CARD — reusable

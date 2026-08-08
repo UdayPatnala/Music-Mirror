@@ -1,6 +1,8 @@
 // @ts-nocheck
 import React, { useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { ThemeBackground, Wordmark } from "../components/Brand";
+
 
 /* ─────────────────────────────────────────────────────────────────
    MUSIC MIRROR V2 — LANDING PAGE
@@ -941,6 +943,9 @@ export default function LandingPage() {
       {/* ─── Root ─────────────────────────────────────────────── */}
       <div className={`lp2-root phase-${phase}`}>
 
+        {/* Themed background: floating notes, waveform bars, face watermark */}
+        <ThemeBackground noteCount={16} waveBarCount={50} showHeroBg />
+
         {/* Ambient glow */}
         <div className={`lp2-ambient${isTransitioning ? " fading" : ""}`} />
 
@@ -965,13 +970,12 @@ export default function LandingPage() {
         <nav className="lp2-nav" aria-label="Main navigation">
           <div className={`lp2-nav-inner${isTransitioning ? " hidden" : ""}`}>
             <div className="lp2-nav-brand">
-              <div className="lp2-nav-disc" aria-hidden />
-              Music Mirror
+              <Wordmark size="md" showBadge />
             </div>
             <div className="lp2-nav-links">
               <a href="#how" className="lp2-nav-link">How It Works</a>
               <Link to="/summary" className="lp2-nav-link">About</Link>
-              <a href="https://github.com" className="lp2-nav-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+
               <Link to="/dashboard" className="lp2-nav-link">Docs</Link>
               <Link to="/profile" className="lp2-nav-link lp2-nav-link-accent">Login</Link>
             </div>
@@ -1023,8 +1027,6 @@ export default function LandingPage() {
                   <a href="#how" className="lp2-cta-ghost">How it works</a>
                   <span className="lp2-cta-dot" aria-hidden />
                   <Link to="/summary" className="lp2-cta-ghost">About</Link>
-                  <span className="lp2-cta-dot" aria-hidden />
-                  <a href="https://github.com" className="lp2-cta-ghost" target="_blank" rel="noopener noreferrer">GitHub</a>
                   <span className="lp2-cta-dot" aria-hidden />
                   <Link to="/dashboard" className="lp2-cta-ghost">Docs</Link>
                 </div>
@@ -1208,7 +1210,7 @@ export default function LandingPage() {
           <div className="lp2-footer-brand">© 2026 Music Mirror V2</div>
           <div className="lp2-footer-links">
             <Link to="/summary" className="lp2-footer-link">About</Link>
-            <a href="https://github.com" className="lp2-footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+
             <Link to="/dashboard" className="lp2-footer-link">Docs</Link>
             <Link to="/profile" className="lp2-footer-link">Privacy</Link>
           </div>

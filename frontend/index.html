@@ -2,9 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+
+    <!-- Favicon — SVG (all modern browsers) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Fallback PNG favicons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/logo192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/logo512.png" />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music Mirror — Emotion-Aware AI Music Platform</title>
+
+    <!-- SEO -->
+    <meta name="description" content="Music Mirror — Emotion-aware AI music. Your face is the remote control." />
+    <meta name="theme-color" content="#0D0D0D" />
+    <meta property="og:title" content="Music Mirror — Emotion-Aware AI Music" />
+    <meta property="og:description" content="Detects your mood in real-time and plays the perfect music automatically." />
+    <meta property="og:image" content="/mm-logo.jpg" />
+
+    <title>Music Mirror — Emotion-Aware AI Music</title>
+
+    <!-- Custom typography: Space Grotesk (display/brand) + Outfit (body) + JetBrains Mono (data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>

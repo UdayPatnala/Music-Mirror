@@ -19,3 +19,15 @@ app.include_router(telemetry.router, prefix="/telemetry", tags=["Telemetry"])
 app.include_router(local_explorer.router, prefix="/local-explorer", tags=["Local Explorer"])
 
 
+@app.get("/", tags=["Root"])
+async def root():
+    return {
+        "service": "Music Mirror API",
+        "version": "2.0.0",
+        "status": "ok",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
+
