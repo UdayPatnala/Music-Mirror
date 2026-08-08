@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { EmotionInferenceService } from '../layers/EmotionLayer';
-import { IntentMapperService } from '../layers/MusicIntentLayer';
+import { MusicIntentEngine } from '../layers/MusicIntentLayer';
 import { YouTubeProviderAdapter } from '../layers/ProviderAdapterLayer/YouTubeProviderAdapter';
 import { DiscoveryEngine } from '../layers/DiscoveryLayer';
 import { ApplicationOrchestrator } from '../orchestrator/ApplicationOrchestrator';
@@ -8,7 +8,7 @@ import type { UserPreference } from '../types/domain';
 
 describe('MusicMirror Architecture Layer Suite', () => {
   let emotionService: EmotionInferenceService;
-  let intentMapper: IntentMapperService;
+  let intentMapper: MusicIntentEngine;
   let discoveryEngine: DiscoveryEngine;
   let orchestrator: ApplicationOrchestrator;
 
@@ -22,7 +22,7 @@ describe('MusicMirror Architecture Layer Suite', () => {
 
   beforeEach(() => {
     emotionService = EmotionInferenceService.getInstance();
-    intentMapper = IntentMapperService.getInstance();
+    intentMapper = MusicIntentEngine.getInstance();
     discoveryEngine = DiscoveryEngine.getInstance();
     orchestrator = ApplicationOrchestrator.getInstance();
   });
@@ -73,17 +73,8 @@ describe('MusicMirror Architecture Layer Suite', () => {
       const adapter = new YouTubeProviderAdapter();
       expect(adapter.getProviderId()).toBe('youtube');
 
-      const candidates = await adapter.searchCandidates({
-        intentId: 'test_1',
-        emotion: emotionService.getFallbackState(),
-        targetValence: 0.8,
-        targetEnergy: 0.8,
-        targetTempoBpm: 120,
-        priorityLanguages: ['Telugu'],
-        priorityGenres: ['Pop'],
-        goalModifier: 'match',
-        timestamp: Date.now(),
-      });
+      const intent = intentMapper.mapIntent(emotionService.getFallbackState(), mockPreference);
+      const candidates = await adapter.searchCandidates(intent);
 
       expect(candidates.length).toBeGreaterThan(0);
       const embedUrl = adapter.getPlaybackEmbedUrl(candidates[0]);

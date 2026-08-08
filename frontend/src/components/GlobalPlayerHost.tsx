@@ -1,122 +1,53 @@
-// @ts-nocheck
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppStore } from '../store/useAppStore';
-import { Play, Pause, Volume2, VolumeX, Sparkles, Globe, Maximize2, Minimize2 } from 'lucide-react';
-
-const TRACK_IDS: Record<string, string> = {
-  "buttabomma":             "A6BJ-PgNWXA",
-  "samajavaragamana":       "E3BnMDc9ATE",
-  "ennenno janmala":        "_dXwkfq5YG8",
-  "rowdy baby":             "0vGcBCBBGGQ",
-  "kannazhaga":             "9oNvxVFsm5U",
-  "inkem inkem inkem kaavale": "HA-Sjb5BCMA",
-  "ramuloo ramulaa":        "K9aQFnq1xv0",
-  "nee neeli kannullona":   "q_OzfDwVV88",
-  "manasantha nuvve":       "8mB7Mf-OYBA",
-  "oo solriya":             "sJhsZLs7tPk",
-  "aa ante amalapuram":     "4IIB5L4oCMk",
-  "naatu naatu":            "qfSRDoxzKGA",
-  "srivalli":               "RACf1mY9bJI",
-  "oo antava":              "FHe9nf1azts",
-  "jaragandi":              "HUJfPpESSWg",
-  "josh josh":              "VRbSiUuSqBA",
-  "vachinde":               "2XjJxVLqSgE",
-  "kalyana vaibhogame":     "cxZe-Jxm5WY",
-  "aa jaa re aa":           "k7HHWqPBHLM",
-  "tum hi ho":              "Umqb9KENgmk",
-  "kesariya":               "BddP6PYo2gs",
-  "raataan lambiyan":       "hVV2T_H2vHc",
-  "dil diyan gallan":       "Uu45KY9cT3A",
-  "agar tum saath ho":      "UPq3OyJAanY",
-  "chaiyya chaiyya":        "E_xhyGtFWCA",
-  "kal ho naa ho":          "K7yJoM_XUTQ",
-  "venmathi":               "Roa1lJiZZD4",
-  "rowdy baby tamil":       "0vGcBCBBGGQ",
-  "bigil theme":            "VK2L7FyXN2Q",
-  "blinding lights":        "4NRXx6U8ABQ",
-  "levitating":             "TUVcZfQe-Kw",
-  "as it was":              "H5v3kku4y6Q",
-  "happy":                  "ZbZSe6N_BXs",
-  "uptown funk":            "OPf0YbXqDm0",
-  "shake it off":           "nfWlot6h_JM",
-  "don't start now":        "oygrmJFKYZY",
-  "someone like you":       "hLQl3WQQoQ0",
-  "fix you":                "k4V3Mo61hJM",
-  "all of me":              "450p7goxZqg",
-  "believer":               "7wtfhZwyrYY",
-  "radioactive":            "ktvTqWscGsw",
-  "drivers license":        "ZmDBbnmKpqQ",
-  "sunflower":              "ApXoWvfEYVU",
-  "weightless":             "UfcAVejslrU",
-  "resonance":              "8GW6sLrK40k",
-};
-
-const SPOTIFY = {
-  happy:   'https://open.spotify.com/embed/playlist/37i9dQZF1DZ06evO1E9Idi?utm_source=generator',
-  sad:     'https://open.spotify.com/embed/playlist/37i9dQZF1DWZUozJiHy44Y?utm_source=generator',
-  angry:   'https://open.spotify.com/embed/playlist/37i9dQZF1DZ06evO2YqUuI?utm_source=generator',
-  neutral: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWWxPM4nWdhyI?utm_source=generator',
-  surprise:'https://open.spotify.com/embed/playlist/37i9dQZF1DZ06evO2YqUuI?utm_source=generator',
-};
-
-function getEmbedUrl(song: any): string {
-  if (!song) return '';
-  if (song.youtubeId) {
-    return `https://www.youtube-nocookie.com/embed/${song.youtubeId}?autoplay=1&rel=0&modestbranding=1`;
-  }
-  const titleKey = (song.title || song.name || '').toLowerCase().trim();
-  const knownId = TRACK_IDS[titleKey];
-  if (knownId) {
-    return `https://www.youtube-nocookie.com/embed/${knownId}?autoplay=1&rel=0&modestbranding=1`;
-  }
-  // Safe default YouTube audio stream fallback
-  return `https://www.youtube-nocookie.com/embed/A6BJ-PgNWXA?autoplay=1&rel=0&modestbranding=1`;
-}
-
-const ART_COLORS = [
-  "linear-gradient(135deg, #D4AF37, #FF9966)",
-  "linear-gradient(135deg, #2563EB, #A855F7)",
-  "linear-gradient(135deg, #A855F7, #FF9966)",
-  "linear-gradient(135deg, #16A34A, #34D399)",
-  "linear-gradient(135deg, #B91C1C, #EF4444)",
-];
-function getArtGradient(title: string): string {
-  let h = 0;
-  for (let i = 0; i < title.length; i++) h = (h * 31 + title.charCodeAt(i)) & 0xffffffff;
-  return ART_COLORS[Math.abs(h) % ART_COLORS.length];
-}
+import { Play, Pause, SkipForward, Volume2, VolumeX, AlertCircle, Sparkles } from 'lucide-react';
+import { sessionOrchestrator } from '../architecture/orchestrator/SessionOrchestrator';
+import type { PlaybackState } from '../architecture/types/domain';
 
 export default function GlobalPlayerHost() {
   const location = useLocation();
   const navigate = useNavigate();
-  const currentSong = useAppStore(s => s.currentSong);
-  const activeMood = useAppStore(s => s.activeMood);
-  const playerMode = useAppStore(s => s.playerMode);
-  
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [progress, setProgress] = useState(30);
+  const [playbackState, setPlaybackState] = useState<PlaybackState>(() => sessionOrchestrator.getPlaybackState());
 
   useEffect(() => {
-    if (isPlaying) {
-      const interval = setInterval(() => {
-        setProgress(p => (p >= 100 ? 0 : p + 0.5));
-      }, 500);
-      return () => clearInterval(interval);
-    }
-  }, [isPlaying]);
-
-  if (!currentSong) return null;
+    const unsubscribe = sessionOrchestrator.subscribe((newState) => {
+      setPlaybackState(newState);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const isRoom = location.pathname === '/room';
-  const embedUrl = getEmbedUrl(currentSong);
-  const isDirectAudio = Boolean(currentSong.preview_url || currentSong.source);
-  const title = currentSong.title || currentSong.name || "Unknown";
-  const artist = currentSong.artist || "Unknown Artist";
-  
+  const { currentCandidate, isPlaying, volume, isMuted, autoplayBlocked, sessionState, activeMood, attributionText } = playbackState;
+
+  if (!currentCandidate && sessionState === 'IDLE') return null;
+
+  const title = currentCandidate?.title || 'Finding Music Match...';
+  const artist = currentCandidate?.artist || currentCandidate?.artists[0] || 'MusicMirror Engine';
+  const albumArt = currentCandidate?.artworkUrl || currentCandidate?.albumArtUrl;
+  const providerId = currentCandidate?.providerId || 'youtube';
+
   const handleTogglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsPlaying(!isPlaying);
+    if (autoplayBlocked) {
+      sessionOrchestrator.enablePlayback();
+    } else {
+      sessionOrchestrator.togglePlayPause();
+    }
+  };
+
+  const handleSkipNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    sessionOrchestrator.skipNext();
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    sessionOrchestrator.setVolume(val);
+  };
+
+  const handleToggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    sessionOrchestrator.setMute(!isMuted);
   };
 
   const handleCardClick = () => {
@@ -126,139 +57,152 @@ export default function GlobalPlayerHost() {
   };
 
   return (
-    <div 
+    <aside
+      aria-label="Music Mirror Active Player"
       className={`player-global-host ${isRoom ? 'state-room' : 'state-floating'}`}
       onClick={handleCardClick}
       style={{ cursor: isRoom ? 'default' : 'pointer' }}
     >
-      {isRoom ? (
-        /* ── LARGE DOCKED MUSIC CARD FOR ROOM ── */
-        <div className="studio-large-card">
-          {/* Card Glass Body */}
-          <div className="studio-card-header">
-            <div>
-              <span className="studio-provider-tag">
-                {currentSong.source_provider || 'YouTube Audio'}
-              </span>
-              <h2 className="studio-song-title truncate">{title}</h2>
-              <p className="studio-song-artist truncate">{artist}</p>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <span className="studio-badge studio-badge-gold">
-                <Sparkles size={11} /> {activeMood.toUpperCase()}
-              </span>
-              {currentSong.language && (
-                <span className="studio-badge studio-badge-purple">
-                  <Globe size={11} /> {currentSong.language}
-                </span>
-              )}
-            </div>
+      {/* Autoplay Blocked Alert Bar */}
+      {autoplayBlocked && (
+        <div
+          role="alert"
+          style={{
+            background: 'linear-gradient(135deg, #d97706, #b45309)',
+            color: '#ffffff',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertCircle size={18} />
+            <span>Browser blocked auto-audio playback. Click button to activate!</span>
           </div>
-
-          {/* Album Art Frame */}
-          <div className="studio-album-art-container">
-            <div className="studio-album-art-glow" style={{ background: getArtGradient(title) }} />
-            <div className="studio-album-art" style={{ background: getArtGradient(title) }}>
-              {currentSong.album_art ? (
-                <img src={currentSong.album_art} alt={title} />
-              ) : (
-                <div className="studio-album-art-initial">
-                  {title[0]?.toUpperCase()}
-                </div>
-              )}
-              {/* Rotating disk highlight */}
-              <div className="studio-album-art-overlay" />
-            </div>
-          </div>
-
-          {/* Equalizer Visualizer & Waveform */}
-          <div className="studio-visualizer-container">
-            <div className="studio-wave-bars">
-              {Array.from({ length: 28 }).map((_, i) => {
-                const heightVal = isPlaying ? Math.sin(i * 0.4 + progress * 0.1) * 35 + 45 : 10;
-                return (
-                  <div 
-                    key={i} 
-                    className="studio-wave-bar" 
-                    style={{ 
-                      height: `${heightVal}%`,
-                      background: i % 2 === 0 ? 'var(--gold)' : 'var(--purple)',
-                    }} 
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Iframe content container (keeps playing in background) */}
-          <div className="studio-iframe-wrapper">
-            {playerMode === 'spotify' ? (
-              <iframe
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy" 
-                src={SPOTIFY[activeMood] || SPOTIFY.neutral}
-                title="Spotify Playlist"
-              />
-            ) : (
-              <iframe
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen 
-                src={embedUrl}
-                title="YouTube Video"
-              />
-            )}
-          </div>
-
-          {/* Controls Footer */}
-          <div className="studio-card-controls">
-            <div className="studio-progress-container">
-              <div className="studio-progress-time">
-                <span>0:{(Math.floor(progress * 1.8) % 60).toString().padStart(2, '0')}</span>
-                <span>3:00</span>
-              </div>
-              <div className="studio-progress-bar-wrap">
-                <div className="studio-progress-bar-fill" style={{ width: `${progress}%` }} />
-              </div>
-            </div>
-
-            <div className="studio-control-buttons">
-              <button className="studio-ctrl-btn" onClick={handleTogglePlay}>
-                {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* ── COMPACT FLOATING MINI PILL PLAYER ── */
-        <div className="studio-mini-player">
-          <div className="studio-mini-art" style={{ background: getArtGradient(title) }}>
-            {currentSong.album_art ? (
-              <img src={currentSong.album_art} alt={title} />
-            ) : (
-              <span>{title[0]?.toUpperCase()}</span>
-            )}
-          </div>
-          
-          <div className="studio-mini-info">
-            <div className="studio-mini-title truncate">{title}</div>
-            <div className="studio-mini-artist truncate">{artist}</div>
-          </div>
-
-          <div style={{ display: 'none' }}>
-            {/* Kept mounted in tiny off-screen view to retain continuous playing session */}
-            <iframe src={embedUrl} title="Continuous Playback background frame" width="1" height="1" />
-          </div>
-
-          <div className="studio-mini-controls">
-            <button className="studio-mini-btn" onClick={handleTogglePlay}>
-              {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
-            </button>
-            <div className="studio-mini-badge">
-              {activeMood}
-            </div>
-          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              sessionOrchestrator.enablePlayback();
+            }}
+            style={{
+              background: '#ffffff',
+              color: '#92400e',
+              border: 'none',
+              borderRadius: '999px',
+              padding: '6px 14px',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+            }}
+          >
+            Enable Audio
+          </button>
         </div>
       )}
-    </div>
+
+      <div className="player-bar-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+        {/* Track Metadata */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 8,
+              background: '#1e293b',
+              overflow: 'hidden',
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {albumArt ? (
+              <img src={albumArt} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <Sparkles size={24} style={{ color: '#6366f1' }} />
+            )}
+          </div>
+
+          <div style={{ minWidth: 0 }}>
+            <h4 className="truncate" style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f8fafc', margin: 0 }}>
+              {title}
+            </h4>
+            <p className="truncate" style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
+              {artist}
+            </p>
+            <span style={{ fontSize: '0.7rem', color: '#6366f1', textTransform: 'capitalize', fontWeight: 600 }}>
+              Mood: {activeMood} • {sessionState}
+            </span>
+          </div>
+        </div>
+
+        {/* Primary Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            aria-label={isPlaying ? 'Pause music' : 'Play music'}
+            onClick={handleTogglePlay}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              border: 'none',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
+            }}
+          >
+            {isPlaying ? <Pause size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
+          </button>
+
+          <button
+            aria-label="Skip to next track"
+            onClick={handleSkipNext}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              padding: 8,
+              borderRadius: '50%',
+            }}
+          >
+            <SkipForward size={20} />
+          </button>
+        </div>
+
+        {/* Volume & Provider Attribution */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            aria-label={isMuted ? 'Unmute volume' : 'Mute volume'}
+            onClick={handleToggleMute}
+            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+          >
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={isMuted ? 0 : volume}
+            onChange={handleVolumeChange}
+            aria-label="Volume slider"
+            style={{ width: 80, accentColor: '#6366f1', cursor: 'pointer' }}
+          />
+          <span style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+            {attributionText || (providerId === 'youtube' ? 'Licensed via YouTube Embed' : 'Jamendo Creative Commons')}
+          </span>
+        </div>
+      </div>
+    </aside>
   );
 }

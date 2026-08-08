@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import Camera from "../components/Camera";
 import { Activity, ShieldAlert, Cpu, BarChart3, Database, Disc } from "lucide-react";
 

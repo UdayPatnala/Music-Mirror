@@ -1,4 +1,4 @@
-import { emotionLabels } from "./EmotionCard";
+import { emotionLabels } from "../config/emotionLabels";
 import type { Song } from "../types";
 
 export interface HistoryItem {

@@ -77,7 +77,7 @@ export default function Camera({ onEmotion }: CameraProps) {
         videoRef.current.srcObject = stream;
       }
       setCameraState("active");
-    } catch (err: any) {
+    } catch {
       setCameraState("error");
       setErrorMessage("Could not access camera. Please allow camera permissions.");
     }
@@ -92,7 +92,7 @@ export default function Camera({ onEmotion }: CameraProps) {
         faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
       ]);
       await startCamera();
-    } catch (err) {
+    } catch {
       setCameraState("error");
       setErrorMessage("Failed to load face detection AI models.");
     }
@@ -163,7 +163,7 @@ export default function Camera({ onEmotion }: CameraProps) {
               }, 2000);
             }
           }
-        } catch (e) {
+        } catch {
           // Detection frame error tolerance
         }
       }
@@ -186,10 +186,19 @@ export default function Camera({ onEmotion }: CameraProps) {
       {cameraState === "error" && (
         <div className="camera-overlay error">
           <CameraOff size={48} />
-          <p>{errorMessage}</p>
-          <button className="primary-btn mt-4" onClick={startCamera}>
-            Retry
-          </button>
+          <p>{errorMessage || 'Camera access declined or unavailable.'}</p>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            <button className="primary-btn" onClick={startCamera}>
+              Retry Camera
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={() => onEmotion({ emotion: 'neutral', confidence: 0.5, scores: [['neutral', 0.5]], source: 'manual' })}
+              style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', cursor: 'pointer' }}
+            >
+              Continue without Camera
+            </button>
+          </div>
         </div>
       )}
 

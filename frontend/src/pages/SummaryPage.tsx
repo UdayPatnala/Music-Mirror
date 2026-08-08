@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Globe, Heart, Shield, Shuffle, Disc } from "lucide-react";
+import { ArrowRight, Disc } from "lucide-react";
 
 export default function SummaryPage() {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import type { ApplicationError } from '../types/domain';
+import type { ApplicationError, SessionTraceEvent, LatencyBreakdown } from '../types/domain';
 
 export class LoggerService {
   private static instance: LoggerService | null = null;
@@ -46,4 +46,70 @@ export class LoggerService {
   }
 }
 
+export class SessionTraceLogger {
+  private static instance: SessionTraceLogger | null = null;
+  private traceEvents: SessionTraceEvent[] = [];
+  private eventTimestamps: Map<string, number> = new Map();
+
+  private constructor() {}
+
+  public static getInstance(): SessionTraceLogger {
+    if (!SessionTraceLogger.instance) {
+      SessionTraceLogger.instance = new SessionTraceLogger();
+    }
+    return SessionTraceLogger.instance;
+  }
+
+  public logEvent(
+    eventName: SessionTraceEvent['eventName'],
+    sessionGeneration: number,
+    meta?: Record<string, unknown>
+  ): void {
+    const now = performance.now();
+    this.eventTimestamps.set(eventName, now);
+
+    const trace: SessionTraceEvent = {
+      eventName,
+      sessionGeneration,
+      timestamp: Date.now(),
+      latencyMs: Math.round(now),
+      meta,
+    };
+
+    this.traceEvents.push(trace);
+    if (this.traceEvents.length > 100) this.traceEvents.shift();
+
+    LoggerService.getInstance().info('SessionTrace', `[Gen ${sessionGeneration}] Event -> ${eventName}`, meta);
+  }
+
+  public getTraceEvents(): SessionTraceEvent[] {
+    return [...this.traceEvents];
+  }
+
+  public getLatencyBreakdown(): LatencyBreakdown {
+    const getDelta = (startEvt: string, endEvt: string): number => {
+      const t1 = this.eventTimestamps.get(startEvt);
+      const t2 = this.eventTimestamps.get(endEvt);
+      return t1 && t2 && t2 >= t1 ? Math.round(t2 - t1) : 0;
+    };
+
+    return {
+      tCameraReadyToFirstEmotionMs: getDelta('cameraReady', 'emotionStable'),
+      tEmotionToStableStateMs: getDelta('emotionStable', 'emotionStable'),
+      tStableStateToIntentMs: getDelta('emotionStable', 'intentCreated'),
+      tIntentToSearchStartMs: getDelta('intentCreated', 'discoveryStart'),
+      tSearchStartToCandidateReadyMs: getDelta('discoveryStart', 'candidateReady'),
+      tCandidateReadyToPlaybackPrepareMs: getDelta('candidateReady', 'playbackPrepare'),
+      tPlaybackPrepareToFirstAudioMs: getDelta('playbackPrepare', 'firstAudio'),
+      tTotalEmotionToFirstAudioMs: getDelta('emotionStable', 'firstAudio'),
+    };
+  }
+
+  public clearTrace(): void {
+    this.traceEvents = [];
+    this.eventTimestamps.clear();
+  }
+}
+
 export const logger = LoggerService.getInstance();
+export const sessionTrace = SessionTraceLogger.getInstance();

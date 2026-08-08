@@ -1,19 +1,15 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { 
   Folder, 
   FolderPlus, 
   UploadCloud, 
   FileAudio, 
   Play, 
-  ListPlus, 
   Search, 
   HardDrive, 
   ArrowLeft, 
   RefreshCw, 
   Music, 
-  CheckCircle,
   FileText
 } from 'lucide-react';
 import { apiClient } from '../api/client';
@@ -34,7 +30,7 @@ interface LocalTrack {
   source: string;
 }
 
-export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFileExplorerProps) {
+export default function LocalFileExplorer({ onPlayTrack, onAddToQueue: _onAddToQueue }: LocalFileExplorerProps) {
   const [explorerMode, setExplorerMode] = useState<'browser' | 'backend'>('browser');
   
   // Browser Local Files State
@@ -46,7 +42,7 @@ export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFi
   const [backendPath, setBackendPath] = useState<string>('D:\\PROJECT\\Music Mirror');
   const [backendParent, setBackendParent] = useState<string | null>(null);
   const [backendItems, setBackendItems] = useState<any[]>([]);
-  const [backendAudioCount, setBackendAudioCount] = useState<number>(0);
+  const [_backendAudioCount, setBackendAudioCount] = useState<number>(0);
   const [availableDrives, setAvailableDrives] = useState<string[]>([]);
   const [loadingBackend, setLoadingBackend] = useState<boolean>(false);
   const [backendError, setBackendError] = useState<string | null>(null);
@@ -78,7 +74,7 @@ export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFi
     if (explorerMode === 'backend') {
       fetchBackendDirectory(backendPath || undefined);
     }
-  }, [explorerMode]);
+  }, [explorerMode, backendPath]);
 
   // Handle Drag & Drop Files
   const handleDrag = (e: React.DragEvent) => {
@@ -241,7 +237,7 @@ export default function LocalFileExplorer({ onPlayTrack, onAddToQueue }: LocalFi
             <input 
               id="folder-input-element" 
               type="file" 
-              webkitdirectory="true" 
+              {...({ webkitdirectory: "true" } as any)} 
               multiple 
               onChange={handleFileInputChange} 
               style={{ display: 'none' }} 

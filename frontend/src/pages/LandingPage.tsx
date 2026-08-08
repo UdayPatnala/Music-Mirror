@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 /* ─────────────────────────────────────────────────────────────────
@@ -89,7 +89,7 @@ export default function LandingPage() {
 
   // Transition state machine
   // idle → spin → open → eject → insert → done
-  const [phase, setPhase] = useState<"idle"|"spin"|"open"|"eject"|"insert"|"done">("idle");
+  const [phase] = useState<"idle"|"spin"|"open"|"eject"|"insert"|"done">("idle");
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!heroRef.current) return;

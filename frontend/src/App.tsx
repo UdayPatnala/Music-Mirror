@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { Suspense, lazy, Component } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -21,12 +20,21 @@ const DEFAULT_GUEST_PROFILE = {
     languages: ["Telugu", "English", "Tamil", "Hindi"],
 };
 
-class ErrorBoundary extends Component {
-    state = { hasError: false, error: null };
-    static getDerivedStateFromError(error) {
+interface ErrorBoundaryProps {
+    children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+    hasError: boolean;
+    error: Error | null;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+    state: ErrorBoundaryState = { hasError: false, error: null };
+    static getDerivedStateFromError(error: Error) {
         return { hasError: true, error };
     }
-    componentDidCatch(error, errorInfo) {
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
         console.error("Music Mirror App Error:", error, errorInfo);
     }
     render() {
@@ -34,7 +42,7 @@ class ErrorBoundary extends Component {
             return (
                 <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    minHeight: '100vh', background: '#090909', color: '#FFFFFF', fontFamily: 'Outfit, sans-serif', padding: '24px', textCenter: 'center'
+                    minHeight: '100vh', background: '#090909', color: '#FFFFFF', fontFamily: 'Outfit, sans-serif', padding: '24px', textAlign: 'center'
                 }}>
                     <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#D4AF37' }}>🪞 Music Mirror V2</h2>
                     <p style={{ color: '#B6B6B6', marginBottom: '20px', maxWidth: '400px', textAlign: 'center' }}>

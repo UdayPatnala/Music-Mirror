@@ -1,13 +1,4 @@
-export const emotionLabels: Record<string, string> = {
-  happy: "Happy",
-  sad: "Sad",
-  angry: "Angry",
-  neutral: "Neutral",
-  surprised: "Surprised",
-  surprise: "Surprise",
-  fearful: "Fearful",
-  disgusted: "Disgusted",
-};
+import { emotionLabels } from "../config/emotionLabels";
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
