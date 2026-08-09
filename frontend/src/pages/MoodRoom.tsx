@@ -7,6 +7,7 @@ import { CDDisc } from "../components/Brand";
 import { useAppStore } from "../store/useAppStore";
 import type { Song } from "../store/useAppStore";
 import { sessionOrchestrator } from "../architecture/orchestrator/SessionOrchestrator";
+import { JamendoProviderAdapter } from "../architecture/layers/ProviderAdapterLayer/JamendoProviderAdapter";
 import { Disc, Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Music } from "lucide-react";
 
 /* ─── Emotion configuration ──────────────────────────────── */
@@ -88,14 +89,43 @@ export default function MoodRoom() {
     return () => unsub();
   }, []);
 
-  /* Synchronize catalog whenever playerMode changes */
+  /* Synchronize catalog whenever playerMode or activeMood changes */
   useEffect(() => {
-    const catalog = PROVIDER_CATALOGS[playerMode] || PROVIDER_CATALOGS.youtube;
-    setSongsQueue(catalog);
-    if (!currentSong || !catalog.some(s => key(s) === key(currentSong))) {
-      setCurrentSong(catalog[0]);
+    let active = true;
+    if (playerMode === 'jamendo') {
+      const adapter = new JamendoProviderAdapter();
+      adapter.searchCandidates({ moodLabel: activeMood } as any, undefined, 20).then((candidates) => {
+        if (!active) return;
+        if (candidates && candidates.length > 0) {
+          const mapped: Song[] = candidates.map(c => ({
+            id: c.id,
+            name: c.title,
+            title: c.title,
+            artist: c.artist || c.artists[0] || 'Jamendo Artist',
+            genre: c.genre || 'Jamendo CC',
+            language: c.language || 'Instrumental',
+            source_provider: 'Jamendo CC',
+            preview_url: c.playbackRef,
+            attributionText: c.attributionText,
+          }));
+          setSongsQueue(mapped);
+          if (!currentSong || !mapped.some(s => key(s) === key(currentSong))) {
+            setCurrentSong(mapped[0]);
+          }
+        }
+      }).catch(() => {
+        const catalog = PROVIDER_CATALOGS.jamendo;
+        setSongsQueue(catalog);
+      });
+    } else {
+      const catalog = PROVIDER_CATALOGS[playerMode] || PROVIDER_CATALOGS.youtube;
+      setSongsQueue(catalog);
+      if (!currentSong || !catalog.some(s => key(s) === key(currentSong))) {
+        setCurrentSong(catalog[0]);
+      }
     }
-  }, [playerMode]); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => { active = false; };
+  }, [playerMode, activeMood]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Continuous progress bar simulation */
   useEffect(() => {

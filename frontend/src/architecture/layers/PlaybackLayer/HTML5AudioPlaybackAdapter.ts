@@ -188,10 +188,12 @@ export class HTML5AudioPlaybackAdapter implements PlaybackProvider {
 
     this.audioElement.onplay = () => {
       this.isPlayingState = true;
+      this.syncMediaSession();
       this.emitEvent('start');
     };
     this.audioElement.onpause = () => {
       this.isPlayingState = false;
+      this.syncMediaSession();
       this.emitEvent('pause');
     };
     this.audioElement.ontimeupdate = () => {
@@ -206,6 +208,32 @@ export class HTML5AudioPlaybackAdapter implements PlaybackProvider {
       this.isPlayingState = false;
       this.emitEvent('error', 'Audio element playback error');
     };
+  }
+
+  private syncMediaSession(): void {
+    if (typeof window === 'undefined' || !('mediaSession' in navigator) || !this.currentTrack) return;
+    try {
+      const track = this.currentTrack;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist || track.artists?.[0] || 'Music Mirror',
+        album: track.album || 'Jamendo CC Stream',
+        artwork: track.artworkUrl ? [
+          { src: track.artworkUrl, sizes: '200x200', type: 'image/jpeg' },
+          { src: track.artworkUrl, sizes: '512x512', type: 'image/jpeg' },
+        ] : [],
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => this.resume());
+      navigator.mediaSession.setActionHandler('pause', () => this.pause());
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.seekTime !== undefined && details.seekTime !== null) {
+          this.seek(details.seekTime);
+        }
+      });
+    } catch {
+      // Ignore MediaSession platform restriction warnings
+    }
   }
 
   private emitEvent(type: PlaybackEvent['type'], error?: string): void {
