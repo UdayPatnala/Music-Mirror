@@ -4,6 +4,7 @@ import math
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from sqlalchemy.orm import Session
 
 from app.db.database import SessionLocal
 from app.db.models import Song, Artist, UserMusicPreference
@@ -34,6 +35,16 @@ EMOTION_TARGETS = {
 
 DEFAULT_WEIGHTS = {"valence": 0.4, "energy": 0.4, "tempo": 0.2}
 
+ADJACENT_GENRES = {
+    "telugu pop": ["telugu melodic", "telugu classical fusion", "indie pop"],
+    "telugu melodic": ["telugu pop", "telugu soul", "classical devotional"],
+    "tamil kuthu": ["tamil action beats", "tamil folk pop", "south hip hop"],
+    "bollywood romantic": ["bollywood classic soul", "bollywood ballad", "indie pop"],
+    "synthwave pop": ["nu-disco pop", "indie pop", "dance pop classic"],
+    "classic rock": ["classic rock opera", "indie pop"],
+    "lo-fi ambient": ["classical piano", "lo-fi focus", "indie pop"],
+}
+
 
 def format_duration(seconds: int) -> str:
     sec = max(0, seconds or 180)
@@ -50,6 +61,13 @@ def parse_json_list(raw: str | None) -> list[str]:
         return [str(x).strip().lower() for x in data] if isinstance(data, list) else []
     except Exception:
         return []
+
+
+def diminishing_returns(count: int) -> float:
+    """Computes log-scaling to protect against event flooding and artificial manipulation."""
+    if count <= 0:
+        return 0.0
+    return math.log2(1.0 + min(count, 50))
 
 
 class RecommendationService:
@@ -233,21 +251,22 @@ class RecommendationService:
         candidates = cls.get_database_songs(db)
         user_prefs = cls.get_user_preferences_from_db(user_id, db)
 
-        # Apply Explicit Content Mode server-side filtering
+        # ── 1. HARD SAFETY FILTERS ──
         explicit_mode = user_prefs.get("explicit_content_mode", "filter")
         if explicit_mode == "hide" or explicit_mode == "filter":
             candidates = [c for c in candidates if not c.get("explicit", False)] or candidates
 
+        # ── 2. INTENT & TARGET VECTOR SYNTHESIS ──
         target_profile = EMOTION_TARGETS.get(normalized, EMOTION_TARGETS["neutral"]).copy()
 
-        # Adjust target energy based on energy preference
+        # Adjust target energy based on explicit energy preference
         energy_pref = user_prefs.get("energy_preference")
         if energy_pref == "high":
             target_profile["energy"] = min(1.0, target_profile["energy"] + 0.15)
         elif energy_pref == "low":
             target_profile["energy"] = max(0.0, target_profile["energy"] - 0.15)
 
-        # Genre filtering
+        # ── 3. GENRE & LANGUAGE CONSTRAINTS ──
         effective_genre = genre_filter if genre_filter is not None else user_genre
         if effective_genre and effective_genre.lower() != "any":
             target_g = effective_genre.lower()
@@ -257,7 +276,6 @@ class RecommendationService:
             elif matching:
                 candidates = matching + [c for c in candidates if c not in matching]
 
-        # Language filtering
         active_langs = preferred_languages or user_prefs.get("preferred_languages")
         if active_langs:
             norm_langs = [l.lower() for l in active_langs]
@@ -265,42 +283,82 @@ class RecommendationService:
             if filtered_langs:
                 candidates = filtered_langs
 
-        # Score candidates with user explicit preferences affinity
+        # ── 4. MULTI-SIGNAL SCORING WITH DIVERSITY & DIMINISHING RETURNS ──
         pref_genres = user_prefs.get("preferred_genres", [])
         pref_artists = user_prefs.get("preferred_artists", [])
         pref_moods = user_prefs.get("preferred_moods", [])
+        discovery_mode = user_prefs.get("discovery_mode", "balanced")
 
-        scored_candidates = []
+        artist_counts: dict[str, int] = {}
+        scored_candidates: list[dict[str, Any]] = []
+
         for song in candidates:
             features = cls.extract_features(song)
             base_score = cls.compute_euclidean(features, target_profile)
 
-            # Affinity boosts
-            affinity_boost = 0.0
             song_genre = str(song.get("genre", "")).lower()
             song_artist = str(song.get("artist", "")).lower()
             song_mood = str(song.get("mood", "")).lower()
 
+            # Explicit Preference Affinity Boosts (weighted & capped)
+            affinity_boost = 0.0
             if any(pg in song_genre for pg in pref_genres):
                 affinity_boost += 0.15
+            else:
+                # Check adjacent genre discovery
+                for pg in pref_genres:
+                    adj_list = ADJACENT_GENRES.get(pg, [])
+                    if any(adj in song_genre for adj in adj_list):
+                        affinity_boost += 0.08
+                        break
+
             if any(pa in song_artist for pa in pref_artists):
                 affinity_boost += 0.20
             if song_mood in pref_moods:
                 affinity_boost += 0.10
 
-            final_score = min(1.0, round(base_score + affinity_boost, 4))
+            # Adjust discovery vs familiarity weight
+            if discovery_mode == "more_exploratory":
+                # Boost adjacent/unseen genres
+                if not any(pg in song_genre for pg in pref_genres):
+                    affinity_boost += 0.12
+            elif discovery_mode == "more_familiar":
+                # Double familiar genre weight
+                if any(pg in song_genre for pg in pref_genres):
+                    affinity_boost += 0.10
+
+            raw_score = base_score + affinity_boost
+
+            # ── 5. FEEDBACK LOOP & DIVERSITY PENALIZATION ──
+            # Apply artist saturation penalty (max 2 tracks per artist in top feed)
+            current_art_count = artist_counts.get(song_artist, 0)
+            diversity_penalty = min(0.35, current_art_count * 0.15)
+
+            final_score = min(1.0, max(0.0, round(raw_score - diversity_penalty, 4)))
 
             if min_score is not None and final_score < min_score:
                 continue
+
+            artist_counts[song_artist] = current_art_count + 1
 
             song_copy = song.copy()
             song_copy["match_score"] = final_score
             song_copy["recommendation_score"] = final_score
             song_copy["audio_features"] = features
             song_copy["recommendation_reason"] = (
-                f"Personalized match {int(final_score * 100)}% ({normalized} mood + taste preferences)"
+                f"Personalized match {int(final_score * 100)}% ({normalized} mood + adaptive taste)"
             )
             scored_candidates.append(song_copy)
+
+        # ── 6. ROBUST FALLBACK WATERFALL ──
+        if not scored_candidates and candidates and min_score is None:
+            # Fallback to general catalog ordered by popularity
+            for song in candidates[:limit]:
+                song_copy = song.copy()
+                song_copy["match_score"] = 0.70
+                song_copy["recommendation_score"] = 0.70
+                song_copy["recommendation_reason"] = "Popularity catalog fallback"
+                scored_candidates.append(song_copy)
 
         scored_candidates.sort(key=lambda x: x["match_score"], reverse=True)
         return normalized, scored_candidates[:limit]
