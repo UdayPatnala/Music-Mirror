@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from './store/useAppStore';
 import GlobalPlayerHost from './components/GlobalPlayerHost';
 import { BackgroundMusicPlayer } from './components/BackgroundMusicPlayer';
+import { NetworkStatusIndicator } from './components/NetworkStatusIndicator';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const MoodRoom = lazy(() => import('./pages/MoodRoom'));
@@ -121,6 +122,7 @@ export default function App() {
                         </Suspense>
                         <GlobalPlayerHost />
                         <BackgroundMusicPlayer />
+                        <NetworkStatusIndicator />
                     </div>
                 </BrowserRouter>
             </ErrorBoundary>
