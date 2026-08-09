@@ -130,10 +130,10 @@ export function BackgroundMusicPlayer() {
           width: 36,
           height: 36,
           borderRadius: "50%",
-          border: `1px solid ${playing ? "rgba(212,175,55,0.4)" : "rgba(255,255,255,0.1)"}`,
+          border: `1px solid ${playing ? "#C7D2FE" : "#E2E8F0"}`,
           background: playing
-            ? "rgba(212,175,55,0.1)"
-            : "rgba(255,255,255,0.04)",
+            ? "#EEF2FF"
+            : "#FFFFFF",
           backdropFilter: "blur(12px)",
           cursor: "pointer",
           display: "flex",
@@ -141,8 +141,8 @@ export function BackgroundMusicPlayer() {
           justifyContent: "center",
           transition: "all 0.3s cubic-bezier(0.25,0.8,0.25,1)",
           boxShadow: playing
-            ? "0 0 24px rgba(212,175,55,0.2), 0 4px 16px rgba(0,0,0,0.4)"
-            : "0 4px 16px rgba(0,0,0,0.3)",
+            ? "0 8px 24px rgba(79,70,229,0.20), 0 0 14px var(--edge-primary)"
+            : "0 4px 12px rgba(15,23,42,0.06)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -154,7 +154,7 @@ export function BackgroundMusicPlayer() {
               position: "absolute",
               inset: -4,
               borderRadius: "50%",
-              border: "1px solid rgba(212,175,55,0.25)",
+              border: "1px solid rgba(79,70,229,0.25)",
               animation: "bg-music-ping 2s ease-out infinite",
               pointerEvents: "none",
             }}
@@ -163,20 +163,20 @@ export function BackgroundMusicPlayer() {
 
         {loading ? (
           /* Spinner */
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(212,175,55,0.8)" strokeWidth="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2">
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
           </svg>
         ) : playing ? (
           /* Equalizer bars (playing) */
           <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
-            <rect x="0" y="6"  width="3" height="12" rx="1.5" fill="#D4AF37" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate"}} />
-            <rect x="5" y="2"  width="3" height="16" rx="1.5" fill="#D4AF37" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate",animationDelay:"0.15s"}} />
-            <rect x="10" y="4" width="3" height="14" rx="1.5" fill="#D4AF37" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate",animationDelay:"0.3s"}} />
-            <rect x="15" y="7" width="3" height="11" rx="1.5" fill="#D4AF37" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate",animationDelay:"0.45s"}} />
+            <rect x="0" y="6"  width="3" height="12" rx="1.5" fill="#4F46E5" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate"}} />
+            <rect x="5" y="2"  width="3" height="16" rx="1.5" fill="#4F46E5" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate",animationDelay:"0.15s"}} />
+            <rect x="10" y="4" width="3" height="14" rx="1.5" fill="#4F46E5" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate",animationDelay:"0.3s"}} />
+            <rect x="15" y="7" width="3" height="11" rx="1.5" fill="#4F46E5" style={{animation:"bg-bar 0.7s ease-in-out infinite alternate",animationDelay:"0.45s"}} />
           </svg>
         ) : (
           /* Music note (paused) */
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="1.8">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.8">
             <path d="M9 18V5l12-2v13"/>
             <circle cx="6" cy="18" r="3"/>
             <circle cx="18" cy="16" r="3"/>

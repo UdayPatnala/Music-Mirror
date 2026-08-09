@@ -240,38 +240,42 @@ export default function MoodRoom() {
   const songTitle = activeSong?.title || activeSong?.name || "Music Mirror Audio";
   const songArtist = activeSong?.artist || "AI Recommended";
   const songLang = activeSong?.language || "English";
-  const moodColor = MOOD_COLOR[activeMood] || "#D4AF37";
+  const moodColor = MOOD_COLOR[activeMood] || "#4F46E5";
 
   return (
-    <div className="pr-root" style={{ background: "#060606", minHeight: "100vh", position: "relative" }}>
+    <div className="pr-root" style={{ background: "var(--bg-primary)", minHeight: "100vh", position: "relative" }}>
 
       {/* ── Top Header Bar ── */}
       <header className="room-nav" style={{
-        borderBottom: "1px solid var(--glass-border)",
-        background: "rgba(9,9,9,0.92)",
+        borderBottom: "1px solid #E2E8F0",
+        background: "rgba(255, 255, 255, 0.88)",
         backdropFilter: "blur(24px)",
         position: "sticky", top: 0, zIndex: 50,
         display: "flex", alignItems: "center",
         padding: "0 40px", height: 64,
       }}>
         <div className="room-brand">
-          <Disc size={18} style={{ color: "var(--gold)" }} />
-          <span className="room-brand-name font-brand">Music Mirror</span>
-          <span className="room-brand-v2" style={{ marginLeft: 6, fontSize: "0.7rem", fontWeight: 600, color: "var(--text-3)", background: "rgba(212,175,55,0.08)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.15)" }}>
-            STUDIO
+          <Disc size={18} style={{ color: "#4F46E5" }} />
+          <span className="room-brand-name font-brand" style={{ color: "#172033" }}>Music Mirror</span>
+          <span className="room-brand-v2" style={{ marginLeft: 6, fontSize: "0.7rem", fontWeight: 600, color: "#4F46E5", background: "#EEF2FF", padding: "2px 8px", borderRadius: "999px", border: "1px solid #C7D2FE" }}>
+            v2.0
           </span>
         </div>
 
-        {/* Source Provider Dropdown */}
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: "rgba(20,20,20,0.85)", border: "1px solid var(--glass-border)", borderRadius: "999px", padding: "4px 14px" }}>
-          <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Source</span>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#FFFFFF", padding: "4px 12px", borderRadius: "999px", border: "1px solid #E2E8F0" }}>
+            <Sparkles size={14} style={{ color: "#7C3AED" }} />
+            <span style={{ fontSize: "0.76rem", color: "#475569", fontWeight: 600 }}>Mode:</span>
+            <span style={{ fontSize: "0.76rem", color: "#7C3AED", fontWeight: 700 }}>AI Personalization</span>
+          </div>
+
           <select
             value={playerMode}
             onChange={e => setPlayerMode(e.target.value as any)}
             style={{
-              background: "#121212",
-              border: "1px solid rgba(212,175,55,0.25)",
-              color: "var(--gold)",
+              background: "#FFFFFF",
+              border: "1px solid #CBD5E1",
+              color: "#4F46E5",
               fontSize: "0.78rem",
               fontWeight: 700,
               borderRadius: "999px",
@@ -281,14 +285,14 @@ export default function MoodRoom() {
               appearance: "none",
               WebkitAppearance: "none",
               MozAppearance: "none",
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: "right 9px center",
             }}
           >
-            <option value="youtube" style={{ background: "#141414", color: "#FFFFFF" }}>YouTube Engine</option>
-            <option value="jamendo" style={{ background: "#141414", color: "#FFFFFF" }}>Jamendo CC (Royalty-Free)</option>
-            <option value="local" style={{ background: "#141414", color: "#FFFFFF" }}>Local Audio Disk</option>
+            <option value="youtube" style={{ background: "#FFFFFF", color: "#172033" }}>YouTube Engine</option>
+            <option value="jamendo" style={{ background: "#FFFFFF", color: "#172033" }}>Jamendo CC (Royalty-Free)</option>
+            <option value="local" style={{ background: "#FFFFFF", color: "#172033" }}>Local Audio Disk</option>
           </select>
         </div>
       </header>
@@ -297,12 +301,12 @@ export default function MoodRoom() {
       <div className="studio-layout">
 
         {/* LEFT: Biometric Input Panel */}
-        <aside className="studio-acoustic-panel studio-wood-trim studio-speaker-glow" style={{ width: isBioCollapsed ? 76 : "100%", transition: "all 0.35s ease" }}>
+        <aside className="studio-acoustic-panel studio-wood-trim studio-speaker-glow" style={{ width: isBioCollapsed ? 76 : "100%", transition: "all 0.35s ease", background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             {!isBioCollapsed && (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span className="lp-pulse-dot" />
-                <h3 style={{ fontSize: "0.8rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-2)", margin: 0 }}>
+                <span className="lp-pulse-dot" style={{ background: "#0F9F8F" }} />
+                <h3 style={{ fontSize: "0.8rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#475569", margin: 0 }}>
                   Biometric Input
                 </h3>
               </div>
@@ -310,7 +314,7 @@ export default function MoodRoom() {
             <button
               onClick={() => setIsBioCollapsed(!isBioCollapsed)}
               title={isBioCollapsed ? "Expand Panel" : "Collapse Panel"}
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)", borderRadius: "999px", padding: "4px 8px", color: "var(--text-3)", cursor: "pointer", fontSize: "0.7rem", marginLeft: "auto" }}
+              style={{ background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: "999px", padding: "4px 8px", color: "#475569", cursor: "pointer", fontSize: "0.7rem", marginLeft: "auto" }}
             >
               {isBioCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
@@ -319,31 +323,31 @@ export default function MoodRoom() {
           {!isBioCollapsed ? (
             <>
               {/* Camera Frame */}
-              <div style={{ borderRadius: "var(--r-16)", overflow: "hidden", background: "#000", border: "1px solid var(--glass-border)", position: "relative", marginBottom: 16 }}>
+              <div style={{ borderRadius: "var(--r-16)", overflow: "hidden", background: "#F8FAFC", border: "1px solid #E2E8F0", position: "relative", marginBottom: 16 }}>
                 {camOpen ? (
                   <Camera onEmotion={handleDetect} />
                 ) : (
-                  <div style={{ height: 130, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.78rem", color: "var(--text-3)" }}>
+                  <div style={{ height: 130, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.78rem", color: "#7A8699" }}>
                     Camera suspended
                   </div>
                 )}
                 <button
                   onClick={() => setCamOpen(!camOpen)}
-                  style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.65)", border: "1px solid var(--glass-border)", borderRadius: "999px", padding: "4px 10px", fontSize: "0.68rem", color: "#fff", cursor: "pointer", backdropFilter: "blur(6px)" }}
+                  style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(255,255,255,0.85)", border: "1px solid #CBD5E1", borderRadius: "999px", padding: "4px 10px", fontSize: "0.68rem", color: "#172033", cursor: "pointer", backdropFilter: "blur(6px)", fontWeight: 600 }}
                 >
                   {camOpen ? "Suspend" : "Enable"}
                 </button>
               </div>
 
               {/* Detected Emotion Card */}
-              <div style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "var(--r-16)", padding: "12px 14px", marginBottom: 16 }}>
-                <div style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-3)", marginBottom: 3 }}>Detected Facial State</div>
+              <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "var(--r-16)", padding: "12px 14px", marginBottom: 16 }}>
+                <div style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#7A8699", marginBottom: 3 }}>Detected Facial State</div>
                 <div style={{ fontSize: "1.15rem", fontWeight: 800, color: moodColor }}>{MOOD_LABEL[activeMood] || activeMood}</div>
               </div>
 
               {/* Manual Override List */}
-              <div style={{ borderTop: "1px solid var(--glass-border)", paddingTop: 14, overflowY: "auto", flex: 1, maxHeight: "calc(100vh - 380px)", paddingRight: 4 }}>
-                <div style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-3)", marginBottom: 8 }}>
+              <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: 14, overflowY: "auto", flex: 1, maxHeight: "calc(100vh - 380px)", paddingRight: 4 }}>
+                <div style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#7A8699", marginBottom: 8 }}>
                   Manual Mood Override
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -355,14 +359,14 @@ export default function MoodRoom() {
                         display: "flex", justifyContent: "space-between", alignItems: "center",
                         padding: "8px 12px", borderRadius: "var(--r-12)",
                         border: "1px solid transparent",
-                        background: activeMood === m ? "rgba(255,255,255,0.04)" : "transparent",
-                        color: activeMood === m ? MOOD_COLOR[m] || "var(--gold)" : "var(--text-2)",
+                        background: activeMood === m ? "#EEF2FF" : "transparent",
+                        color: activeMood === m ? MOOD_COLOR[m] || "#4F46E5" : "#475569",
                         fontSize: "0.8rem", fontWeight: activeMood === m ? 700 : 500,
                         cursor: "pointer", textAlign: "left", transition: "var(--spring-transition)",
                       }}
                     >
                       <span>{MOOD_LABEL[m]}</span>
-                      {activeMood === m && <span style={{ width: 6, height: 6, borderRadius: "50%", background: MOOD_COLOR[m] }} />}
+                      {activeMood === m && <span style={{ width: 6, height: 6, borderRadius: "50%", background: MOOD_COLOR[m] || "#4F46E5" }} />}
                     </button>
                   ))}
                 </div>
@@ -384,27 +388,26 @@ export default function MoodRoom() {
           
           <div className="panel" style={{
             width: "100%", maxWidth: 620,
-            background: "rgba(18,18,18,0.75)",
+            background: "#FFFFFF",
             backdropFilter: "blur(32px)",
-            border: "1px solid var(--glass-border)",
+            border: "1px solid #E2E8F0",
             borderRadius: "var(--r-32)",
-            padding: "32px 36px",
+            padding: "36px 32px 28px",
             display: "flex", flexDirection: "column", alignItems: "center",
-            boxShadow: `0 24px 80px rgba(0,0,0,0.8), 0 0 60px ${moodColor}18`,
-            position: "relative",
-            overflow: "hidden",
+            boxShadow: "0 8px 24px rgba(15,23,42,0.06)",
+            position: "relative", overflow: "hidden",
           }}>
 
-            {/* Background Mood Light Leak */}
+            {/* Ambient Accent Radial Glow behind player */}
             <div style={{
               position: "absolute", top: "-20%", left: "20%", right: "20%", height: "50%",
-              background: `radial-gradient(ellipse at center, ${moodColor}25 0%, transparent 70%)`,
+              background: `radial-gradient(ellipse at center, ${moodColor}15 0%, transparent 70%)`,
               pointerEvents: "none", filter: "blur(40px)"
             }} />
 
             {/* Top Match Badge */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24, zIndex: 2 }}>
-              <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--gold)", background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", padding: "4px 14px", borderRadius: "999px", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE", padding: "4px 14px", borderRadius: "999px", display: "flex", alignItems: "center", gap: 6 }}>
                 <Sparkles size={12} />
                 98% Emotion Match · {MOOD_LABEL[activeMood]}
               </span>
@@ -416,7 +419,7 @@ export default function MoodRoom() {
               
               {/* Animated Live Equalizer Overlay when playing */}
               {isPlaying && (
-                <div style={{ position: "absolute", bottom: -12, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4, background: "rgba(9,9,9,0.85)", padding: "6px 14px", borderRadius: "999px", border: "1px solid var(--glass-border)", backdropFilter: "blur(12px)" }}>
+                <div style={{ position: "absolute", bottom: -12, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4, background: "rgba(255,255,255,0.92)", padding: "6px 14px", borderRadius: "999px", border: "1px solid #E2E8F0", backdropFilter: "blur(12px)", boxShadow: "0 4px 12px rgba(15,23,42,0.06)" }}>
                   {[0.4, 0.7, 1.0, 0.6, 0.8].map((delay, idx) => (
                     <span key={idx} style={{
                       width: 3, height: 16, borderRadius: 2, background: moodColor,
@@ -429,13 +432,13 @@ export default function MoodRoom() {
 
             {/* Song Metadata Lockup */}
             <div style={{ textAlign: "center", marginBottom: 24, zIndex: 2, maxWidth: "100%" }}>
-              <h2 className="font-brand" style={{ fontSize: "1.7rem", fontWeight: 800, color: "var(--text-1)", marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <h2 className="font-brand" style={{ fontSize: "1.7rem", fontWeight: 800, color: "#172033", marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {songTitle}
               </h2>
-              <div style={{ fontSize: "0.95rem", color: "var(--text-2)", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+              <div style={{ fontSize: "0.95rem", color: "#475569", fontWeight: 500, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                 <span>{songArtist}</span>
-                <span style={{ color: "var(--text-4)" }}>•</span>
-                <span style={{ fontSize: "0.72rem", color: "var(--gold)", border: "1px solid var(--gold-border)", padding: "1px 8px", borderRadius: "999px" }}>
+                <span style={{ color: "#A8B1BF" }}>•</span>
+                <span style={{ fontSize: "0.72rem", color: "#4F46E5", border: "1px solid #CBD5E1", padding: "1px 8px", borderRadius: "999px", background: "#EEF2FF" }}>
                   {songLang}
                 </span>
               </div>
@@ -449,24 +452,24 @@ export default function MoodRoom() {
                   const pct = ((e.clientX - rect.left) / rect.width) * 100;
                   setProgress(pct);
                 }}
-                style={{ width: "100%", height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, cursor: "pointer", position: "relative", overflow: "hidden" }}
+                style={{ width: "100%", height: 6, background: "#E2E8F0", borderRadius: 3, cursor: "pointer", position: "relative", overflow: "hidden" }}
               >
-                <div style={{ height: "100%", background: `linear-gradient(90deg, var(--gold), ${moodColor})`, width: `${progress}%`, borderRadius: 3, transition: "width 0.2s linear" }} />
+                <div style={{ height: "100%", background: `linear-gradient(90deg, #4F46E5, ${moodColor})`, width: `${progress}%`, borderRadius: 3, transition: "width 0.2s linear" }} />
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: "0.72rem", color: "var(--text-3)", fontFamily: "JetBrains Mono, monospace" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: "0.72rem", color: "#7A8699", fontFamily: "JetBrains Mono, monospace" }}>
                 <span>{currentTimeStr}</span>
                 <span>{durationStr}</span>
               </div>
             </div>
 
-            {/* Primary Metallic Controls Row */}
+            {/* Primary Control Buttons Row */}
             <div style={{ display: "flex", alignItems: "center", gap: 24, zIndex: 2 }}>
               
               {/* Prev */}
               <button
                 onClick={handleSkipPrev}
                 aria-label="Previous Song"
-                style={{ width: 42, height: 42, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)", color: "var(--text-1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "var(--spring-transition)" }}
+                style={{ width: 42, height: 42, borderRadius: "50%", background: "#F1F5F9", border: "1px solid #E2E8F0", color: "#172033", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "var(--spring-transition)" }}
               >
                 <SkipBack size={18} />
               </button>
@@ -477,22 +480,22 @@ export default function MoodRoom() {
                 aria-label={isPlaying ? "Pause" : "Play"}
                 style={{
                   width: 64, height: 64, borderRadius: "50%",
-                  background: `linear-gradient(135deg, var(--gold), ${moodColor})`,
-                  color: "#050505", border: "none", cursor: "pointer",
+                  background: `linear-gradient(135deg, #4F46E5, #4338CA)`,
+                  color: "#FFFFFF", border: "none", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: `0 0 32px ${moodColor}66, 0 8px 24px rgba(0,0,0,0.5)`,
+                  boxShadow: `0 8px 24px rgba(79, 70, 229, 0.35)`,
                   transition: "var(--spring-transition)",
                   transform: "scale(1)",
                 }}
               >
-                {isPlaying ? <Pause size={26} fill="#050505" /> : <Play size={26} fill="#050505" style={{ marginLeft: 3 }} />}
+                {isPlaying ? <Pause size={26} fill="#FFFFFF" /> : <Play size={26} fill="#FFFFFF" style={{ marginLeft: 3 }} />}
               </button>
 
               {/* Next */}
               <button
                 onClick={handleSkipNext}
                 aria-label="Next Song"
-                style={{ width: 42, height: 42, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid var(--glass-border)", color: "var(--text-1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "var(--spring-transition)" }}
+                style={{ width: 42, height: 42, borderRadius: "50%", background: "#F1F5F9", border: "1px solid #E2E8F0", color: "#172033", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "var(--spring-transition)" }}
               >
                 <SkipForward size={18} />
               </button>
@@ -508,7 +511,7 @@ export default function MoodRoom() {
                     setIsMuted(nextMute);
                     sessionOrchestrator.setMute(nextMute);
                   }}
-                  style={{ background: "none", border: "none", color: "var(--text-3)", cursor: "pointer" }}
+                  style={{ background: "none", border: "none", color: "#475569", cursor: "pointer" }}
                 >
                   {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                 </button>
@@ -524,13 +527,13 @@ export default function MoodRoom() {
                     setIsMuted(v === 0);
                     sessionOrchestrator.setVolume(v);
                   }}
-                  style={{ width: 80, height: 4, accentColor: "var(--gold)", cursor: "pointer" }}
+                  style={{ width: 80, height: 4, accentColor: "#4F46E5", cursor: "pointer" }}
                 />
               </div>
 
               <button
                 onClick={() => handleDetect({ emotion: activeMood, confidence: 0.95, scores: [[activeMood, 0.95]], source: "manual" })}
-                style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-2)", background: "rgba(255,255,255,0.03)", border: "1px solid var(--glass-border)", padding: "6px 14px", borderRadius: "999px", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                style={{ fontSize: "0.72rem", fontWeight: 700, color: "#475569", background: "#F1F5F9", border: "1px solid #E2E8F0", padding: "6px 14px", borderRadius: "999px", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
               >
                 <RefreshCw size={12} /> Re-sync Mood Match
               </button>
@@ -541,15 +544,15 @@ export default function MoodRoom() {
         </main>
 
         {/* RIGHT: Up Next Queue Panel */}
-        <aside className="studio-acoustic-panel studio-speaker-glow">
+        <aside className="studio-acoustic-panel studio-speaker-glow" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexShrink: 0 }}>
             <div>
-              <h3 style={{ fontSize: "0.8rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-2)", margin: 0 }}>
+              <h3 style={{ fontSize: "0.8rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#475569", margin: 0 }}>
                 Up Next Queue
               </h3>
-              <div style={{ fontSize: "0.68rem", color: "var(--text-3)", marginTop: 2 }}>{songsQueue.length} Tracks · {playerMode.toUpperCase()}</div>
+              <div style={{ fontSize: "0.68rem", color: "#7A8699", marginTop: 2 }}>{songsQueue.length} Tracks · {playerMode.toUpperCase()}</div>
             </div>
-            <span style={{ fontSize: "0.68rem", color: "var(--gold)", fontWeight: 700, background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", padding: "3px 10px", borderRadius: "999px" }}>
+            <span style={{ fontSize: "0.68rem", color: "#4F46E5", fontWeight: 700, background: "#EEF2FF", border: "1px solid #C7D2FE", padding: "3px 10px", borderRadius: "999px" }}>
               Auto-Play
             </span>
           </div>
@@ -568,38 +571,38 @@ export default function MoodRoom() {
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "10px 14px", borderRadius: "var(--r-16)",
-                    background: isActive ? "rgba(212,175,55,0.08)" : "rgba(255,255,255,0.015)",
+                    background: isActive ? "#EEF2FF" : "#F8FAFC",
                     border: "1px solid",
-                    borderColor: isActive ? "var(--gold)" : "var(--glass-border)",
+                    borderColor: isActive ? "#818CF8" : "#E2E8F0",
                     cursor: "pointer", transition: "var(--spring-transition)",
-                    boxShadow: isActive ? "0 4px 20px rgba(212,175,55,0.15)" : "none",
+                    boxShadow: isActive ? "0 4px 12px rgba(79, 70, 229, 0.10)" : "none",
                   }}
                 >
                   <div style={{
                     width: 36, height: 36, borderRadius: "var(--r-12)",
-                    background: isActive ? "linear-gradient(135deg, #D4AF37, #A855F7)" : "rgba(255,255,255,0.04)",
+                    background: isActive ? "linear-gradient(135deg, #4F46E5, #7C3AED)" : "#E2E8F0",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "0.85rem", fontWeight: 800, color: isActive ? "#000" : "var(--text-2)",
+                    fontSize: "0.85rem", fontWeight: 800, color: isActive ? "#FFFFFF" : "#475569",
                     flexShrink: 0
                   }}>
                     {isActive ? <Music size={16} /> : title[0]?.toUpperCase()}
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "0.84rem", fontWeight: 700, color: isActive ? "var(--gold)" : "var(--text-1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: "0.84rem", fontWeight: 700, color: isActive ? "#4F46E5" : "#172033", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {title}
                     </div>
-                    <div style={{ fontSize: "0.72rem", color: "var(--text-3)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {song.artist}
                     </div>
                   </div>
 
                   {isActive ? (
-                    <span style={{ fontSize: "0.6rem", fontWeight: 800, color: "var(--gold)", background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)", padding: "2px 8px", borderRadius: "999px", flexShrink: 0, letterSpacing: "0.05em" }}>
+                    <span style={{ fontSize: "0.6rem", fontWeight: 800, color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE", padding: "2px 8px", borderRadius: "999px", flexShrink: 0, letterSpacing: "0.05em" }}>
                       PLAYING
                     </span>
                   ) : (
-                    <span style={{ fontSize: "0.66rem", color: "var(--text-3)", background: "rgba(255,255,255,0.03)", padding: "2px 7px", borderRadius: "999px", flexShrink: 0 }}>
+                    <span style={{ fontSize: "0.66rem", color: "#7A8699", background: "#F1F5F9", padding: "2px 7px", borderRadius: "999px", flexShrink: 0 }}>
                       {song.language || "Pop"}
                     </span>
                   )}
@@ -611,7 +614,7 @@ export default function MoodRoom() {
       </div>
 
       {/* ── Floating Bottom Navigation Pill ── */}
-      <nav className="studio-nav-bar">
+      <nav className="studio-nav-bar" style={{ background: "rgba(255,255,255,0.88)", border: "1px solid #E2E8F0", boxShadow: "0 8px 24px rgba(15,23,42,0.06)" }}>
         <Link to="/" className="studio-nav-item">Discover</Link>
         <Link to="/room" className="studio-nav-item active">Room</Link>
         <Link to="/profile" className="studio-nav-item">Profile</Link>
@@ -621,7 +624,6 @@ export default function MoodRoom() {
       <style>{`
         .studio-queue-scroll::-webkit-scrollbar { width: 4px; }
         .studio-queue-scroll::-webkit-scrollbar-track { background: transparent; }
-        .studio-queue-scroll::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.25); border-radius: 4px; }
         .room-brand { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 800; color: var(--text-1); }
         .room-brand-name { letter-spacing: -0.02em; }
         @keyframes bg-bar {

@@ -94,13 +94,13 @@ export default function Camera({ onEmotion, showLandmarks = false }: CameraProps
       const box = detections.detection.box;
 
       // ── Face bounding box ──
-      ctx.strokeStyle = "rgba(212,175,55,0.55)";
+      ctx.strokeStyle = "rgba(79,70,229,0.75)";
       ctx.lineWidth = 1.5;
       ctx.strokeRect(box.x, box.y, box.width, box.height);
 
       // Corner accent marks
       const cLen = 14;
-      ctx.strokeStyle = "#D4AF37";
+      ctx.strokeStyle = "#4F46E5";
       ctx.lineWidth = 2.5;
       const corners = [
         [box.x, box.y, cLen, 0, 0, cLen],

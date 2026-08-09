@@ -217,12 +217,12 @@ export default function DashboardPage() {
   }, [topEmotion, topConf]);
 
   return (
-    <div className="pr-root" style={{ background: "#0A0A0A", minHeight: "100vh" }}>
+    <div className="pr-root" style={{ background: "var(--bg-primary)", minHeight: "100vh" }}>
 
       {/* ── NAV ── */}
       <header style={{
-        borderBottom: "1px solid var(--glass-border)",
-        background: "rgba(9,9,9,0.95)",
+        borderBottom: "1px solid #E2E8F0",
+        background: "rgba(255, 255, 255, 0.88)",
         backdropFilter: "blur(24px)",
         position: "sticky", top: 0, zIndex: 50,
         display: "flex", alignItems: "center",
@@ -230,7 +230,7 @@ export default function DashboardPage() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Wordmark size="md" showBadge={true} />
-          <span style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "var(--accent-violet)", background: "rgba(139,92,246,0.1)", padding: "2px 10px", borderRadius: "999px", border: "1px solid rgba(139,92,246,0.2)", letterSpacing: "0.08em" }}>
+          <span style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "#7C3AED", background: "#EDE9FE", padding: "2px 10px", borderRadius: "999px", border: "1px solid #DDD6FE", letterSpacing: "0.08em" }}>
             BIOMETRIC TELEMETRY LAB
           </span>
         </div>
@@ -238,25 +238,25 @@ export default function DashboardPage() {
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{
             display: "flex", alignItems: "center", gap: 7,
-            fontSize: "0.78rem", color: facePresent ? "var(--success)" : "var(--text-3)",
-            background: facePresent ? "rgba(34,197,94,0.07)" : "rgba(255,255,255,0.03)",
-            border: `1px solid ${facePresent ? "rgba(34,197,94,0.25)" : "rgba(255,255,255,0.06)"}`,
+            fontSize: "0.78rem", color: facePresent ? "#059669" : "#7A8699",
+            background: facePresent ? "#D1FAE5" : "#F1F5F9",
+            border: `1px solid ${facePresent ? "#A7F3D0" : "#CBD5E1"}`,
             padding: "6px 14px", borderRadius: "999px",
             transition: "all 0.4s ease",
           }}>
             <span style={{
               width: 7, height: 7, borderRadius: "50%",
-              background: facePresent ? "var(--success)" : "#444",
-              boxShadow: facePresent ? "0 0 8px var(--success)" : "none",
+              background: facePresent ? "#059669" : "#A8B1BF",
+              boxShadow: facePresent ? "0 0 8px #059669" : "none",
               animation: facePresent ? "pulse 2s ease-in-out infinite" : "none",
             }} />
             {facePresent ? `Face Tracked · 68 Landmarks` : "Searching for Face..."}
           </div>
 
           <Link to="/room" style={{
-            fontSize: "0.82rem", fontWeight: 700, color: "var(--gold)",
-            background: "var(--gold-dim)", padding: "8px 20px",
-            borderRadius: "999px", border: "1px solid var(--gold-border)",
+            fontSize: "0.82rem", fontWeight: 700, color: "#FFFFFF",
+            background: "#4F46E5", padding: "8px 20px",
+            borderRadius: "999px", border: "none", boxShadow: "0 4px 12px rgba(79, 70, 229, 0.25)"
           }}>
             Enter Studio Room
           </Link>
@@ -267,9 +267,9 @@ export default function DashboardPage() {
 
         {/* Title */}
         <div style={{ marginBottom: 28 }}>
-          <p className="section-kicker">Data Analytics & Neural Telemetry</p>
-          <h1 className="pr-name font-brand" style={{ fontSize: "2.2rem" }}>Technical Analytics Dashboard</h1>
-          <p style={{ fontSize: "0.88rem", color: "var(--text-3)", marginTop: 6 }}>
+          <p className="section-kicker" style={{ color: "#7C3AED", fontWeight: 700 }}>Data Analytics & Neural Telemetry</p>
+          <h1 className="pr-name font-brand" style={{ fontSize: "2.2rem", color: "#172033" }}>Technical Analytics Dashboard</h1>
+          <p style={{ fontSize: "0.88rem", color: "#475569", marginTop: 6 }}>
             Real-time multi-dimensional facial mesh analytics, probability distribution streams, and acoustic intent parameter translation.
           </p>
         </div>
@@ -277,21 +277,21 @@ export default function DashboardPage() {
         {/* ── METRIC TILES ROW ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 14, marginBottom: 28 }}>
           {[
-            { icon: <Zap size={16} />, label: "Inference Latency", value: avgInferenceMs ? `${avgInferenceMs} ms` : "16 ms", color: "#D4AF37", sub: "WebGL acceleration" },
-            { icon: <Activity size={16} />, label: "Detection Rate", value: fps ? `${fps} FPS` : "60 FPS", color: "#22C55E", sub: "TinyFaceDetector" },
-            { icon: <Eye size={16} />, label: "Landmark Mesh", value: landmarkCount ? `${landmarkCount} Pts` : "68 Pts", color: "#60A5FA", sub: "68-point active grid" },
+            { icon: <Zap size={16} />, label: "Inference Latency", value: avgInferenceMs ? `${avgInferenceMs} ms` : "16 ms", color: "#4F46E5", sub: "WebGL acceleration" },
+            { icon: <Activity size={16} />, label: "Detection Rate", value: fps ? `${fps} FPS` : "60 FPS", color: "#059669", sub: "TinyFaceDetector" },
+            { icon: <Eye size={16} />, label: "Landmark Mesh", value: landmarkCount ? `${landmarkCount} Pts` : "68 Pts", color: "#0891B2", sub: "68-point active grid" },
             { icon: <Brain size={16} />, label: "Dominant Mood", value: facePresent ? EMOTION_LABEL[topEmotion] || topEmotion : "Neutral", color: topColor, sub: `${(topConf * 100).toFixed(1)}% confidence` },
-            { icon: <Database size={16} />, label: "Processed Frames", value: totalFrames || "1,240", color: "#C084FC", sub: "Live frame counter" },
-            { icon: <Sliders size={16} />, label: "Target BPM", value: acousticData.find(d => d.metric.includes("BPM"))?.raw || "98 BPM", color: "#F97316", sub: "Translated intent" },
+            { icon: <Database size={16} />, label: "Processed Frames", value: totalFrames || "1,240", color: "#7C3AED", sub: "Live frame counter" },
+            { icon: <Sliders size={16} />, label: "Target BPM", value: acousticData.find(d => d.metric.includes("BPM"))?.raw || "98 BPM", color: "#D97706", sub: "Translated intent" },
           ].map(({ icon, label, value, color, sub }) => (
-            <div key={label} className="panel" style={{ padding: "18px 20px", position: "relative", overflow: "hidden" }}>
+            <div key={label} className="panel edge-light-card" style={{ padding: "18px 20px", position: "relative", overflow: "hidden", borderRadius: "16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color, marginBottom: 8 }}>
                 {icon}
                 <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</span>
               </div>
-              <div className="font-brand" style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-1)", lineHeight: 1 }}>{value}</div>
-              <div style={{ fontSize: "0.68rem", color: "var(--text-3)", marginTop: 5 }}>{sub}</div>
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: color, opacity: 0.3 }} />
+              <div className="font-brand" style={{ fontSize: "1.6rem", fontWeight: 800, color: "#172033", lineHeight: 1 }}>{value}</div>
+              <div style={{ fontSize: "0.68rem", color: "#7A8699", marginTop: 5 }}>{sub}</div>
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: color, opacity: 0.4 }} />
             </div>
           ))}
         </div>

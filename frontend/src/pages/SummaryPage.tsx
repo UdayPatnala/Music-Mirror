@@ -19,13 +19,13 @@ export default function SummaryPage() {
   return (
     <div className="pr-root">
       {/* ── NAV ──────────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid var(--border-subtle)", background: "rgba(8,9,13,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
+      <header style={{ borderBottom: "1px solid #E2E8F0", background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Wordmark size="md" showBadge={true} />
-          <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--accent-cyan)", background: "rgba(34,211,238,0.08)", padding: "2px 10px", borderRadius: "999px", border: "1px solid rgba(34,211,238,0.2)" }}>Architecture Blueprint</span>
+          <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#4F46E5", background: "#EEF2FF", padding: "2px 10px", borderRadius: "999px", border: "1px solid #C7D2FE" }}>Architecture Blueprint</span>
         </div>
         <div style={{ marginLeft: "auto" }}>
-          <Link to="/room" style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--bg-primary)", background: "var(--accent-cyan)", padding: "8px 22px", borderRadius: "999px", transition: "all 0.2s ease" }}>
+          <Link to="/room" style={{ fontSize: "0.82rem", fontWeight: 700, color: "#FFFFFF", background: "#4F46E5", padding: "8px 22px", borderRadius: "999px", transition: "all 0.2s ease" }}>
             Enter Studio
           </Link>
         </div>

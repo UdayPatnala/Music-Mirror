@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   MUSIC MIRROR V2 — PREMIUM DARK DESIGN SYSTEM
-   Palette: Royal Gold · Sapphire · Emerald · Crimson · Royal Purple
-   Philosophy: Less Interface. More Music.
+   MUSIC MIRROR V2 — LIGHT PREMIUM DESIGN SYSTEM
+   Palette: Indigo · Cyan · Violet · Teal · Rose · Champagne Gold
+   Philosophy: Bright, Clean, Modern, Intelligent, Music-First.
 ═══════════════════════════════════════════════════════════════ */
 
 /* Typography is pre-loaded in index.html via <link> for optimal performance */
@@ -9,11 +9,11 @@
 
 /* ── Reset ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: #090909; scroll-behavior: smooth; }
+html { background: #F8FAFC; scroll-behavior: smooth; }
 body {
   font-family: "Outfit", "Space Grotesk", system-ui, sans-serif;
-  background: #090909;
-  color: #ffffff;
+  background: #F8FAFC;
+  color: #172033;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -34,48 +34,48 @@ body {
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
 
-/* Global dark-theme dropdown styling */
+/* Global light-theme dropdown styling */
 select {
-  background-color: #121212;
-  color: var(--text-1);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--r-8);
+  background-color: #FFFFFF;
+  color: #172033;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
   padding: 6px 12px;
   outline: none;
   cursor: pointer;
 }
 
 select option {
-  background-color: #141414;
-  color: #FFFFFF;
+  background-color: #FFFFFF;
+  color: #172033;
   padding: 10px 14px;
 }
 
 select option:hover,
 select option:focus,
 select option:checked {
-  background-color: #242424;
-  color: var(--gold);
+  background-color: #EEF2FF;
+  color: #4F46E5;
 }
 
 #root { min-height: 100vh; }
 img { max-width: 100%; display: block; }
 
-/* ── Custom Dark Sleek Scrollbar System ─────────────────────── */
+/* ── Custom Light Sleek Scrollbar System ─────────────────────── */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(14, 16, 23, 0.4);
+  background: rgba(241, 245, 249, 0.8);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(71, 85, 105, 0.25);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(34, 211, 238, 0.6);
+  background: #4F46E5;
 }
 ::-webkit-scrollbar-button {
   display: none !important;
@@ -85,95 +85,114 @@ img { max-width: 100%; display: block; }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.18) rgba(14, 16, 23, 0.4);
+  scrollbar-color: rgba(71, 85, 105, 0.25) rgba(241, 245, 249, 0.8);
 }
 
-/* ── Design tokens ──────────────────────────────────────────── */
-/* ── Design tokens ──────────────────────────────────────────── */
+/* ── Light Premium Design tokens ────────────────────────────── */
 :root {
-  /* Surfaces & Backgrounds (Deep Cinematic Neutral Dark) */
-  --bg-primary:       #08090D;
-  --bg-secondary:     #0E1017;
-  --bg-0:             #08090D;
-  --bg-1:             #08090D;
-  --bg-2:             #0E1017;
-  --bg:               #08090D;
-  --surface-primary:  #11141B;
-  --surface-elevated: #151821;
-  --surface:          #11141B;
-  --card:             #151821;
-  --card-elevated:    #1A1D2A;
-  --card-hover:       rgba(255,255,255,0.065);
+  /* Surfaces & Backgrounds (Bright Premium Light System) */
+  --bg-primary:       #F8FAFC;
+  --bg-secondary:     #F1F5F9;
+  --bg-0:             #F8FAFC;
+  --bg-1:             #F8FAFC;
+  --bg-2:             #F1F5F9;
+  --bg:               #F8FAFC;
+  --surface-primary:  #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface:          #FFFFFF;
+  --card:             #FFFFFF;
+  --card-elevated:    #FFFFFF;
+  --card-hover:       #F1F5F9;
 
-  /* Glassmorphism System */
-  --surface-glass:       rgba(255,255,255,0.045);
-  --surface-hover:       rgba(255,255,255,0.065);
-  --border-subtle:       rgba(255,255,255,0.08);
-  --border-active:       rgba(255,255,255,0.16);
-  --glass-bg:            rgba(255,255,255,0.045);
-  --glass-bg-strong:     rgba(255,255,255,0.07);
-  --glass-border:        rgba(255,255,255,0.08);
-  --glass-border-hover:  rgba(255,255,255,0.16);
-  --glass-shadow:        rgba(0,0,0,0.65);
-  --glass-blur:          28px;
-  --glass-saturation:    140%;
+  /* Glassmorphism Light System */
+  --surface-glass:       rgba(255, 255, 255, 0.85);
+  --surface-hover:       rgba(241, 245, 249, 0.90);
+  --border-subtle:       #E2E8F0;
+  --border-active:       #CBD5E1;
+  --glass-bg:            rgba(255, 255, 255, 0.85);
+  --glass-bg-strong:     rgba(255, 255, 255, 0.95);
+  --glass-border:        #E2E8F0;
+  --glass-border-hover:  #CBD5E1;
+  --glass-shadow:        rgba(15, 23, 42, 0.06);
+  --glass-blur:          20px;
+  --glass-saturation:    110%;
 
-  /* Text Hierarchy (High-Contrast Neutral Cool) */
-  --text-primary:     #F4F5F7;
-  --text-secondary:   #A6ACB8;
-  --text-muted:       #686F7D;
-  --text-disabled:    #4A4A4A;
-  --text-1:          #F4F5F7;
-  --text-2:          #A6ACB8;
-  --text-3:          #686F7D;
-  --text-4:          #4A4A4A;
+  /* Text Hierarchy (High-Contrast Dark Slate Neutral) */
+  --text-primary:     #172033;
+  --text-secondary:   #475569;
+  --text-muted:       #7A8699;
+  --text-disabled:    #A8B1BF;
+  --text-1:          #172033;
+  --text-2:          #475569;
+  --text-3:          #7A8699;
+  --text-4:          #A8B1BF;
 
-  /* Multi-Accent Palette */
-  --accent-cyan:      #22D3EE;  /* Music Playback & Audio */
-  --accent-indigo:    #6366F1;  /* AI & Focus */
-  --accent-violet:    #8B5CF6;  /* AI & Intelligence */
-  --accent-teal:      #2DD4BF;  /* Biometric & Calm */
-  --accent-rose:      #F472B6;  /* Romantic & Error */
-  --accent-champagne: #D6B56E;  /* Refrained Premium (5-10% Max) */
-  --accent-amber:     #F59E0B;  /* Happy & Warning */
+  /* Multi-Accent Light Palette */
+  --accent-cyan:      #0891B2;  /* Music Playback & Audio */
+  --accent-indigo:    #4F46E5;  /* Primary Accent & Focus */
+  --accent-violet:    #7C3AED;  /* AI & Intelligence */
+  --accent-teal:      #0F9F8F;  /* Biometric & Calm */
+  --accent-rose:      #E11D72;  /* Emotion Rose */
+  --accent-champagne: #B88924;  /* Refrained Premium Gold (5-10% Max) */
+  --accent-amber:     #D97706;  /* Happy & Warning */
 
   /* Semantic System Tokens */
-  --playback-accent:  var(--accent-cyan);
-  --playback-glow:    rgba(34,211,238,0.16);
-  --ai-accent:        var(--accent-violet);
-  --ai-glow:          rgba(139,92,246,0.16);
-  --biometric-accent: var(--accent-teal);
-  --biometric-glow:   rgba(45,212,191,0.16);
-  --premium-accent:   var(--accent-champagne);
-  --premium-glow:     rgba(214,181,110,0.14);
+  --playback-accent:  #0891B2;
+  --playback-glow:    rgba(8, 145, 178, 0.12);
+  --ai-accent:        #7C3AED;
+  --ai-glow:          rgba(124, 58, 237, 0.12);
+  --biometric-accent: #0F9F8F;
+  --biometric-glow:   rgba(15, 159, 143, 0.12);
+  --premium-accent:   #B88924;
+  --premium-glow:     rgba(184, 137, 36, 0.12);
 
   /* Status Colors */
-  --state-success:    #34D399;
-  --state-error:      #FB7185;
-  --state-warning:    #F59E0B;
-  --success:          #34D399;
-  --error:            #FB7185;
-  --warning:          #F59E0B;
-  --info:             #22D3EE;
+  --state-success:    #059669;
+  --state-error:      #DC2626;
+  --state-warning:    #D97706;
+  --success:          #059669;
+  --error:            #DC2626;
+  --warning:          #D97706;
+  --info:             #2563EB;
 
   /* Backward Compatibility Aliases */
-  --gold:             var(--accent-champagne);
-  --royal-gold:       var(--accent-champagne);
-  --gold-dim:         rgba(214,181,110,0.12);
-  --gold-border:      rgba(214,181,110,0.22);
+  --gold:             var(--accent-indigo);
+  --royal-gold:       var(--accent-indigo);
+  --gold-dim:         rgba(79, 70, 229, 0.10);
+  --gold-border:      rgba(79, 70, 229, 0.20);
   --purple:           var(--accent-violet);
   --amethyst:         var(--accent-violet);
-  --purple-dim:       rgba(139,92,246,0.12);
+  --purple-dim:       rgba(124, 58, 237, 0.10);
   --highlight:        var(--accent-cyan);
 
-  /* Dynamic Emotion Accents */
-  --mood-calm:        #2DD4BF;
-  --mood-happy:       #F59E0B;
-  --mood-sad:         #22D3EE;
-  --mood-energetic:   #8B5CF6;
-  --mood-focused:     #6366F1;
-  --mood-romantic:    #F472B6;
-  --mood-neutral:     #A6ACB8;
+  /* Dynamic Emotion Accents (Refined Light Tone) */
+  --mood-calm:        #0F9F8F;
+  --mood-happy:       #D97706;
+  --mood-sad:         #0284C7;
+  --mood-energetic:   #7C3AED;
+  --mood-focused:     #4F46E5;
+  --mood-romantic:    #E11D72;
+  --mood-neutral:     #64748B;
+
+  /* ── Edge Lighting System Tokens ───────────────────────────── */
+  --edge-neutral:     rgba(226, 232, 240, 0.85);
+  --edge-primary:     rgba(79, 70, 229, 0.35);
+  --edge-music:       rgba(8, 145, 178, 0.35);
+  --edge-ai:          rgba(124, 58, 237, 0.35);
+  --edge-biometric:   rgba(15, 159, 143, 0.35);
+  --edge-premium:     rgba(184, 137, 36, 0.30);
+  --edge-success:     rgba(5, 150, 105, 0.35);
+  --edge-warning:     rgba(217, 119, 6, 0.35);
+  --edge-error:       rgba(220, 38, 38, 0.35);
+
+  --edge-opacity-default: 0.15;
+  --edge-opacity-hover:   0.35;
+  --edge-opacity-active:  0.55;
+  --edge-opacity-focus:   0.85;
+
+  --edge-blur-sm: 4px;
+  --edge-blur-md: 12px;
+  --edge-blur-lg: 24px;
 
   /* Radii Tokens */
   --r-hero:          32px;
@@ -189,9 +208,9 @@ img { max-width: 100%; display: block; }
   --r-pill:          999px;
 
   /* Shadows */
-  --shadow-soft:      0 20px 60px rgba(0,0,0,0.45);
-  --shadow-deep:      0 30px 100px rgba(0,0,0,0.70);
-  --shadow-accent:    0 0 40px rgba(34,211,238,0.14);
+  --shadow-soft:      0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-deep:      0 20px 50px rgba(15, 23, 42, 0.08);
+  --shadow-accent:    0 8px 24px rgba(79, 70, 229, 0.12);
   --shadow:           var(--shadow-soft);
   --shadow-lg:        var(--shadow-deep);
 
@@ -1321,22 +1340,67 @@ img { max-width: 100%; display: block; }
   z-index: 1001;
   display: flex;
   gap: 8px;
-  background: rgba(22, 22, 22, 0.85);
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #E2E8F0;
   backdrop-filter: blur(24px);
   padding: 6px;
   border-radius: 999px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08), 0 0 16px var(--edge-primary);
 }
 .studio-nav-item {
   padding: 10px 24px;
   border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--text-2);
+  color: #475569;
   transition: var(--spring-transition);
 }
-.studio-nav-item:hover { color: var(--text-1); background: rgba(255,255,255,0.04); }
-.studio-nav-item.active { color: var(--gold); background: rgba(212,175,55,0.12); }
+.studio-nav-item:hover { color: #172033; background: #F1F5F9; }
+.studio-nav-item.active { color: #4F46E5; background: #EEF2FF; border: 1px solid #C7D2FE; }
+
+/* ══════════════════════════════════════════════════════════════
+   REFINED EDGE LIGHTING SYSTEM CLASSES
+══════════════════════════════════════════════════════════════ */
+.edge-light-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04), 0 0 0 1px var(--edge-neutral);
+  transition: transform 250ms ease, box-shadow 300ms ease, border-color 300ms ease;
+}
+.edge-light-card:hover {
+  transform: translateY(-2px);
+  border-color: #C7D2FE;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08), 0 0 16px var(--edge-primary);
+}
+
+.edge-light-player {
+  background: #FFFFFF;
+  border: 1px solid #C7D2FE;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.06), 0 0 20px var(--edge-music);
+  animation: edge-pulse-breath 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes edge-pulse-breath {
+  0% {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06), 0 0 12px var(--edge-music);
+    border-color: #C7D2FE;
+  }
+  100% {
+    box-shadow: 0 16px 44px rgba(15, 23, 42, 0.09), 0 0 24px var(--edge-primary);
+    border-color: #A5B4FC;
+  }
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25), 0 0 12px var(--edge-primary) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-light-player {
+    animation: none;
+  }
+}
 
 
 

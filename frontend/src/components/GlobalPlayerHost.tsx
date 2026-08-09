@@ -63,7 +63,7 @@ export default function GlobalPlayerHost() {
   return (
     <aside
       aria-label="Music Mirror Active Player"
-      className={`player-global-host ${isRoom ? 'state-room' : 'state-floating'}`}
+      className={`player-global-host ${isRoom ? 'state-room' : 'state-floating edge-light-player'}`}
       onClick={handleCardClick}
       style={{ cursor: isRoom ? 'default' : 'pointer' }}
     >
@@ -82,7 +82,7 @@ export default function GlobalPlayerHost() {
             justifyContent: 'space-between',
             fontSize: '0.875rem',
             fontWeight: 600,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -118,7 +118,8 @@ export default function GlobalPlayerHost() {
               width: 52,
               height: 52,
               borderRadius: 8,
-              background: '#1e293b',
+              background: '#F1F5F9',
+              border: '1px solid #E2E8F0',
               overflow: 'hidden',
               flexShrink: 0,
               display: 'flex',
@@ -129,18 +130,18 @@ export default function GlobalPlayerHost() {
             {albumArt ? (
               <img src={albumArt} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <Sparkles size={24} style={{ color: '#6366f1' }} />
+              <Sparkles size={24} style={{ color: '#4F46E5' }} />
             )}
           </div>
 
           <div style={{ minWidth: 0 }}>
-            <h4 className="truncate" style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f8fafc', margin: 0 }}>
+            <h4 className="truncate" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#172033', margin: 0 }}>
               {title}
             </h4>
-            <p className="truncate" style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
+            <p className="truncate" style={{ fontSize: '0.8rem', color: '#475569', margin: '2px 0 0 0' }}>
               {artist}
             </p>
-            <span style={{ fontSize: '0.7rem', color: '#6366f1', textTransform: 'capitalize', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.7rem', color: '#4F46E5', textTransform: 'capitalize', fontWeight: 700 }}>
               Mood: {activeMood} • {sessionState}
             </span>
           </div>
@@ -155,14 +156,14 @@ export default function GlobalPlayerHost() {
               width: 44,
               height: 44,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              background: 'linear-gradient(135deg, #4F46E5, #4338CA)',
               border: 'none',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
             }}
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
@@ -174,7 +175,7 @@ export default function GlobalPlayerHost() {
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#94a3b8',
+              color: '#475569',
               cursor: 'pointer',
               padding: 8,
               borderRadius: '50%',
@@ -189,7 +190,7 @@ export default function GlobalPlayerHost() {
           <button
             aria-label={isMuted ? 'Unmute volume' : 'Mute volume'}
             onClick={handleToggleMute}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+            style={{ background: 'transparent', border: 'none', color: '#475569', cursor: 'pointer' }}
           >
             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
@@ -200,7 +201,7 @@ export default function GlobalPlayerHost() {
             value={isMuted ? 0 : volume}
             onChange={handleVolumeChange}
             aria-label="Volume slider"
-            style={{ width: 80, accentColor: '#6366f1', cursor: 'pointer' }}
+            style={{ width: 80, accentColor: '#4F46E5', cursor: 'pointer' }}
           />
           <span style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap' }}>
             {attributionText || (providerId === 'youtube' ? 'Licensed via YouTube Embed' : 'Jamendo Creative Commons')}
