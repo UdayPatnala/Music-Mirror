@@ -1,19 +1,19 @@
 /* ═══════════════════════════════════════════════════════════════
-   MUSIC MIRROR V2 — LIGHT PREMIUM DESIGN SYSTEM
-   Palette: Indigo · Cyan · Violet · Teal · Rose · Champagne Gold
-   Philosophy: Bright, Clean, Modern, Intelligent, Music-First.
-═══════════════════════════════════════════════════════════════ */
+   MUSIC MIRROR V2 — WARM IVORY × BURGUNDY LUXURY MUSIC SYSTEM
+   Palette: Warm Ivory · Burgundy · Deep Rose · Champagne Gold
+   Philosophy: Expensive, Editorial, Sophisticated, Music-First.
+ ═══════════════════════════════════════════════════════════════ */
 
 /* Typography is pre-loaded in index.html via <link> for optimal performance */
 /* Space Grotesk: brand display font | Outfit: body text | JetBrains Mono: data/labels */
 
 /* ── Reset ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: #F8FAFC; scroll-behavior: smooth; }
+html { background: #FAF8F4; scroll-behavior: smooth; }
 body {
   font-family: "Outfit", "Space Grotesk", system-ui, sans-serif;
-  background: #F8FAFC;
-  color: #172033;
+  background: #FAF8F4;
+  color: #211B1D;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -37,8 +37,8 @@ button, input, select, textarea { font: inherit; }
 /* Global light-theme dropdown styling */
 select {
   background-color: #FFFFFF;
-  color: #172033;
-  border: 1px solid #CBD5E1;
+  color: #211B1D;
+  border: 1px solid #E9E2DF;
   border-radius: 8px;
   padding: 6px 12px;
   outline: none;
@@ -47,35 +47,35 @@ select {
 
 select option {
   background-color: #FFFFFF;
-  color: #172033;
+  color: #211B1D;
   padding: 10px 14px;
 }
 
 select option:hover,
 select option:focus,
 select option:checked {
-  background-color: #EEF2FF;
-  color: #4F46E5;
+  background-color: #F7EBF0;
+  color: #6E1835;
 }
 
 #root { min-height: 100vh; }
 img { max-width: 100%; display: block; }
 
-/* ── Custom Light Sleek Scrollbar System ─────────────────────── */
+/* ── Custom Sleek Scrollbar System ─────────────────────── */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.8);
+  background: rgba(244, 239, 234, 0.8);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.25);
+  background: rgba(126, 116, 119, 0.25);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4F46E5;
+  background: #6E1835;
 }
 ::-webkit-scrollbar-button {
   display: none !important;
@@ -85,105 +85,107 @@ img { max-width: 100%; display: block; }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(71, 85, 105, 0.25) rgba(241, 245, 249, 0.8);
+  scrollbar-color: rgba(126, 116, 119, 0.25) rgba(244, 239, 234, 0.8);
 }
 
-/* ── Light Premium Design tokens ────────────────────────────── */
+/* ── Warm Ivory × Burgundy Design Tokens ────────────────────────────── */
 :root {
-  /* Surfaces & Backgrounds (Bright Premium Light System) */
-  --bg-primary:       #F8FAFC;
-  --bg-secondary:     #F1F5F9;
-  --bg-0:             #F8FAFC;
-  --bg-1:             #F8FAFC;
-  --bg-2:             #F1F5F9;
-  --bg:               #F8FAFC;
+  /* Surfaces & Backgrounds (70% Warm Ivory Canvas) */
+  --bg-primary:       #FAF8F4;
+  --bg-secondary:     #F4EFEA;
+  --bg-0:             #FAF8F4;
+  --bg-1:             #FAF8F4;
+  --bg-2:             #F4EFEA;
+  --bg:               #FAF8F4;
   --surface-primary:  #FFFFFF;
   --surface-elevated: #FFFFFF;
   --surface:          #FFFFFF;
   --card:             #FFFFFF;
   --card-elevated:    #FFFFFF;
-  --card-hover:       #F1F5F9;
+  --card-hover:       #FAF6F2;
 
-  /* Glassmorphism Light System */
-  --surface-glass:       rgba(255, 255, 255, 0.85);
-  --surface-hover:       rgba(241, 245, 249, 0.90);
-  --border-subtle:       #E2E8F0;
-  --border-active:       #CBD5E1;
-  --glass-bg:            rgba(255, 255, 255, 0.85);
-  --glass-bg-strong:     rgba(255, 255, 255, 0.95);
-  --glass-border:        #E2E8F0;
-  --glass-border-hover:  #CBD5E1;
-  --glass-shadow:        rgba(15, 23, 42, 0.06);
+  /* Glassmorphism System */
+  --surface-glass:       rgba(255, 255, 255, 0.90);
+  --surface-hover:       rgba(244, 239, 234, 0.95);
+  --border-subtle:       #E9E2DF;
+  --border-active:       #D8CDC8;
+  --glass-bg:            rgba(255, 255, 255, 0.90);
+  --glass-bg-strong:     rgba(255, 255, 255, 0.97);
+  --glass-border:        #E9E2DF;
+  --glass-border-hover:  #D8CDC8;
+  --glass-shadow:        rgba(33, 27, 29, 0.05);
   --glass-blur:          20px;
   --glass-saturation:    110%;
 
-  /* Text Hierarchy (High-Contrast Dark Slate Neutral) */
-  --text-primary:     #172033;
-  --text-secondary:   #475569;
-  --text-muted:       #7A8699;
-  --text-disabled:    #A8B1BF;
-  --text-1:          #172033;
-  --text-2:          #475569;
-  --text-3:          #7A8699;
-  --text-4:          #A8B1BF;
+  /* Text Hierarchy (20% Dark Warm Charcoal Typography) */
+  --text-primary:     #211B1D;
+  --text-secondary:   #6E1835;
+  --text-muted:       #7E7477;
+  --text-disabled:    #A89F9E;
+  --text-1:          #211B1D;
+  --text-2:          #473D40;
+  --text-3:          #7E7477;
+  --text-4:          #A89F9E;
 
-  /* Multi-Accent Light Palette */
-  --accent-cyan:      #0891B2;  /* Music Playback & Audio */
-  --accent-indigo:    #4F46E5;  /* Primary Accent & Focus */
-  --accent-violet:    #7C3AED;  /* AI & Intelligence */
-  --accent-teal:      #0F9F8F;  /* Biometric & Calm */
-  --accent-rose:      #E11D72;  /* Emotion Rose */
-  --accent-champagne: #B88924;  /* Refrained Premium Gold (5-10% Max) */
-  --accent-amber:     #D97706;  /* Happy & Warning */
+  /* Warm Luxury Palette (8% Primary Burgundy + 2% Warm Gold Accent) */
+  --accent-burgundy:  #6E1835;  /* Primary Action & Progress */
+  --accent-rose:      #9E3155;  /* Secondary Deep Rose */
+  --accent-gold:      #D5A85C;  /* Vibrant Warm Gold Accent */
+  --accent-indigo:    #6E1835;  /* Brand primary mapping */
+  --accent-cyan:      #9E3155;  /* Secondary mapping */
+  --accent-violet:    #6E1835;
+  --accent-teal:      #8C2548;
+  --accent-champagne: #D5A85C;  /* Warm Gold */
+  --accent-amber:     #D5A85C;
 
   /* Semantic System Tokens */
-  --playback-accent:  #0891B2;
-  --playback-glow:    rgba(8, 145, 178, 0.12);
-  --ai-accent:        #7C3AED;
-  --ai-glow:          rgba(124, 58, 237, 0.12);
-  --biometric-accent: #0F9F8F;
-  --biometric-glow:   rgba(15, 159, 143, 0.12);
-  --premium-accent:   #B88924;
-  --premium-glow:     rgba(184, 137, 36, 0.12);
+  --playback-accent:  #6E1835;
+  --playback-glow:    rgba(110, 24, 53, 0.12);
+  --ai-accent:        #9E3155;
+  --ai-glow:          rgba(158, 49, 85, 0.12);
+  --biometric-accent: #D5A85C;
+  --biometric-glow:   rgba(213, 168, 92, 0.15);
+  --premium-accent:   #D5A85C;
+  --premium-glow:     rgba(213, 168, 92, 0.18);
 
   /* Status Colors */
-  --state-success:    #059669;
-  --state-error:      #DC2626;
-  --state-warning:    #D97706;
-  --success:          #059669;
-  --error:            #DC2626;
-  --warning:          #D97706;
-  --info:             #2563EB;
+  --state-success:    #2D7A5D;
+  --state-error:      #A82424;
+  --state-warning:    #D5A85C;
+  --success:          #2D7A5D;
+  --error:            #A82424;
+  --warning:          #D5A85C;
+  --info:             #6E1835;
 
   /* Backward Compatibility Aliases */
-  --gold:             var(--accent-indigo);
-  --royal-gold:       var(--accent-indigo);
-  --gold-dim:         rgba(79, 70, 229, 0.10);
-  --gold-border:      rgba(79, 70, 229, 0.20);
-  --purple:           var(--accent-violet);
-  --amethyst:         var(--accent-violet);
-  --purple-dim:       rgba(124, 58, 237, 0.10);
-  --highlight:        var(--accent-cyan);
+  --gold:             var(--accent-burgundy);
+  --royal-gold:       var(--accent-burgundy);
+  --gold-dim:         rgba(110, 24, 53, 0.08);
+  --gold-border:      rgba(110, 24, 53, 0.18);
+  --purple:           var(--accent-rose);
+  --amethyst:         var(--accent-rose);
+  --purple-dim:       rgba(158, 49, 85, 0.08);
+  --highlight:        var(--accent-gold);
 
-  /* Dynamic Emotion Accents (Refined Light Tone) */
-  --mood-calm:        #0F9F8F;
-  --mood-happy:       #D97706;
-  --mood-sad:         #0284C7;
-  --mood-energetic:   #7C3AED;
-  --mood-focused:     #4F46E5;
-  --mood-romantic:    #E11D72;
-  --mood-neutral:     #64748B;
+  /* Dynamic Emotion Accents (Warm Editorial Tone) */
+  --mood-calm:        #8C2548;
+  --mood-happy:       #D5A85C;
+  --mood-sad:         #5B6478;
+  --mood-energetic:   #9E3155;
+  --mood-focused:     #6E1835;
+  --mood-romantic:    #C24B70;
+  --mood-neutral:     #7E7477;
 
   /* ── Edge Lighting System Tokens ───────────────────────────── */
-  --edge-neutral:     rgba(226, 232, 240, 0.85);
-  --edge-primary:     rgba(79, 70, 229, 0.35);
-  --edge-music:       rgba(8, 145, 178, 0.35);
-  --edge-ai:          rgba(124, 58, 237, 0.35);
-  --edge-biometric:   rgba(15, 159, 143, 0.35);
-  --edge-premium:     rgba(184, 137, 36, 0.30);
-  --edge-success:     rgba(5, 150, 105, 0.35);
-  --edge-warning:     rgba(217, 119, 6, 0.35);
-  --edge-error:       rgba(220, 38, 38, 0.35);
+  --edge-neutral:     rgba(233, 226, 223, 0.85);
+  --edge-primary:     rgba(110, 24, 53, 0.35);
+  --edge-music:       rgba(158, 49, 85, 0.35);
+  --edge-ai:          rgba(110, 24, 53, 0.35);
+  --edge-biometric:   rgba(213, 168, 92, 0.40);
+  --edge-premium:     rgba(213, 168, 92, 0.45);
+  --edge-success:     rgba(45, 122, 93, 0.35);
+  --edge-warning:     rgba(213, 168, 92, 0.35);
+  --edge-error:       rgba(168, 36, 36, 0.35);
 
   --edge-opacity-default: 0.15;
   --edge-opacity-hover:   0.35;

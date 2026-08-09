@@ -12,13 +12,13 @@ import { Disc, Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, 
 const MOODS = ["calm", "happy", "sad", "energetic", "focused", "romantic", "neutral"];
 
 const MOOD_COLOR: Record<string, string> = {
-  calm:      "#2DD4BF",
-  happy:     "#F59E0B",
-  sad:       "#22D3EE",
-  energetic: "#8B5CF6",
-  focused:   "#6366F1",
-  romantic:  "#F472B6",
-  neutral:   "#A6ACB8",
+  calm:      "#8C2548",
+  happy:     "#D5A85C",
+  sad:       "#5B6478",
+  energetic: "#9E3155",
+  focused:   "#6E1835",
+  romantic:  "#C24B70",
+  neutral:   "#7E7477",
 };
 
 const MOOD_LABEL: Record<string, string> = {
@@ -246,7 +246,7 @@ export default function MoodRoom() {
   const songTitle = activeSong?.title || activeSong?.name || "Music Mirror Audio";
   const songArtist = activeSong?.artist || "AI Recommended";
   const songLang = activeSong?.language || "English";
-  const moodColor = MOOD_COLOR[activeMood] || "#4F46E5";
+  const moodColor = MOOD_COLOR[activeMood] || "#6E1835";
 
   return (
     <div className="pr-root" style={{ background: "var(--bg-primary)", minHeight: "100vh", position: "relative" }}>
