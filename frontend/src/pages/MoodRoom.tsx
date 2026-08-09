@@ -128,24 +128,6 @@ export default function MoodRoom() {
     return () => { active = false; };
   }, [playerMode, activeMood]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Continuous progress bar simulation */
-  useEffect(() => {
-    if (!isPlaying) return;
-    const t = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) return 0;
-        const next = prev + 0.5;
-        const totalSec = 220; // 3:40
-        const curSec = Math.floor((next / 100) * totalSec);
-        const mins = Math.floor(curSec / 60);
-        const secs = curSec % 60;
-        setCurrentTimeStr(`${mins}:${secs < 10 ? '0' : ''}${secs}`);
-        return next;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [isPlaying]);
-
   /* ── HTML5 Audio Element Integration ───────────────────────── */
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -155,13 +137,32 @@ export default function MoodRoom() {
     }
     const audio = audioRef.current;
     audio.volume = isMuted ? 0 : volume / 100;
-    
+
+    const handleTimeUpdate = () => {
+      if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        setProgress(pct);
+        const curSec = Math.floor(audio.currentTime);
+        const mins = Math.floor(curSec / 60);
+        const secs = curSec % 60;
+        setCurrentTimeStr(`${mins}:${secs < 10 ? '0' : ''}${secs}`);
+
+        const durSec = Math.floor(audio.duration);
+        const durMins = Math.floor(durSec / 60);
+        const durSecs = durSec % 60;
+        setDurationStr(`${durMins}:${durSecs < 10 ? '0' : ''}${durSecs}`);
+      }
+    };
+
     const handleEnded = () => {
       handleSkipNext();
     };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
 
     return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
     };
@@ -449,8 +450,14 @@ export default function MoodRoom() {
               <div
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
-                  const pct = ((e.clientX - rect.left) / rect.width) * 100;
-                  setProgress(pct);
+                  const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                  const audio = audioRef.current;
+                  if (audio && audio.duration && !isNaN(audio.duration)) {
+                    audio.currentTime = fraction * audio.duration;
+                    setProgress(fraction * 100);
+                  } else {
+                    setProgress(fraction * 100);
+                  }
                 }}
                 style={{ width: "100%", height: 6, background: "#E2E8F0", borderRadius: 3, cursor: "pointer", position: "relative", overflow: "hidden" }}
               >
