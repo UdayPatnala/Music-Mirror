@@ -1,11 +1,12 @@
 import json
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
-from app.db.models import UserMusicPreference, Artist, Song
+from app.db.database import get_db, Base
+from app.db.models import UserMusicPreference
 from app.schemas.user_preference import UserMusicPreferenceDTO, UpdateUserMusicPreferencePayload
+from app.core.auth import get_current_user, AuthenticatedUser
 
 router = APIRouter()
 
@@ -23,22 +24,19 @@ def parse_json_list(raw: str | None) -> List[str]:
 def serialize_json_list(items: List[str] | None) -> str:
     if not items:
         return "[]"
-    # Deduplicate and trim items
     cleaned = sorted(list(set([str(x).strip() for x in items if str(x).strip()])))
     return json.dumps(cleaned)
 
 
 def get_user_preference_model(db: Session, user_id: str) -> UserMusicPreference:
-    try:
-        pref = db.query(UserMusicPreference).filter(UserMusicPreference.user_id == user_id).first()
-    except Exception:
-        from app.db.database import Base
-        Base.metadata.create_all(bind=db.get_bind())
-        pref = db.query(UserMusicPreference).filter(UserMusicPreference.user_id == user_id).first()
+    # Ensure tables are created on whatever connection engine is bound to db
+    Base.metadata.create_all(bind=db.get_bind())
 
+    pref = db.query(UserMusicPreference).filter(UserMusicPreference.user_id == user_id).first()
     if not pref:
         pref = UserMusicPreference(
             user_id=user_id,
+            profile_version=1,
             discovery_mode="balanced",
             energy_preference="balanced",
             tempo_preference="moderate",
@@ -50,14 +48,14 @@ def get_user_preference_model(db: Session, user_id: str) -> UserMusicPreference:
             preferred_languages=json.dumps(["Telugu", "English"]),
         )
         db.add(pref)
-        db.commit()
-        db.refresh(pref)
+        db.flush()
     return pref
 
 
 def to_dto(pref: UserMusicPreference) -> UserMusicPreferenceDTO:
     return UserMusicPreferenceDTO(
         user_id=pref.user_id,
+        profile_version=pref.profile_version or 1,
         discovery_mode=pref.discovery_mode,
         energy_preference=pref.energy_preference,
         tempo_preference=pref.tempo_preference,
@@ -72,57 +70,66 @@ def to_dto(pref: UserMusicPreference) -> UserMusicPreferenceDTO:
 
 @router.get("", response_model=UserMusicPreferenceDTO)
 def get_user_preferences(
-    x_user_id: str = Header("default_user", alias="X-User-ID"),
+    current_user: AuthenticatedUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    pref = get_user_preference_model(db, x_user_id)
+    pref = get_user_preference_model(db, current_user.id)
+    db.commit()
     return to_dto(pref)
 
 
 @router.put("", response_model=UserMusicPreferenceDTO)
 def update_user_preferences(
     payload: UpdateUserMusicPreferencePayload,
-    x_user_id: str = Header("default_user", alias="X-User-ID"),
+    current_user: AuthenticatedUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    pref = get_user_preference_model(db, x_user_id)
+    pref = get_user_preference_model(db, current_user.id)
 
-    if payload.discovery_mode is not None:
-        if payload.discovery_mode in ["more_familiar", "balanced", "more_exploratory"]:
-            pref.discovery_mode = payload.discovery_mode
-    if payload.energy_preference is not None:
-        if payload.energy_preference in ["low", "balanced", "high"]:
-            pref.energy_preference = payload.energy_preference
-    if payload.tempo_preference is not None:
-        if payload.tempo_preference in ["slow", "moderate", "fast"]:
-            pref.tempo_preference = payload.tempo_preference
-    if payload.vocal_preference is not None:
-        if payload.vocal_preference in ["vocal", "mixed", "instrumental"]:
-            pref.vocal_preference = payload.vocal_preference
-    if payload.explicit_content_mode is not None:
-        if payload.explicit_content_mode in ["allow", "filter", "hide"]:
-            pref.explicit_content_mode = payload.explicit_content_mode
+    modified = False
+    if payload.discovery_mode is not None and payload.discovery_mode in ["more_familiar", "balanced", "more_exploratory"]:
+        pref.discovery_mode = payload.discovery_mode
+        modified = True
+    if payload.energy_preference is not None and payload.energy_preference in ["low", "balanced", "high"]:
+        pref.energy_preference = payload.energy_preference
+        modified = True
+    if payload.tempo_preference is not None and payload.tempo_preference in ["slow", "moderate", "fast"]:
+        pref.tempo_preference = payload.tempo_preference
+        modified = True
+    if payload.vocal_preference is not None and payload.vocal_preference in ["vocal", "mixed", "instrumental"]:
+        pref.vocal_preference = payload.vocal_preference
+        modified = True
+    if payload.explicit_content_mode is not None and payload.explicit_content_mode in ["allow", "filter", "hide"]:
+        pref.explicit_content_mode = payload.explicit_content_mode
+        modified = True
 
     if payload.preferred_genres is not None:
         pref.preferred_genres = serialize_json_list(payload.preferred_genres)
+        modified = True
     if payload.preferred_artists is not None:
         pref.preferred_artists = serialize_json_list(payload.preferred_artists)
+        modified = True
     if payload.preferred_moods is not None:
         pref.preferred_moods = serialize_json_list(payload.preferred_moods)
+        modified = True
     if payload.preferred_languages is not None:
         pref.preferred_languages = serialize_json_list(payload.preferred_languages)
+        modified = True
+
+    if modified:
+        pref.profile_version = (pref.profile_version or 1) + 1
 
     db.commit()
-    db.refresh(pref)
     return to_dto(pref)
 
 
 @router.post("/reset", response_model=UserMusicPreferenceDTO)
 def reset_user_preferences(
-    x_user_id: str = Header("default_user", alias="X-User-ID"),
+    current_user: AuthenticatedUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    pref = get_user_preference_model(db, x_user_id)
+    pref = get_user_preference_model(db, current_user.id)
+    pref.profile_version = (pref.profile_version or 1) + 1
     pref.discovery_mode = "balanced"
     pref.energy_preference = "balanced"
     pref.tempo_preference = "moderate"
@@ -134,5 +141,4 @@ def reset_user_preferences(
     pref.preferred_languages = serialize_json_list(["Telugu", "English"])
 
     db.commit()
-    db.refresh(pref)
     return to_dto(pref)

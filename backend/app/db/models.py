@@ -145,8 +145,9 @@ class UserMusicPreference(Base):
     __tablename__ = "user_music_preferences"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    user_id = Column(String(255), nullable=False, unique=True, index=True, default="default_user")
+    user_id = Column(String(255), nullable=False, unique=True, index=True)
 
+    profile_version = Column(Integer, nullable=False, default=1)
     discovery_mode = Column(String(50), nullable=False, default="balanced") # 'more_familiar', 'balanced', 'more_exploratory'
     energy_preference = Column(String(50), nullable=False, default="balanced") # 'low', 'balanced', 'high'
     tempo_preference = Column(String(50), nullable=False, default="moderate") # 'slow', 'moderate', 'fast'

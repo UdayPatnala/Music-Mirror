@@ -1,10 +1,11 @@
 /**
  * MusicMirror User Preferences API Client
- * Persists and retrieves user explicit music preferences from the backend SQLite database.
+ * Persists and retrieves user explicit music preferences from the backend SQLite database with strict bearer authentication headers.
  */
 
 export interface UserMusicPreference {
   user_id: string;
+  profile_version: number;
   discovery_mode: 'more_familiar' | 'balanced' | 'more_exploratory';
   energy_preference: 'low' | 'balanced' | 'high';
   tempo_preference: 'slow' | 'moderate' | 'fast';
@@ -18,6 +19,7 @@ export interface UserMusicPreference {
 
 export const DEFAULT_USER_PREFERENCES: UserMusicPreference = {
   user_id: 'default_user',
+  profile_version: 1,
   discovery_mode: 'balanced',
   energy_preference: 'balanced',
   tempo_preference: 'moderate',
@@ -31,6 +33,10 @@ export const DEFAULT_USER_PREFERENCES: UserMusicPreference = {
 
 const API_BASE = 'http://127.0.0.1:8000/api/v2/user/preferences';
 
+function getAuthHeader(userId: string = 'default_user'): string {
+  return `Bearer ${userId}:${userId}@musicmirror.ai:User ${userId}`;
+}
+
 export class UserPreferencesApi {
   public static async fetchPreferences(userId: string = 'default_user'): Promise<UserMusicPreference> {
     try {
@@ -38,7 +44,7 @@ export class UserPreferencesApi {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
+          'Authorization': getAuthHeader(userId),
         },
       });
 
@@ -66,7 +72,7 @@ export class UserPreferencesApi {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
+          'Authorization': getAuthHeader(userId),
         },
         body: JSON.stringify(updates),
       });
@@ -88,7 +94,7 @@ export class UserPreferencesApi {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
+          'Authorization': getAuthHeader(userId),
         },
       });
 

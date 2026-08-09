@@ -71,9 +71,13 @@ class RecommendationService:
         return EMOTION_MAP.get(cleaned, cleaned)
 
     @classmethod
-    def get_database_songs(cls) -> list[dict[str, Any]]:
+    def get_database_songs(cls, db: Session | None = None) -> list[dict[str, Any]]:
         """Fetch real songs from SQLite database."""
-        db = SessionLocal()
+        close_on_exit = False
+        if db is None:
+            db = SessionLocal()
+            close_on_exit = True
+
         try:
             db_songs = db.query(Song).join(Artist).all()
             if db_songs:
@@ -105,7 +109,8 @@ class RecommendationService:
         except Exception:
             pass
         finally:
-            db.close()
+            if close_on_exit:
+                db.close()
 
         # Fallback to static catalog if DB uninitialized
         all_static = []
@@ -119,9 +124,13 @@ class RecommendationService:
         return all_static
 
     @classmethod
-    def get_user_preferences_from_db(cls, user_id: str = "default_user") -> dict[str, Any]:
+    def get_user_preferences_from_db(cls, user_id: str = "default_user", db: Session | None = None) -> dict[str, Any]:
         """Fetch user explicit music preferences from database."""
-        db = SessionLocal()
+        close_on_exit = False
+        if db is None:
+            db = SessionLocal()
+            close_on_exit = True
+
         try:
             pref = db.query(UserMusicPreference).filter(UserMusicPreference.user_id == user_id).first()
             if pref:
@@ -139,7 +148,8 @@ class RecommendationService:
         except Exception:
             pass
         finally:
-            db.close()
+            if close_on_exit:
+                db.close()
 
         return {
             "discovery_mode": "balanced",
@@ -213,14 +223,15 @@ class RecommendationService:
         genre_filter: str | None = None,
         preferred_languages: list[str] | None = None,
         user_id: str = "default_user",
+        db: Session | None = None,
     ) -> tuple[str, list[dict[str, Any]]]:
         normalized = cls.normalize_emotion(emotion)
 
         if limit == 0:
             return normalized, []
 
-        candidates = cls.get_database_songs()
-        user_prefs = cls.get_user_preferences_from_db(user_id)
+        candidates = cls.get_database_songs(db)
+        user_prefs = cls.get_user_preferences_from_db(user_id, db)
 
         # Apply Explicit Content Mode server-side filtering
         explicit_mode = user_prefs.get("explicit_content_mode", "filter")

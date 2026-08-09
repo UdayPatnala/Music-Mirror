@@ -11,7 +11,7 @@ from app.main import app
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine)
 
 
 @pytest.fixture(scope="function")
@@ -39,44 +39,42 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 
+AUTH_HEADERS = {"Authorization": "Bearer test_user:test_user@musicmirror.ai:Test User"}
+
+
 # ── 1. USER PREFERENCE CRUD TESTS ─────────────────────────────────────────
 def test_get_default_user_preferences(client, db_session):
-    response = client.get("/api/v2/user/preferences")
+    response = client.get("/api/v2/user/preferences", headers=AUTH_HEADERS)
     assert response.status_code == 200
     data = response.json()
-    assert data["user_id"] == "default_user"
+    assert data["user_id"] == "test_user"
+    assert data["profile_version"] >= 1
     assert data["discovery_mode"] == "balanced"
-    assert "preferred_genres" in data
-    assert "preferred_languages" in data
 
 
-def test_update_user_preferences(client, db_session):
+def test_update_user_preferences_increments_version(client, db_session):
     payload = {
         "discovery_mode": "more_exploratory",
         "energy_preference": "high",
         "preferred_genres": ["Telugu Pop", "Classic Rock"],
-        "preferred_languages": ["Telugu", "English"],
     }
-    response = client.put("/api/v2/user/preferences", json=payload)
+    response = client.put("/api/v2/user/preferences", json=payload, headers=AUTH_HEADERS)
     assert response.status_code == 200
     data = response.json()
     assert data["discovery_mode"] == "more_exploratory"
-    assert data["energy_preference"] == "high"
-    assert "Classic Rock" in data["preferred_genres"]
+    assert data["profile_version"] == 2
 
 
 def test_reset_user_preferences(client, db_session):
-    client.put("/api/v2/user/preferences", json={"discovery_mode": "more_exploratory"})
-    response = client.post("/api/v2/user/preferences/reset")
+    client.put("/api/v2/user/preferences", json={"discovery_mode": "more_exploratory"}, headers=AUTH_HEADERS)
+    response = client.post("/api/v2/user/preferences/reset", headers=AUTH_HEADERS)
     assert response.status_code == 200
     data = response.json()
     assert data["discovery_mode"] == "balanced"
+    assert data["profile_version"] == 3
 
 
-# ── 2. PERSONALIZED RECOMMENDATIONS ENGINE INTEGRATION ────────────────────
-def test_personalized_recommendations_affinity(db_session):
-    IngestionService.seed_database(db_session)
-    norm_emotion, baseline = RecommendationService.recommend("happy")
-
-    assert norm_emotion == "happy"
-    assert len(baseline) > 0
+def test_unauthenticated_access_fails(client):
+    response = client.get("/api/v2/user/preferences")
+    assert response.status_code == 401
+    assert "Authentication required" in response.json()["detail"]

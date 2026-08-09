@@ -6,7 +6,8 @@ from pydantic import BaseModel, ConfigDict, Field
 class UserMusicPreferenceDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    user_id: str = "default_user"
+    user_id: str
+    profile_version: int = 1
     discovery_mode: str = Field("balanced", description="'more_familiar', 'balanced', 'more_exploratory'")
     energy_preference: str = Field("balanced", description="'low', 'balanced', 'high'")
     tempo_preference: str = Field("moderate", description="'slow', 'moderate', 'fast'")

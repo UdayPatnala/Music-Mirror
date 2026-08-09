@@ -24,7 +24,7 @@ if "sqlite" in SQLALCHEMY_DATABASE_URL:
         cursor.execute("PRAGMA journal_mode=WAL")
         cursor.close()
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine)
 Base = declarative_base()
 
 
