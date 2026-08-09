@@ -88,9 +88,12 @@ export class JamendoProviderAdapter implements MusicProviderAdapter {
       url.searchParams.append('client_id', JAMENDO_CLIENT_ID);
       url.searchParams.append('format', 'json');
       url.searchParams.append('limit', String(limit));
-      url.searchParams.append('tags', tags);
+      url.searchParams.append('fuzzytags', tags);
       url.searchParams.append('audioformat', 'mp32');
-      url.searchParams.append('include', 'licenses');
+      url.searchParams.append('imagesize', '300');
+      url.searchParams.append('include', 'licenses+musicinfo');
+      url.searchParams.append('groupby', 'artist_id');
+      url.searchParams.append('boost', 'popularity_month');
 
       const response = await fetch(url.toString(), { signal });
       if (!response.ok) {
@@ -126,8 +129,8 @@ export class JamendoProviderAdapter implements MusicProviderAdapter {
     const title = raw.name || 'Untitled Jamendo Track';
     const artist = raw.artist_name || 'Jamendo Artist';
     const album = raw.album_name || 'Jamendo Single';
-    const artworkUrl = raw.image || `https://usercontent.jamendo.com/1/${raw.id}/covers/1.200.jpg`;
-    const audioUrl = raw.audio || `https://prod-1.storage.jamendo.com/download/track/${raw.id}/mp32/`;
+    const artworkUrl = raw.image || `https://usercontent.jamendo.com/1/${raw.id}/covers/1.300.jpg`;
+    const audioUrl = raw.audio || `https://api.jamendo.com/v3.0/tracks/file/?client_id=${JAMENDO_CLIENT_ID}&id=${raw.id}&audioformat=mp32&action=stream`;
     const licenseUrl = raw.license_ccurl || 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
     const moodLabel = (intent.emotion as any)?.normalizedEmotion || (intent.emotion as any)?.dominantEmotion || intent.moodDescriptors?.[0] || (intent as any).moodLabel || 'Ambient';
 
