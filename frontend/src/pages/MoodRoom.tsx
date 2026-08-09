@@ -279,7 +279,7 @@ export default function MoodRoom() {
               </div>
 
               {/* Manual Override List */}
-              <div style={{ borderTop: "1px solid var(--glass-border)", paddingTop: 14, overflowY: "auto", flex: 1 }}>
+              <div style={{ borderTop: "1px solid var(--glass-border)", paddingTop: 14, overflowY: "auto", flex: 1, maxHeight: "calc(100vh - 380px)", paddingRight: 4 }}>
                 <div style={{ fontSize: "0.66rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-3)", marginBottom: 8 }}>
                   Manual Mood Override
                 </div>
