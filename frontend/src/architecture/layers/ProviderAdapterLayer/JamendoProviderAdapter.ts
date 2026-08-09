@@ -15,6 +15,7 @@ import type {
   ProviderQueryConstraints,
 } from '../../types/domain';
 import { logger } from '../ObservabilityLayer';
+import { sanitizeMetadataText, isValidAudioUrl } from '../../../utils/security';
 
 /* ─── Emotion to Jamendo Tag Mapping ─────────────────────── */
 const EMOTION_TAG_MAP: Record<string, string> = {
@@ -126,11 +127,12 @@ export class JamendoProviderAdapter implements MusicProviderAdapter {
   private normalizeJamendoTrack(raw: any, intent: MusicIntent): MusicCandidate {
     const now = Date.now();
     const id = `jam_${raw.id}`;
-    const title = raw.name || 'Untitled Jamendo Track';
-    const artist = raw.artist_name || 'Jamendo Artist';
-    const album = raw.album_name || 'Jamendo Single';
+    const title = sanitizeMetadataText(raw.name || 'Untitled Jamendo Track');
+    const artist = sanitizeMetadataText(raw.artist_name || 'Jamendo Artist');
+    const album = sanitizeMetadataText(raw.album_name || 'Jamendo Single');
     const artworkUrl = raw.image || `https://usercontent.jamendo.com/1/${raw.id}/covers/1.300.jpg`;
-    const audioUrl = raw.audio || `https://api.jamendo.com/v3.0/tracks/file/?client_id=${JAMENDO_CLIENT_ID}&id=${raw.id}&audioformat=mp32&action=stream`;
+    const rawAudio = raw.audio || `https://api.jamendo.com/v3.0/tracks/file/?client_id=${JAMENDO_CLIENT_ID}&id=${raw.id}&audioformat=mp32&action=stream`;
+    const audioUrl = isValidAudioUrl(rawAudio) ? rawAudio : 'https://prod-1.storage.jamendo.com/download/track/1880003/mp32/';
     const licenseUrl = raw.license_ccurl || 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
     const moodLabel = (intent.emotion as any)?.normalizedEmotion || (intent.emotion as any)?.dominantEmotion || intent.moodDescriptors?.[0] || (intent as any).moodLabel || 'Ambient';
 

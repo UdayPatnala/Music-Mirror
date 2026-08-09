@@ -4,6 +4,7 @@ import { useAppStore } from "../store/useAppStore";
 import type { Song, UserProfile } from "../types";
 import { BarChart3, Heart, Sparkles, ArrowRight, ShieldCheck, Plus, Trash2, Upload } from "lucide-react";
 import { Wordmark } from "../components/Brand";
+import { sanitizeInputText } from "../utils/security";
 
 /* ── AI-generated default avatars (5 themes) ─────────────────── */
 const AI_AVATARS = [
@@ -87,13 +88,21 @@ export default function ProfilePage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setProfile(form);
+    const sanitizedForm: UserProfile = {
+      ...form,
+      name: sanitizeInputText(form.name, 60) || "Patnala Uday Kumar",
+      email: sanitizeInputText(form.email, 80) || "uday@musicmirror.ai",
+      genre: sanitizeInputText(form.genre, 40) || "Telugu Pop",
+    };
+    setForm(sanitizedForm);
+    setProfile(sanitizedForm);
     setIsEditing(false);
   };
 
   const handleAddArtist = () => {
-    if (!newArtist.trim()) return;
-    const updated = { ...form, favoriteArtists: [...(form.favoriteArtists || []), newArtist.trim()] };
+    const cleanArtist = sanitizeInputText(newArtist, 50);
+    if (!cleanArtist) return;
+    const updated = { ...form, favoriteArtists: [...(form.favoriteArtists || []), cleanArtist] };
     setForm(updated); setProfile(updated); setNewArtist("");
   };
 
