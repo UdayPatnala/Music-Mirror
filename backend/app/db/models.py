@@ -124,14 +124,22 @@ class SongSource(Base):
     source_type = Column(String(50), nullable=False) # 'youtube', 'jamendo', 'spotify', 'soundcloud'
     source_id = Column(String(255), nullable=False, index=True)
     source_url = Column(Text, nullable=True)
-    status = Column(String(50), nullable=False, default="ACTIVE") # 'ACTIVE', 'UNAVAILABLE', 'PRIVATE', 'REMOVED', 'RESTRICTED'
+    status = Column(String(50), nullable=False, default="ACTIVE") # 'ACTIVE', 'DEGRADED', 'UNAVAILABLE', 'BLOCKED', 'REMOVED', 'VERIFYING'
+
+    health_score = Column(Float, nullable=False, default=1.0)
+    priority = Column(Integer, nullable=False, default=1) # 1 = PRIMARY, 2 = SECONDARY, 3 = FALLBACK
+    success_count = Column(Integer, nullable=False, default=0)
+    failure_count = Column(Integer, nullable=False, default=0)
+    consecutive_failures = Column(Integer, nullable=False, default=0)
+    reliability_score = Column(Float, nullable=False, default=1.0)
+
     title_at_source = Column(String(255), nullable=True)
     duration_at_source = Column(Integer, nullable=True)
     thumbnail_url = Column(Text, nullable=True)
-    channel_id = Column(String(100), nullable=True)
     channel_name = Column(String(255), nullable=True)
-    published_at = Column(String(50), nullable=True)
-    metadata_json = Column(Text, nullable=True) # Raw provider JSON
+
+    last_checked_at = Column(DateTime, nullable=True)
+    last_verified_at = Column(DateTime, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -163,6 +171,26 @@ class UserMusicPreference(Base):
 
     blocked_artists = Column(Text, nullable=True) # JSON array of excluded artists e.g. ["Artist X"]
     blocked_songs = Column(Text, nullable=True) # JSON array of excluded song IDs
+
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+class UserPlaybackReport(Base):
+    __tablename__ = "user_playback_reports"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(255), nullable=False, index=True)
+    song_id = Column(String(36), ForeignKey("songs.id", ondelete="CASCADE"), nullable=False, index=True)
+    source_id = Column(String(36), nullable=True, index=True)
+
+    report_type = Column(String(50), nullable=False) # 'NOT_PLAYING', 'WRONG_SONG', 'SOURCE_UNAVAILABLE', 'AUDIO_ERROR', 'WRONG_VERSION', 'OTHER'
+    issue_classification = Column(String(50), nullable=False, default="PLAYBACK_FAILURE")
+    description = Column(Text, nullable=True)
+    error_code = Column(String(100), nullable=True)
+
+    status = Column(String(50), nullable=False, default="PENDING") # 'PENDING', 'DIAGNOSED', 'REPAIRED', 'UNRESOLVED'
+    confidence = Column(String(20), nullable=False, default="MEDIUM") # 'LOW', 'MEDIUM', 'HIGH'
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

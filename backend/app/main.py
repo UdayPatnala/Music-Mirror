@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import recommendations, health, telemetry, local_explorer, songs, user_preferences
+from app.api.routes import recommendations, health, telemetry, local_explorer, songs, user_preferences, reports
 from app.db.database import engine, Base, SessionLocal
 from app.ingestion.ingestion_service import IngestionService
 
@@ -37,6 +37,7 @@ app.add_middleware(
 app.include_router(health.router, prefix="/health", tags=["Health & Observability"])
 app.include_router(songs.router, prefix="/api/v2/songs", tags=["Songs Catalog & Metadata"])
 app.include_router(user_preferences.router, prefix="/api/v2/user/preferences", tags=["User Music Preferences"])
+app.include_router(reports.router, prefix="/api/v2/reports", tags=["Playback Self-Healing & Reports"])
 app.include_router(recommendations.router, prefix="/recommend", tags=["Recommendations"])
 app.include_router(telemetry.router, prefix="/telemetry", tags=["Telemetry"])
 app.include_router(local_explorer.router, prefix="/local-explorer", tags=["Local Explorer"])
