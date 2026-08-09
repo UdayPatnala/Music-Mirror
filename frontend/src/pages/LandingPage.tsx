@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeBackground, Wordmark } from "../components/Brand";
