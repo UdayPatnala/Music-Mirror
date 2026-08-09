@@ -120,8 +120,8 @@ export default function LandingPage() {
         /* ── Reset & Font ── */
         .lp2-root {
           min-height: 100vh;
-          background: #080808;
-          color: #F8F8F8;
+          background: #F8FAFC;
+          color: #0F172A;
           font-family: "Outfit", "Inter", system-ui, sans-serif;
           overflow-x: hidden;
           position: relative;
@@ -132,13 +132,12 @@ export default function LandingPage() {
           content: "";
           position: fixed;
           inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
           background-repeat: repeat;
           background-size: 200px 200px;
           pointer-events: none;
           z-index: 1;
-          opacity: 0.6;
-          mix-blend-mode: overlay;
+          opacity: 0.4;
         }
 
         /* ── Ambient center glow ── */
@@ -146,8 +145,8 @@ export default function LandingPage() {
           position: fixed;
           inset: 0;
           background: radial-gradient(ellipse 80% 60% at 50% 40%,
-            rgba(212,175,55,0.06) 0%,
-            rgba(168,85,247,0.04) 40%,
+            rgba(79,70,229,0.06) 0%,
+            rgba(124,58,237,0.04) 40%,
             transparent 70%
           );
           pointer-events: none;
@@ -166,8 +165,8 @@ export default function LandingPage() {
           width: min(1120px, calc(100vw - 48px));
         }
         .lp2-nav-inner {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.07);
+          background: rgba(255,255,255,0.88);
+          border: 1px solid #E2E8F0;
           backdrop-filter: blur(24px) saturate(1.4);
           -webkit-backdrop-filter: blur(24px) saturate(1.4);
           border-radius: 999px;
@@ -176,6 +175,7 @@ export default function LandingPage() {
           align-items: center;
           justify-content: space-between;
           gap: 32px;
+          box-shadow: 0 4px 20px rgba(15,23,42,0.04);
           transition: opacity 0.6s ease;
         }
         .lp2-nav-inner.hidden { opacity: 0; pointer-events: none; }
@@ -186,14 +186,14 @@ export default function LandingPage() {
           font-size: 1rem;
           font-weight: 800;
           letter-spacing: -0.02em;
-          color: #F8F8F8;
+          color: #0F172A;
         }
         .lp2-nav-disc {
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: conic-gradient(#D4AF37 0deg, #C084FC 120deg, #60A5FA 240deg, #D4AF37 360deg);
-          box-shadow: 0 0 8px rgba(212,175,55,0.4);
+          background: conic-gradient(#4F46E5 0deg, #7C3AED 120deg, #06B6D4 240deg, #4F46E5 360deg);
+          box-shadow: 0 0 8px rgba(79,70,229,0.3);
           flex-shrink: 0;
         }
         .lp2-nav-links {
@@ -204,22 +204,22 @@ export default function LandingPage() {
         .lp2-nav-link {
           font-size: 0.82rem;
           font-weight: 600;
-          color: #B3B3B3;
+          color: #475569;
           transition: color 0.18s;
           text-decoration: none;
           letter-spacing: 0.01em;
         }
-        .lp2-nav-link:hover { color: #F8F8F8; }
+        .lp2-nav-link:hover { color: #4F46E5; }
         .lp2-nav-link-accent {
-          color: #D4AF37;
-          background: rgba(212,175,55,0.08);
-          border: 1px solid rgba(212,175,55,0.18);
+          color: #4F46E5;
+          background: #EEF2FF;
+          border: 1px solid #C7D2FE;
           padding: 6px 16px;
           border-radius: 999px;
           font-size: 0.8rem;
           font-weight: 700;
         }
-        .lp2-nav-link-accent:hover { color: #FFD56A; }
+        .lp2-nav-link-accent:hover { background: #E0E7FF; color: #4338CA; }
 
         /* ── Hero Section ── */
         .lp2-hero {
@@ -256,13 +256,13 @@ export default function LandingPage() {
           font-weight: 700;
           letter-spacing: 0.16em;
           text-transform: uppercase;
-          color: #D4AF37;
+          color: #4F46E5;
           margin-bottom: 28px;
         }
         .lp2-eyebrow-line {
           width: 32px;
           height: 1px;
-          background: #D4AF37;
+          background: #4F46E5;
           opacity: 0.6;
         }
         .lp2-headline {
@@ -270,19 +270,19 @@ export default function LandingPage() {
           font-weight: 900;
           line-height: 1.02;
           letter-spacing: -0.05em;
-          color: #F8F8F8;
+          color: #0F172A;
           margin: 0 0 24px;
         }
         .lp2-headline em {
           font-style: normal;
-          background: linear-gradient(135deg, #D4AF37 0%, #FFD56A 40%, #C084FC 100%);
+          background: linear-gradient(135deg, #1E293B 0%, #4F46E5 50%, #7C3AED 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
         }
         .lp2-subline {
           font-size: 1.1rem;
-          color: #B3B3B3;
+          color: #475569;
           line-height: 1.65;
           font-weight: 300;
           max-width: 400px;
@@ -297,17 +297,17 @@ export default function LandingPage() {
           gap: 12px;
           padding: 18px 40px;
           border-radius: 999px;
-          border: 1px solid rgba(212,175,55,0.35);
-          background: rgba(212,175,55,0.08);
+          border: 1px solid #4338CA;
+          background: #4F46E5;
           backdrop-filter: blur(16px);
-          color: #F8F8F8;
+          color: #FFFFFF;
           font-size: 1rem;
           font-weight: 700;
           cursor: pointer;
           letter-spacing: -0.01em;
           transition: all 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
           width: fit-content;
-          box-shadow: 0 0 32px rgba(212,175,55,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
+          box-shadow: 0 4px 20px rgba(79,70,229,0.35);
           position: relative;
           overflow: hidden;
         }
@@ -315,15 +315,14 @@ export default function LandingPage() {
           content: "";
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at center, rgba(212,175,55,0.15), transparent 70%);
+          background: radial-gradient(circle at center, rgba(255,255,255,0.2), transparent 70%);
           opacity: 0;
           transition: opacity 0.28s;
         }
         .lp2-cta-primary:hover { 
           transform: scale(1.03) translateY(-1px);
-          border-color: rgba(212,175,55,0.6);
-          box-shadow: 0 0 48px rgba(212,175,55,0.15), 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-          background: rgba(212,175,55,0.14);
+          box-shadow: 0 8px 28px rgba(79,70,229,0.45);
+          background: #4338CA;
         }
         .lp2-cta-primary:hover::before { opacity: 1; }
         .lp2-cta-primary:active { transform: scale(0.99); }
@@ -331,11 +330,12 @@ export default function LandingPage() {
           width: 28px;
           height: 28px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #D4AF37, #FFD56A);
+          background: linear-gradient(135deg, #FFFFFF, #EEF2FF);
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+          color: #4F46E5;
         }
         .lp2-cta-secondary {
           display: flex;
@@ -346,13 +346,14 @@ export default function LandingPage() {
         .lp2-cta-ghost {
           font-size: 0.8rem;
           font-weight: 600;
-          color: #6F6F6F;
+          color: #64748B;
           text-decoration: none;
           transition: color 0.18s;
           letter-spacing: 0.02em;
         }
-        .lp2-cta-ghost:hover { color: #B3B3B3; }
-        .lp2-cta-dot { width: 2px; height: 2px; border-radius: 50%; background: #3A3A3A; }
+        .lp2-cta-ghost:hover { color: #1E293B; }
+        .lp2-cta-dot { width: 2px; height: 2px; border-radius: 50%; background: #CBD5E1; }
+
 
         /* ── CD Visual Column ── */
         .lp2-cd-column {
@@ -421,14 +422,13 @@ export default function LandingPage() {
           position: absolute;
           inset: 0;
           border-radius: 16px;
-          background: rgba(255,255,255,0.015);
-          border: 1px solid rgba(255,255,255,0.10);
-          backdrop-filter: blur(2px);
+          background: rgba(255,255,255,0.75);
+          border: 1px solid #CBD5E1;
+          backdrop-filter: blur(12px);
           box-shadow: 
-            0 32px 80px rgba(0,0,0,0.8),
-            0 0 0 1px rgba(255,255,255,0.04),
-            inset 0 1px 0 rgba(255,255,255,0.08),
-            inset 0 -1px 0 rgba(0,0,0,0.4);
+            0 20px 48px rgba(15,23,42,0.08),
+            0 0 0 1px rgba(255,255,255,0.8),
+            inset 0 1px 0 rgba(255,255,255,0.9);
           z-index: 20;
           pointer-events: none;
           overflow: hidden;
@@ -441,8 +441,8 @@ export default function LandingPage() {
           width: 40%; height: 100%;
           background: linear-gradient(
             105deg,
-            rgba(255,255,255,0.04) 0%,
-            rgba(255,255,255,0.02) 40%,
+            rgba(255,255,255,0.6) 0%,
+            rgba(255,255,255,0.2) 40%,
             transparent 100%
           );
           pointer-events: none;
@@ -452,12 +452,12 @@ export default function LandingPage() {
           position: absolute;
           inset: 0;
           border-radius: 16px;
-          background: rgba(255,255,255,0.01);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255,255,255,0.6);
+          border: 1px solid #CBD5E1;
           transform-origin: right center;
           transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 19;
-          box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+          box-shadow: inset 0 0 40px rgba(15,23,42,0.05);
         }
         .phase-open .lp2-case-lid,
         .phase-eject .lp2-case-lid,
@@ -510,7 +510,7 @@ export default function LandingPage() {
           inset: 0;
           border-radius: 50%;
           background: 
-            radial-gradient(circle at 30% 30%, #3a3a3a 0%, #1a1a1a 40%, #0d0d0d 70%, #050505 100%);
+            radial-gradient(circle at 35% 35%, #FFFFFF 0%, #F1F5F9 45%, #E2E8F0 80%, #CBD5E1 100%);
         }
 
         /* Rainbow iridescent ring */
@@ -520,16 +520,16 @@ export default function LandingPage() {
           border-radius: 50%;
           background: conic-gradient(
             from 0deg,
-            rgba(212,175,55,0.6)   0deg,
-            rgba(192,132,252,0.55) 60deg,
-            rgba(96,165,250,0.55)  120deg,
-            rgba(52,211,153,0.5)   180deg,
-            rgba(251,146,60,0.55)  240deg,
-            rgba(239,68,68,0.5)    300deg,
-            rgba(212,175,55,0.6)   360deg
+            rgba(79,70,229,0.4)    0deg,
+            rgba(124,58,237,0.35)  60deg,
+            rgba(6,182,212,0.35)   120deg,
+            rgba(16,185,129,0.3)   180deg,
+            rgba(245,158,11,0.35)  240deg,
+            rgba(239,68,68,0.3)    300deg,
+            rgba(79,70,229,0.4)    360deg
           );
-          mix-blend-mode: overlay;
-          opacity: 0.7;
+          mix-blend-mode: multiply;
+          opacity: 0.6;
         }
 
         /* Brushed radial lines */
@@ -538,7 +538,7 @@ export default function LandingPage() {
           inset: 0;
           border-radius: 50%;
           background: repeating-conic-gradient(
-            rgba(255,255,255,0.018) 0deg 1deg,
+            rgba(71,85,105,0.03) 0deg 1deg,
             transparent 1deg 2.5deg
           );
         }
@@ -549,8 +549,8 @@ export default function LandingPage() {
           inset: 0;
           border-radius: 50%;
           transition: background 0.08s linear;
-          mix-blend-mode: screen;
-          opacity: 0.4;
+          mix-blend-mode: soft-light;
+          opacity: 0.5;
         }
 
         /* Track grooves */
@@ -562,7 +562,7 @@ export default function LandingPage() {
         .lp2-cd-groove {
           position: absolute;
           border-radius: 50%;
-          border: 1px solid rgba(255,255,255,0.03);
+          border: 1px solid rgba(71,85,105,0.08);
           top: 50%; left: 50%;
           transform: translate(-50%, -50%);
         }
@@ -572,20 +572,21 @@ export default function LandingPage() {
           position: absolute;
           inset: 28%;
           border-radius: 50%;
-          background: radial-gradient(circle, #1A1A1A 0%, #111 100%);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: radial-gradient(circle, #FFFFFF 0%, #F8FAFC 100%);
+          border: 1px solid #CBD5E1;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-direction: column;
           z-index: 5;
+          box-shadow: 0 4px 12px rgba(15,23,42,0.06);
         }
         .lp2-cd-label-text {
           font-size: 0.38rem;
           font-weight: 900;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.7);
+          color: #334155;
           line-height: 1.3;
           text-align: center;
         }
@@ -593,7 +594,7 @@ export default function LandingPage() {
           font-size: 0.42rem;
           font-weight: 700;
           letter-spacing: 0.06em;
-          background: linear-gradient(90deg, #D4AF37, #C084FC);
+          background: linear-gradient(90deg, #4F46E5, #7C3AED);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -605,10 +606,10 @@ export default function LandingPage() {
           position: absolute;
           inset: 44%;
           border-radius: 50%;
-          background: #050505;
-          border: 1px solid rgba(255,255,255,0.08);
+          background: #F8FAFC;
+          border: 1px solid #CBD5E1;
           z-index: 6;
-          box-shadow: inset 0 0 8px rgba(0,0,0,0.9);
+          box-shadow: inset 0 0 6px rgba(15,23,42,0.1);
         }
 
         /* Outer CD edge glow */
@@ -616,10 +617,10 @@ export default function LandingPage() {
           position: absolute;
           inset: -2px;
           border-radius: 50%;
-          border: 1px solid rgba(255,255,255,0.08);
+          border: 1px solid rgba(79,70,229,0.2);
           box-shadow:
-            0 0 24px rgba(212,175,55,0.08),
-            inset 0 0 16px rgba(0,0,0,0.6);
+            0 0 24px rgba(79,70,229,0.12),
+            inset 0 0 16px rgba(255,255,255,0.8);
           z-index: 6;
           pointer-events: none;
         }
@@ -632,7 +633,7 @@ export default function LandingPage() {
           transform: translateX(-50%);
           width: 340px;
           height: 120px;
-          background: radial-gradient(ellipse, rgba(212,175,55,0.12) 0%, transparent 70%);
+          background: radial-gradient(ellipse, rgba(79,70,229,0.10) 0%, transparent 70%);
           filter: blur(20px);
           pointer-events: none;
           z-index: 5;
@@ -642,7 +643,7 @@ export default function LandingPage() {
         .lp2-transition-overlay {
           position: fixed;
           inset: 0;
-          background: #080808;
+          background: #F8FAFC;
           z-index: 500;
           opacity: 0;
           pointer-events: none;
@@ -671,10 +672,10 @@ export default function LandingPage() {
         .lp2-player-body {
           width: 320px;
           height: 80px;
-          background: linear-gradient(180deg, #1e1e1e 0%, #111 100%);
+          background: #FFFFFF;
           border-radius: 16px;
-          border: 1px solid rgba(255,255,255,0.08);
-          box-shadow: 0 8px 48px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.06);
+          border: 1px solid #E2E8F0;
+          box-shadow: 0 12px 48px rgba(15,23,42,0.08);
           display: flex;
           align-items: center;
           gap: 16px;
@@ -685,16 +686,16 @@ export default function LandingPage() {
         .lp2-player-slot {
           width: 140px;
           height: 4px;
-          background: rgba(255,255,255,0.04);
+          background: #F1F5F9;
           border-radius: 2px;
           overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.06);
+          border: 1px solid #E2E8F0;
           position: relative;
         }
         .lp2-player-slot-fill {
           height: 100%;
           border-radius: 2px;
-          background: linear-gradient(90deg, #D4AF37, #C084FC);
+          background: linear-gradient(90deg, #4F46E5, #7C3AED);
           width: 0;
           transition: width 1.2s ease;
         }
@@ -703,8 +704,8 @@ export default function LandingPage() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #D4AF37;
-          box-shadow: 0 0 8px #D4AF37;
+          background: #4F46E5;
+          box-shadow: 0 0 8px #4F46E5;
           animation: lp2-blink 0.6s ease infinite alternate;
           margin-left: auto;
         }
@@ -713,7 +714,7 @@ export default function LandingPage() {
           font-size: 0.7rem;
           font-weight: 700;
           letter-spacing: 0.12em;
-          color: #6F6F6F;
+          color: #64748B;
           text-transform: uppercase;
           margin-top: 16px;
           animation: fadeIn 0.6s ease;
@@ -737,7 +738,7 @@ export default function LandingPage() {
           font-weight: 700;
           letter-spacing: 0.16em;
           text-transform: uppercase;
-          color: #D4AF37;
+          color: #4F46E5;
           margin-bottom: 12px;
           display: block;
         }
@@ -745,7 +746,7 @@ export default function LandingPage() {
           font-size: clamp(2rem, 3.5vw, 2.8rem);
           font-weight: 900;
           letter-spacing: -0.04em;
-          color: #F8F8F8;
+          color: #0F172A;
           margin: 0;
         }
 
@@ -770,7 +771,7 @@ export default function LandingPage() {
           right: 0;
           width: 50%;
           height: 1px;
-          background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent);
+          background: linear-gradient(90deg, #CBD5E1, transparent);
           z-index: 0;
         }
         .lp2-timeline-step:not(:first-child)::before {
@@ -780,37 +781,37 @@ export default function LandingPage() {
           left: 0;
           width: 50%;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08));
+          background: linear-gradient(90deg, transparent, #CBD5E1);
           z-index: 0;
         }
         .lp2-step-num {
           width: 48px;
           height: 48px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: #EEF2FF;
+          border: 1px solid #C7D2FE;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 0.76rem;
           font-weight: 800;
-          color: #D4AF37;
+          color: #4F46E5;
           letter-spacing: 0.04em;
           margin-bottom: 20px;
           position: relative;
           z-index: 1;
-          box-shadow: 0 0 24px rgba(212,175,55,0.06);
+          box-shadow: 0 4px 12px rgba(79,70,229,0.1);
         }
         .lp2-step-label {
           font-size: 0.9rem;
           font-weight: 700;
-          color: #F8F8F8;
+          color: #0F172A;
           text-align: center;
           margin-bottom: 6px;
         }
         .lp2-step-sub {
           font-size: 0.76rem;
-          color: #6F6F6F;
+          color: #64748B;
           text-align: center;
           line-height: 1.4;
         }
@@ -829,15 +830,15 @@ export default function LandingPage() {
           gap: 20px;
         }
         .lp2-feat-card {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: #FFFFFF;
+          border: 1px solid #E2E8F0;
           border-radius: 20px;
           padding: 28px;
           position: relative;
           overflow: hidden;
           transition: all 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
           cursor: default;
-          transform-style: preserve-3d;
+          box-shadow: 0 4px 16px rgba(15,23,42,0.03);
         }
         .lp2-feat-card::before {
           content: "";
@@ -849,8 +850,8 @@ export default function LandingPage() {
         }
         .lp2-feat-card:hover {
           transform: translateY(-6px) scale(1.01);
-          border-color: rgba(255,255,255,0.12);
-          box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+          border-color: #C7D2FE;
+          box-shadow: 0 12px 32px rgba(79,70,229,0.12);
         }
         .lp2-feat-card:hover::before { opacity: 1; }
         .lp2-feat-icon {
@@ -861,18 +862,18 @@ export default function LandingPage() {
           align-items: center;
           justify-content: center;
           margin-bottom: 20px;
-          color: #F8F8F8;
+          color: #FFFFFF;
         }
         .lp2-feat-title {
           font-size: 1rem;
           font-weight: 800;
-          color: #F8F8F8;
+          color: #0F172A;
           margin-bottom: 10px;
           letter-spacing: -0.01em;
         }
         .lp2-feat-body {
           font-size: 0.84rem;
-          color: #6F6F6F;
+          color: #475569;
           line-height: 1.55;
           margin: 0;
         }
@@ -882,7 +883,7 @@ export default function LandingPage() {
           right: 24px;
           font-size: 2.2rem;
           font-weight: 900;
-          color: rgba(255,255,255,0.025);
+          color: rgba(15,23,42,0.03);
           letter-spacing: -0.06em;
           user-select: none;
           line-height: 1;
@@ -898,7 +899,7 @@ export default function LandingPage() {
           justify-content: space-between;
           position: relative;
           z-index: 10;
-          border-top: 1px solid rgba(255,255,255,0.04);
+          border-top: 1px solid #E2E8F0;
           padding-top: 32px;
         }
         .lp2-footer-brand {
