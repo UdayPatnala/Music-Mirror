@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Play, Pause, SkipForward, Volume2, VolumeX, AlertCircle, Sparkles } from 'lucide-react';
 import { sessionOrchestrator } from '../architecture/orchestrator/SessionOrchestrator';
 import type { PlaybackState } from '../architecture/types/domain';
+import { useAppStore } from '../store/useAppStore';
 
 export default function GlobalPlayerHost() {
   const location = useLocation();
@@ -17,14 +18,17 @@ export default function GlobalPlayerHost() {
   }, []);
 
   const isRoom = location.pathname === '/room';
+  if (isRoom) return null; // Room screen has its own built-in studio stage!
+
   const { currentCandidate, isPlaying, volume, isMuted, autoplayBlocked, sessionState, activeMood, attributionText } = playbackState;
+  const storeSong = useAppStore.getState().currentSong;
 
-  if (!currentCandidate && sessionState === 'IDLE') return null;
+  if (!currentCandidate && !storeSong && sessionState === 'IDLE') return null;
 
-  const title = currentCandidate?.title || 'Finding Music Match...';
-  const artist = currentCandidate?.artist || currentCandidate?.artists[0] || 'MusicMirror Engine';
+  const title = currentCandidate?.title || storeSong?.title || storeSong?.name || 'Music Mirror Audio';
+  const artist = currentCandidate?.artist || currentCandidate?.artists?.[0] || storeSong?.artist || 'AI Recommended';
   const albumArt = currentCandidate?.artworkUrl || currentCandidate?.albumArtUrl;
-  const providerId = currentCandidate?.providerId || 'youtube';
+  const providerId = currentCandidate?.providerId || 'jamendo';
 
   const handleTogglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
