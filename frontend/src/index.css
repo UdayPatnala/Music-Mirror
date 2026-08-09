@@ -64,49 +64,76 @@ img { max-width: 100%; display: block; }
 /* ── Design tokens ──────────────────────────────────────────── */
 :root {
   /* Backgrounds & Surfaces */
+  --bg-0:        #050505;
+  --bg-1:        #090909;
+  --bg-2:        #0D0D0D;
   --bg:          #090909;
   --surface:     #131313;
   --card:        #1B1B1B;
+  --card-elevated:#202020;
+  --card-hover:  #252525;
 
   /* Glassmorphism */
-  --glass-bg:    rgba(255,255,255,0.05);
-  --glass-border:rgba(255,255,255,0.08);
-  --glass-shadow:rgba(0,0,0,0.55);
-  --glass-blur:  32px;
+  --glass-bg:        rgba(255,255,255,0.045);
+  --glass-bg-strong: rgba(255,255,255,0.07);
+  --glass-border:    rgba(255,255,255,0.09);
+  --glass-border-hover: rgba(255,255,255,0.16);
+  --glass-shadow:    rgba(0,0,0,0.55);
+  --glass-blur:      28px;
+  --glass-saturation:140%;
 
-  /* Accents */
-  --gold:        #D4AF37;
-  --purple:      #A855F7;
-  --highlight:   #FF9966;
-  --success:     #22C55E;
-  --error:       #EF4444;
-
-  /* Text Colors */
-  --text-1:      #FFFFFF;
-  --text-2:      #B6B6B6;
-  --text-3:      #6F6F6F;
-  --text-4:      #444444;
-
-  /* Spacing & Spacing System */
-  --space-unit:  8px;
-  
-  /* Radii */
-  --r-32:  32px;
-  --r-24:  24px;
-  --r-20:  20px;
-  --r-16:  16px;
-  --r-12:  12px;
-
-  /* Spring Physics Transition */
-  --spring-transition: all 280ms cubic-bezier(0.25, 0.8, 0.25, 1);
-
-  /* Extended Color Tokens */
-  --gold-light:      #FFD56A;
+  /* Core Royal & Amethyst System */
+  --gold:            #D4AF37;
+  --royal-gold:      #D4AF37;
+  --gold-light:      #F3D77A;
+  --gold-dark:       #8C6A19;
   --gold-dim:        rgba(212,175,55,0.12);
   --gold-border:     rgba(212,175,55,0.24);
+
+  --purple:          #A855F7;
+  --amethyst:        #A855F7;
+  --purple-deep:     #5B21B6;
   --purple-light:    #C084FC;
   --purple-lt:       #C084FC;
   --purple-dim:      rgba(168,85,247,0.12);
+
+  /* Emotion Palette */
+  --emotion-orange:  #FF9966;
+  --emotion-rose:    #F472B6;
+  --emotion-blue:    #60A5FA;
+  --emotion-cyan:    #67E8F9;
+  --highlight:       #FF9966;
+  --success:         #22C55E;
+  --warning:         #F59E0B;
+  --error:           #EF4444;
+  --info:            #60A5FA;
+
+  /* Text Colors */
+  --text-1:          #FFFFFF;
+  --text-2:          #B8B8B8;
+  --text-3:          #707070;
+  --text-4:          #4A4A4A;
+
+  /* Spacing System */
+  --space-unit:      8px;
+
+  /* Radii Tokens */
+  --r-hero:          32px;
+  --r-32:            32px;
+  --r-large:         24px;
+  --r-24:            24px;
+  --r-card:          20px;
+  --r-20:            20px;
+  --r-medium:        16px;
+  --r-16:            16px;
+  --r-small:         12px;
+  --r-12:            12px;
+  --r-pill:          999px;
+
+  /* Motion & Spring Physics */
+  --spring-transition: all 220ms cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  /* Extended Color Tokens */
   --sapphire:        #2563EB;
   --sapphire-lt:     #60A5FA;
   --sapphire-dim:    rgba(37,99,235,0.12);
@@ -116,13 +143,15 @@ img { max-width: 100%; display: block; }
   --crimson:         #B91C1C;
   --crimson-lt:      #EF4444;
   --crimson-dim:     rgba(185,28,28,0.12);
-  --copper:          #B87333;
-  --copper-lt:       #D99058;
 
   /* Shadows */
-  --shadow:    0 8px 32px rgba(0,0,0,0.55);
-  --shadow-lg: 0 24px 64px rgba(0,0,0,0.7);
-  --shadow-sm: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-soft:     0 20px 60px rgba(0,0,0,0.35);
+  --shadow-deep:     0 30px 100px rgba(0,0,0,0.55);
+  --shadow-gold:     0 0 40px rgba(212,175,55,0.18);
+  --shadow-purple:   0 0 50px rgba(168,85,247,0.20);
+  --shadow:          var(--shadow-soft);
+  --shadow-lg:       var(--shadow-deep);
+  --shadow-sm:       0 4px 16px rgba(0,0,0,0.4);
 
   /* Aliases */
   --r-xl: var(--r-24);
@@ -143,6 +172,11 @@ img { max-width: 100%; display: block; }
 @keyframes fadeUp     { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 @keyframes scaleIn    { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
 @keyframes gradShift  { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+@keyframes mm-cd-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 
 /* ── Themed background elements ─────────────────────────────── */
 /* Floating music note particles — sprinkled on landing/room pages */

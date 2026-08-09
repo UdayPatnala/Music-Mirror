@@ -26,6 +26,112 @@ export function LogoMark({ size = 28, className = "" }: LogoMarkProps) {
   );
 }
 
+/* ── CD Disc Brand Symbol Component ────────────────────────── */
+interface CDDiscProps {
+  size?: number;
+  spinning?: boolean;
+  interactive?: boolean;
+  className?: string;
+}
+
+export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscProps) {
+  return (
+    <div
+      className={`mm-cd-disc ${className}`}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: "radial-gradient(circle at 35% 35%, #222 0%, #0D0D0D 50%, #050505 100%)",
+        border: "1.5px solid rgba(212,175,55,0.35)",
+        boxShadow: "0 0 40px rgba(212,175,55,0.18), 0 20px 60px rgba(0,0,0,0.8)",
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        animation: spinning ? "mm-cd-spin 18s linear infinite" : "none",
+        flexShrink: 0,
+      }}
+    >
+      {/* Holographic groove rings */}
+      <div
+        style={{
+          position: "absolute",
+          inset: "8%",
+          borderRadius: "50%",
+          border: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "inset 0 0 20px rgba(168,85,247,0.15)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: "22%",
+          borderRadius: "50%",
+          border: "1px solid rgba(212,175,55,0.15)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: "36%",
+          borderRadius: "50%",
+          border: "1px solid rgba(255,255,255,0.08)",
+        }}
+      />
+
+      {/* Light sheen reflection */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 45%, rgba(212,175,55,0.1) 50%, rgba(168,85,247,0.12) 100%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Royal Gold Ring */}
+      <div
+        style={{
+          width: "32%",
+          height: "32%",
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #D4AF37 0%, #8C6A19 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 0 16px rgba(212,175,55,0.4)",
+        }}
+      >
+        {/* Amethyst Center Core */}
+        <div
+          style={{
+            width: "55%",
+            height: "55%",
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #A855F7 0%, #5B21B6 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {/* Spindle hole */}
+          <div
+            style={{
+              width: "45%",
+              height: "45%",
+              borderRadius: "50%",
+              background: "#050505",
+              boxShadow: "inset 0 0 4px rgba(0,0,0,0.9)",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── SVG Logo mark (inline, scalable) ─────────────────────── */
 export function LogoSVG({ size = 32 }: { size?: number }) {
   return (
