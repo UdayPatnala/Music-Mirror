@@ -120,9 +120,11 @@ class SongSource(Base):
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
     song_id = Column(String(36), ForeignKey("songs.id", ondelete="CASCADE"), nullable=False, index=True)
-    source_type = Column(String(50), nullable=False, index=True) # 'youtube', 'jamendo', 'local', 'spotify'
-    source_id = Column(String(255), nullable=False, index=True) # videoId or trackId
-    source_url = Column(Text, nullable=False)
+
+    source_type = Column(String(50), nullable=False) # 'youtube', 'jamendo', 'spotify', 'soundcloud'
+    source_id = Column(String(255), nullable=False, index=True)
+    source_url = Column(Text, nullable=True)
+    status = Column(String(50), nullable=False, default="ACTIVE") # 'ACTIVE', 'UNAVAILABLE', 'PRIVATE', 'REMOVED', 'RESTRICTED'
     title_at_source = Column(String(255), nullable=True)
     duration_at_source = Column(Integer, nullable=True)
     thumbnail_url = Column(Text, nullable=True)

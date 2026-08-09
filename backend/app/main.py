@@ -34,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health.router, prefix="/health", tags=["Health"])
+app.include_router(health.router, prefix="/health", tags=["Health & Observability"])
 app.include_router(songs.router, prefix="/api/v2/songs", tags=["Songs Catalog & Metadata"])
 app.include_router(user_preferences.router, prefix="/api/v2/user/preferences", tags=["User Music Preferences"])
 app.include_router(recommendations.router, prefix="/recommend", tags=["Recommendations"])

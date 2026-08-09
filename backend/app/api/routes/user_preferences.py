@@ -142,3 +142,17 @@ def reset_user_preferences(
 
     db.commit()
     return to_dto(pref)
+
+
+@router.delete("/account")
+def delete_user_account(
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    from app.db.backup import DatabaseBackupManager
+    summary = DatabaseBackupManager.delete_user_account_data(db, current_user.id)
+    return {
+        "status": "success",
+        "message": f"Account data for user '{current_user.id}' successfully removed/anonymized.",
+        "summary": summary,
+    }
