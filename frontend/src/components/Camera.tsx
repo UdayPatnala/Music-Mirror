@@ -118,13 +118,13 @@ export default function Camera({ onEmotion, showLandmarks = false }: CameraProps
 
       // ── Landmark regions ──
       const REGIONS: { indices: number[]; color: string; label: string }[] = [
-        { indices: Array.from({ length: 17 }, (_, i) => i),                color: "rgba(212,175,55,0.6)",  label: "jawline" },
-        { indices: Array.from({ length: 5 }, (_, i) => i + 17),            color: "rgba(96,165,250,0.8)",  label: "left_brow" },
-        { indices: Array.from({ length: 5 }, (_, i) => i + 22),            color: "rgba(96,165,250,0.8)",  label: "right_brow" },
-        { indices: Array.from({ length: 9 }, (_, i) => i + 27),            color: "rgba(192,132,252,0.8)", label: "nose_bridge" },
+        { indices: Array.from({ length: 17 }, (_, i) => i),                color: "rgba(45,212,191,0.8)",  label: "jawline" },
+        { indices: Array.from({ length: 5 }, (_, i) => i + 17),            color: "rgba(99,102,241,0.8)",  label: "left_brow" },
+        { indices: Array.from({ length: 5 }, (_, i) => i + 22),            color: "rgba(99,102,241,0.8)",  label: "right_brow" },
+        { indices: Array.from({ length: 9 }, (_, i) => i + 27),            color: "rgba(139,92,246,0.8)",  label: "nose_bridge" },
         { indices: Array.from({ length: 4 }, (_, i) => i + 36),            color: "rgba(52,211,153,0.8)",  label: "left_eye" },
         { indices: Array.from({ length: 4 }, (_, i) => i + 42),            color: "rgba(52,211,153,0.8)",  label: "right_eye" },
-        { indices: Array.from({ length: 12 }, (_, i) => i + 48),           color: "rgba(239,68,68,0.8)",   label: "mouth" },
+        { indices: Array.from({ length: 12 }, (_, i) => i + 48),           color: "rgba(244,114,182,0.8)", label: "mouth" },
       ];
 
       // Draw connecting lines between region points
@@ -142,11 +142,11 @@ export default function Camera({ onEmotion, showLandmarks = false }: CameraProps
       positions.forEach((pt, i) => {
         // Color by region
         let dotColor = "rgba(255,255,255,0.55)";
-        if (i < 17)       dotColor = "rgba(212,175,55,0.9)";  // jaw
-        else if (i < 27)  dotColor = "rgba(96,165,250,0.9)";  // brows
-        else if (i < 36)  dotColor = "rgba(192,132,252,0.9)"; // nose
-        else if (i < 48)  dotColor = "rgba(52,211,153,0.9)";  // eyes
-        else               dotColor = "rgba(239,68,68,0.9)";   // mouth
+        if (i < 17)       dotColor = "rgba(45,212,191,0.9)";   // jaw (Teal)
+        else if (i < 27)  dotColor = "rgba(99,102,241,0.9)";  // brows (Indigo)
+        else if (i < 36)  dotColor = "rgba(139,92,246,0.9)";  // nose (Violet)
+        else if (i < 48)  dotColor = "rgba(52,211,153,0.9)";  // eyes (Emerald)
+        else               dotColor = "rgba(244,114,182,0.9)";  // mouth (Rose)
 
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);

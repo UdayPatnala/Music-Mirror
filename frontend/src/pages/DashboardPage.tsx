@@ -27,13 +27,13 @@ import {
 
 /* ─── Emotion colour map ─────────────────────────────────── */
 const EMOTION_COLOR: Record<string, string> = {
-  happy:     "#D4AF37",
-  neutral:   "#A855F7",
-  sad:       "#3B82F6",
-  angry:     "#EF4444",
-  surprised: "#22C55E",
-  fearful:   "#F97316",
-  disgusted: "#EC4899",
+  happy:     "#F59E0B",
+  neutral:   "#A6ACB8",
+  sad:       "#22D3EE",
+  angry:     "#FB7185",
+  surprised: "#2DD4BF",
+  fearful:   "#8B5CF6",
+  disgusted: "#F472B6",
 };
 
 const EMOTION_LABEL: Record<string, string> = {
@@ -48,11 +48,11 @@ const EMOTION_LABEL: Record<string, string> = {
 
 /* ─── Landmark region data ───────────────────────────────── */
 const LANDMARK_REGIONS = [
-  { name: "Jawline",    value: 17, color: "#D4AF37" },
-  { name: "Eyebrows",   value: 10, color: "#60A5FA" },
-  { name: "Nose",       value: 9,  color: "#C084FC" },
+  { name: "Jawline",    value: 17, color: "#2DD4BF" },
+  { name: "Eyebrows",   value: 10, color: "#6366F1" },
+  { name: "Nose",       value: 9,  color: "#8B5CF6" },
   { name: "Eyes",       value: 12, color: "#34D399" },
-  { name: "Mouth",      value: 20, color: "#F87171" },
+  { name: "Mouth",      value: 20, color: "#F472B6" },
 ];
 
 /* ─── Acoustic intent conversion mapping ──────────────────── */
@@ -82,11 +82,11 @@ function calculateAcousticIntent(emotion: string, conf: number) {
       break;
   }
   return [
-    { metric: "Valence (Positivity)", value: Math.round(val * 100), fill: "#D4AF37" },
-    { metric: "Energy (Intensity)", value: Math.round(bgEnergy * 100), fill: "#EF4444" },
-    { metric: "Danceability", value: Math.round(dance * 100), fill: "#22C55E" },
-    { metric: "Acousticness", value: Math.round(acoustic * 100), fill: "#60A5FA" },
-    { metric: "Target BPM", value: Math.round((bpm / 180) * 100), raw: `${bpm} BPM`, fill: "#C084FC" },
+    { metric: "Valence (Positivity)", value: Math.round(val * 100), fill: "#22D3EE" },
+    { metric: "Energy (Intensity)", value: Math.round(bgEnergy * 100), fill: "#8B5CF6" },
+    { metric: "Danceability", value: Math.round(dance * 100), fill: "#34D399" },
+    { metric: "Acousticness", value: Math.round(acoustic * 100), fill: "#6366F1" },
+    { metric: "Target BPM", value: Math.round((bpm / 180) * 100), raw: `${bpm} BPM`, fill: "#D6B56E" },
   ];
 }
 

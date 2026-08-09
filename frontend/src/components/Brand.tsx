@@ -1,11 +1,9 @@
 /**
- * MusicMirror Brand Components
+ * MusicMirror Brand Components — Multi-Accent Cinematic Dark System
  * ---
- * Canonical logo, wordmark, and themed background elements.
- * Import these wherever the brand needs to appear.
+ * Canonical logo, wordmark, CDDisc, and ambient background system.
  */
 import { useMemo } from "react";
-
 
 /* ── Logo mark (image) ─────────────────────────────────────── */
 interface LogoMarkProps {
@@ -32,9 +30,12 @@ interface CDDiscProps {
   spinning?: boolean;
   interactive?: boolean;
   className?: string;
+  moodColor?: string;
 }
 
-export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscProps) {
+export function CDDisc({ size = 180, spinning = true, className = "", moodColor }: CDDiscProps) {
+  const primaryGlow = moodColor || "var(--accent-cyan)";
+
   return (
     <div
       className={`mm-cd-disc ${className}`}
@@ -42,9 +43,9 @@ export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscPr
         width: size,
         height: size,
         borderRadius: "50%",
-        background: "radial-gradient(circle at 35% 35%, #222 0%, #0D0D0D 50%, #050505 100%)",
-        border: "1.5px solid rgba(212,175,55,0.35)",
-        boxShadow: "0 0 40px rgba(212,175,55,0.18), 0 20px 60px rgba(0,0,0,0.8)",
+        background: "radial-gradient(circle at 35% 35%, #181C26 0%, #0E1017 55%, #08090D 100%)",
+        border: `1.5px solid ${primaryGlow}`,
+        boxShadow: `0 0 36px ${primaryGlow}25, 0 20px 60px rgba(0,0,0,0.85)`,
         position: "relative",
         display: "flex",
         alignItems: "center",
@@ -52,6 +53,7 @@ export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscPr
         overflow: "hidden",
         animation: spinning ? "mm-cd-spin 18s linear infinite" : "none",
         flexShrink: 0,
+        transition: "border-color 500ms ease, box-shadow 500ms ease",
       }}
     >
       {/* Holographic groove rings */}
@@ -61,7 +63,7 @@ export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscPr
           inset: "8%",
           borderRadius: "50%",
           border: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "inset 0 0 20px rgba(168,85,247,0.15)",
+          boxShadow: "inset 0 0 24px rgba(139,92,246,0.15)",
         }}
       />
       <div
@@ -69,7 +71,7 @@ export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscPr
           position: "absolute",
           inset: "22%",
           borderRadius: "50%",
-          border: "1px solid rgba(212,175,55,0.15)",
+          border: `1px solid ${primaryGlow}20`,
         }}
       />
       <div
@@ -81,36 +83,37 @@ export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscPr
         }}
       />
 
-      {/* Light sheen reflection */}
+      {/* Subtle light sheen reflection */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 45%, rgba(212,175,55,0.1) 50%, rgba(168,85,247,0.12) 100%)",
+          background: "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 45%, rgba(34,211,238,0.08) 50%, rgba(139,92,246,0.10) 100%)",
           pointerEvents: "none",
         }}
       />
 
-      {/* Royal Gold Ring */}
+      {/* Multi-Accent Center Ring */}
       <div
         style={{
           width: "32%",
           height: "32%",
           borderRadius: "50%",
-          background: "linear-gradient(135deg, #D4AF37 0%, #8C6A19 100%)",
+          background: `linear-gradient(135deg, ${primaryGlow} 0%, #6366F1 100%)`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 0 16px rgba(212,175,55,0.4)",
+          boxShadow: `0 0 16px ${primaryGlow}40`,
+          transition: "background 500ms ease",
         }}
       >
-        {/* Amethyst Center Core */}
+        {/* Violet AI Core */}
         <div
           style={{
             width: "55%",
             height: "55%",
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #A855F7 0%, #5B21B6 100%)",
+            background: "linear-gradient(135deg, #8B5CF6 0%, #0E1017 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -122,7 +125,7 @@ export function CDDisc({ size = 180, spinning = true, className = "" }: CDDiscPr
               width: "45%",
               height: "45%",
               borderRadius: "50%",
-              background: "#050505",
+              background: "#08090D",
               boxShadow: "inset 0 0 4px rgba(0,0,0,0.9)",
             }}
           />
@@ -145,11 +148,12 @@ export function LogoSVG({ size = 32 }: { size?: number }) {
     >
       <defs>
         <linearGradient id="mmg1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#D4AF37" />
-          <stop offset="100%" stopColor="#A855F7" />
+          <stop offset="0%" stopColor="#22D3EE" />
+          <stop offset="50%" stopColor="#6366F1" />
+          <stop offset="100%" stopColor="#8B5CF6" />
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="14" fill="#0D0D0D" />
+      <rect width="64" height="64" rx="14" fill="#0E1017" stroke="rgba(255,255,255,0.08)" />
       {/* Face profile */}
       <path
         d="M14 26 C14 15 22 10 30 12 C26 13 23 17 23 22 L23 36 C23 40 25 43 28 44 L20 44 C16 42 14 38 14 34 Z"
@@ -204,6 +208,7 @@ export function ThemeBackground({
   showHeroBg = false,
 }: ThemeBackgroundProps) {
   const notes = useMemo(() => {
+    const colors = ["var(--accent-cyan)", "var(--accent-violet)", "var(--accent-teal)", "var(--accent-champagne)"];
     return Array.from({ length: noteCount }, (_, i) => ({
       id: i,
       char: NOTES[i % NOTES.length],
@@ -212,8 +217,8 @@ export function ThemeBackground({
       dur: `${10 + (i * 3.1) % 12}s`,
       delay: `${(i * 1.7) % 8}s`,
       fontSize: `${1 + (i * 0.15) % 1.2}rem`,
-      opacity: 0.06 + (i * 0.008) % 0.1,
-      color: i % 3 === 0 ? "var(--gold)" : i % 3 === 1 ? "var(--purple)" : "var(--sapphire-lt)",
+      opacity: 0.05 + (i * 0.007) % 0.08,
+      color: colors[i % colors.length],
     }));
   }, [noteCount]);
 
@@ -221,7 +226,7 @@ export function ThemeBackground({
     return Array.from({ length: waveBarCount }, (_, i) => ({
       id: i,
       left: `${(i / waveBarCount) * 100}%`,
-      height: `${40 + (i * 7.3) % 120}px`,
+      height: `${30 + (i * 6.5) % 100}px`,
       dur: `${1.8 + (i * 0.23) % 2}s`,
       delay: `${(i * 0.11) % 1.8}s`,
     }));
@@ -238,8 +243,8 @@ export function ThemeBackground({
             backgroundImage: "url(/mm-hero-bg.jpg)",
             backgroundSize: "cover",
             backgroundPosition: "center 40%",
-            opacity: 0.06,
-            filter: "blur(2px) saturate(1.2)",
+            opacity: 0.04,
+            filter: "blur(4px) saturate(1.1)",
           }}
         />
       )}
@@ -297,8 +302,9 @@ export function ThemeBackground({
         <line x1="40" y1="150" x2="80" y2="150" stroke="url(#faceGrad)" strokeWidth="2" strokeLinecap="round"/>
         <defs>
           <linearGradient id="faceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#D4AF37"/>
-            <stop offset="100%" stopColor="#A855F7"/>
+            <stop offset="0%" stopColor="#22D3EE"/>
+            <stop offset="50%" stopColor="#6366F1"/>
+            <stop offset="100%" stopColor="#8B5CF6"/>
           </linearGradient>
         </defs>
       </svg>

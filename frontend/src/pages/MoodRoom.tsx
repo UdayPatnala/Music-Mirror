@@ -13,13 +13,13 @@ import { Disc, Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, 
 const MOODS = ["calm", "happy", "sad", "energetic", "focused", "romantic", "neutral"];
 
 const MOOD_COLOR: Record<string, string> = {
-  calm:      "#6366F1",
+  calm:      "#2DD4BF",
   happy:     "#F59E0B",
-  sad:       "#3B82F6",
-  energetic: "#F97316",
-  focused:   "#06B6D4",
-  romantic:  "#EC4899",
-  neutral:   "#D4D4D4",
+  sad:       "#22D3EE",
+  energetic: "#8B5CF6",
+  focused:   "#6366F1",
+  romantic:  "#F472B6",
+  neutral:   "#A6ACB8",
 };
 
 const MOOD_LABEL: Record<string, string> = {
@@ -319,7 +319,7 @@ export default function MoodRoom() {
 
             {/* Center Spinning CD Visualizer */}
             <div style={{ position: "relative", margin: "10px 0 28px", zIndex: 2 }}>
-              <CDDisc size={200} spinning={isPlaying} />
+              <CDDisc size={200} spinning={isPlaying} moodColor={moodColor} />
               
               {/* Animated Live Equalizer Overlay when playing */}
               {isPlaying && (

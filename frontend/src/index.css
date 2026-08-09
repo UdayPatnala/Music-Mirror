@@ -62,60 +62,91 @@ select option:checked {
 img { max-width: 100%; display: block; }
 
 /* ── Design tokens ──────────────────────────────────────────── */
+/* ── Design tokens ──────────────────────────────────────────── */
 :root {
-  /* Backgrounds & Surfaces */
-  --bg-0:        #050505;
-  --bg-1:        #090909;
-  --bg-2:        #0D0D0D;
-  --bg:          #090909;
-  --surface:     #131313;
-  --card:        #1B1B1B;
-  --card-elevated:#202020;
-  --card-hover:  #252525;
+  /* Surfaces & Backgrounds (Deep Cinematic Neutral Dark) */
+  --bg-primary:       #08090D;
+  --bg-secondary:     #0E1017;
+  --bg-0:             #08090D;
+  --bg-1:             #08090D;
+  --bg-2:             #0E1017;
+  --bg:               #08090D;
+  --surface-primary:  #11141B;
+  --surface-elevated: #151821;
+  --surface:          #11141B;
+  --card:             #151821;
+  --card-elevated:    #1A1D2A;
+  --card-hover:       rgba(255,255,255,0.065);
 
-  /* Glassmorphism */
-  --glass-bg:        rgba(255,255,255,0.045);
-  --glass-bg-strong: rgba(255,255,255,0.07);
-  --glass-border:    rgba(255,255,255,0.09);
-  --glass-border-hover: rgba(255,255,255,0.16);
-  --glass-shadow:    rgba(0,0,0,0.55);
-  --glass-blur:      28px;
-  --glass-saturation:140%;
+  /* Glassmorphism System */
+  --surface-glass:       rgba(255,255,255,0.045);
+  --surface-hover:       rgba(255,255,255,0.065);
+  --border-subtle:       rgba(255,255,255,0.08);
+  --border-active:       rgba(255,255,255,0.16);
+  --glass-bg:            rgba(255,255,255,0.045);
+  --glass-bg-strong:     rgba(255,255,255,0.07);
+  --glass-border:        rgba(255,255,255,0.08);
+  --glass-border-hover:  rgba(255,255,255,0.16);
+  --glass-shadow:        rgba(0,0,0,0.65);
+  --glass-blur:          28px;
+  --glass-saturation:    140%;
 
-  /* Core Royal & Amethyst System */
-  --gold:            #D4AF37;
-  --royal-gold:      #D4AF37;
-  --gold-light:      #F3D77A;
-  --gold-dark:       #8C6A19;
-  --gold-dim:        rgba(212,175,55,0.12);
-  --gold-border:     rgba(212,175,55,0.24);
-
-  --purple:          #A855F7;
-  --amethyst:        #A855F7;
-  --purple-deep:     #5B21B6;
-  --purple-light:    #C084FC;
-  --purple-lt:       #C084FC;
-  --purple-dim:      rgba(168,85,247,0.12);
-
-  /* Emotion Palette */
-  --emotion-orange:  #FF9966;
-  --emotion-rose:    #F472B6;
-  --emotion-blue:    #60A5FA;
-  --emotion-cyan:    #67E8F9;
-  --highlight:       #FF9966;
-  --success:         #22C55E;
-  --warning:         #F59E0B;
-  --error:           #EF4444;
-  --info:            #60A5FA;
-
-  /* Text Colors */
-  --text-1:          #FFFFFF;
-  --text-2:          #B8B8B8;
-  --text-3:          #707070;
+  /* Text Hierarchy (High-Contrast Neutral Cool) */
+  --text-primary:     #F4F5F7;
+  --text-secondary:   #A6ACB8;
+  --text-muted:       #686F7D;
+  --text-disabled:    #4A4A4A;
+  --text-1:          #F4F5F7;
+  --text-2:          #A6ACB8;
+  --text-3:          #686F7D;
   --text-4:          #4A4A4A;
 
-  /* Spacing System */
-  --space-unit:      8px;
+  /* Multi-Accent Palette */
+  --accent-cyan:      #22D3EE;  /* Music Playback & Audio */
+  --accent-indigo:    #6366F1;  /* AI & Focus */
+  --accent-violet:    #8B5CF6;  /* AI & Intelligence */
+  --accent-teal:      #2DD4BF;  /* Biometric & Calm */
+  --accent-rose:      #F472B6;  /* Romantic & Error */
+  --accent-champagne: #D6B56E;  /* Refrained Premium (5-10% Max) */
+  --accent-amber:     #F59E0B;  /* Happy & Warning */
+
+  /* Semantic System Tokens */
+  --playback-accent:  var(--accent-cyan);
+  --playback-glow:    rgba(34,211,238,0.16);
+  --ai-accent:        var(--accent-violet);
+  --ai-glow:          rgba(139,92,246,0.16);
+  --biometric-accent: var(--accent-teal);
+  --biometric-glow:   rgba(45,212,191,0.16);
+  --premium-accent:   var(--accent-champagne);
+  --premium-glow:     rgba(214,181,110,0.14);
+
+  /* Status Colors */
+  --state-success:    #34D399;
+  --state-error:      #FB7185;
+  --state-warning:    #F59E0B;
+  --success:          #34D399;
+  --error:            #FB7185;
+  --warning:          #F59E0B;
+  --info:             #22D3EE;
+
+  /* Backward Compatibility Aliases */
+  --gold:             var(--accent-champagne);
+  --royal-gold:       var(--accent-champagne);
+  --gold-dim:         rgba(214,181,110,0.12);
+  --gold-border:      rgba(214,181,110,0.22);
+  --purple:           var(--accent-violet);
+  --amethyst:         var(--accent-violet);
+  --purple-dim:       rgba(139,92,246,0.12);
+  --highlight:        var(--accent-cyan);
+
+  /* Dynamic Emotion Accents */
+  --mood-calm:        #2DD4BF;
+  --mood-happy:       #F59E0B;
+  --mood-sad:         #22D3EE;
+  --mood-energetic:   #8B5CF6;
+  --mood-focused:     #6366F1;
+  --mood-romantic:    #F472B6;
+  --mood-neutral:     #A6ACB8;
 
   /* Radii Tokens */
   --r-hero:          32px;
@@ -130,31 +161,16 @@ img { max-width: 100%; display: block; }
   --r-12:            12px;
   --r-pill:          999px;
 
-  /* Motion & Spring Physics */
-  --spring-transition: all 220ms cubic-bezier(0.25, 0.8, 0.25, 1);
-
-  /* Extended Color Tokens */
-  --sapphire:        #2563EB;
-  --sapphire-lt:     #60A5FA;
-  --sapphire-dim:    rgba(37,99,235,0.12);
-  --emerald:         #16A34A;
-  --emerald-lt:      #34D399;
-  --emerald-dim:     rgba(22,163,74,0.12);
-  --crimson:         #B91C1C;
-  --crimson-lt:      #EF4444;
-  --crimson-dim:     rgba(185,28,28,0.12);
-
   /* Shadows */
-  --shadow-soft:     0 20px 60px rgba(0,0,0,0.35);
-  --shadow-deep:     0 30px 100px rgba(0,0,0,0.55);
-  --shadow-gold:     0 0 40px rgba(212,175,55,0.18);
-  --shadow-purple:   0 0 50px rgba(168,85,247,0.20);
-  --shadow:          var(--shadow-soft);
-  --shadow-lg:       var(--shadow-deep);
-  --shadow-sm:       0 4px 16px rgba(0,0,0,0.4);
+  --shadow-soft:      0 20px 60px rgba(0,0,0,0.45);
+  --shadow-deep:      0 30px 100px rgba(0,0,0,0.70);
+  --shadow-accent:    0 0 40px rgba(34,211,238,0.14);
+  --shadow:           var(--shadow-soft);
+  --shadow-lg:        var(--shadow-deep);
 
-  /* Aliases */
-  --r-xl: var(--r-24);
+  /* Transitions */
+  --spring-transition: all 300ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  --emotion-transition: all 500ms ease-out;
 }
 
 /* ── Mood ambient overlays ───────────────────────────────────── */
