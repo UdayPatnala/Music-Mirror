@@ -188,6 +188,16 @@ export default function MoodRoom() {
     if (!audio || !activeSong) return;
     const streamUrl = activeSong.preview_url || (activeSong as any).playbackRef || "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/";
 
+    // Sync duration immediately from metadata if available
+    if ((activeSong as any).duration_str) {
+      setDurationStr((activeSong as any).duration_str);
+    } else if ((activeSong as any).duration && typeof (activeSong as any).duration === 'number') {
+      const sec = (activeSong as any).duration;
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      setDurationStr(`${m}:${s < 10 ? '0' : ''}${s}`);
+    }
+
     if (audio.src !== streamUrl) {
       audio.src = streamUrl;
       if (isPlaying) {

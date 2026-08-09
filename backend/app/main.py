@@ -1,9 +1,30 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import recommendations, health, telemetry, local_explorer
+from app.api.routes import recommendations, health, telemetry, local_explorer, songs
+from app.db.database import engine, Base, SessionLocal
+from app.ingestion.ingestion_service import IngestionService
 
-app = FastAPI(title=settings.PROJECT_NAME)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("MusicMirrorBackend")
+
+# Initialize database schema
+Base.metadata.create_all(bind=engine)
+
+# Auto-seed database if empty on startup
+try:
+    db = SessionLocal()
+    song_count = db.query(songs.Song).count()
+    if song_count == 0:
+        logger.info("Database is empty. Running initial idempotent seed dataset...")
+        res = IngestionService.seed_database(db)
+        logger.info(f"Initial seed complete: {res['added']} songs added.")
+    db.close()
+except Exception as e:
+    logger.warning(f"Auto-seed check warning: {e}")
+
+app = FastAPI(title=settings.PROJECT_NAME, version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,6 +35,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/health", tags=["Health"])
+app.include_router(songs.router, prefix="/api/v2/songs", tags=["Songs Catalog & Metadata"])
 app.include_router(recommendations.router, prefix="/recommend", tags=["Recommendations"])
 app.include_router(telemetry.router, prefix="/telemetry", tags=["Telemetry"])
 app.include_router(local_explorer.router, prefix="/local-explorer", tags=["Local Explorer"])
@@ -27,7 +49,5 @@ async def root():
         "status": "ok",
         "docs": "/docs",
         "health": "/health",
+        "songs_api": "/api/v2/songs",
     }
-
-
-
