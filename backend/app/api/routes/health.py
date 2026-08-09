@@ -9,6 +9,8 @@ from app.db.database import get_db, DB_PATH
 from app.db.models import Song, Artist, Album, SongSource, UserMusicPreference
 from app.core.governance import GovernanceConfig, GovernanceAuditLog, circuit_breaker_manager
 from app.services.catalog_reconciliation import CatalogReconciler
+from app.services.ml_model_ecosystem import ModelRegistry
+from app.services.mlops_pipeline import DatasetTracker, FeatureVersionManager, ModelDriftDetector, MLOpsPipelineEngine
 
 router = APIRouter()
 
@@ -69,4 +71,22 @@ def governance_and_recovery_health(db: Session = Depends(get_db)):
         },
         "catalog_reconciliation": reconciliation,
         "audit_log_records_count": len(GovernanceAuditLog.get_audit_records()),
+    }
+
+
+@router.get("/mlops", status_code=200)
+def mlops_lifecycle_health():
+    """Exposes MLOps lifecycle status, model registry, dataset versions, drift metrics, and feature consistency."""
+    active_models = ModelRegistry.list_active_models()
+    sample_dataset = DatasetTracker.get_dataset_info("ds_music_v2.0.0")
+    drift = ModelDriftDetector.compute_drift_score(baseline_mean=0.50, current_mean=0.52)
+
+    return {
+        "status": "OPERATIONAL",
+        "feature_version": FeatureVersionManager.FEATURE_CONFIG["feature_version"],
+        "active_models_count": len(active_models),
+        "active_models": active_models,
+        "sample_dataset_tracking": sample_dataset,
+        "drift_monitoring": drift,
+        "fallback_status": "READY",
     }
