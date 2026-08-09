@@ -14,7 +14,7 @@ const FEATURES = [
   {
     title: "Emotion Detection",
     body: "WebGL facial biometrics read your expression in real time.",
-    grad: "linear-gradient(135deg,#D4AF37,#FFD56A)",
+    grad: "linear-gradient(135deg,#2DD4BF,#34D399)",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
         <circle cx="12" cy="8" r="4"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
@@ -25,7 +25,7 @@ const FEATURES = [
   {
     title: "AI Recommendation",
     body: "Deep learning maps emotion vectors to the perfect track.",
-    grad: "linear-gradient(135deg,#7E22CE,#C084FC)",
+    grad: "linear-gradient(135deg,#8B5CF6,#6366F1)",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
         <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
@@ -35,7 +35,7 @@ const FEATURES = [
   {
     title: "Automatic Playback",
     body: "Music starts instantly. Zero clicks required.",
-    grad: "linear-gradient(135deg,#16A34A,#34D399)",
+    grad: "linear-gradient(135deg,#22D3EE,#6366F1)",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
         <polygon points="5,3 19,12 5,21"/>
@@ -44,8 +44,8 @@ const FEATURES = [
   },
   {
     title: "Multi-Source Music",
-    body: "YouTube, Spotify, JioSaavn, Gaana — unified.",
-    grad: "linear-gradient(135deg,#2563EB,#60A5FA)",
+    body: "Jamendo CC, YouTube, Local — unified.",
+    grad: "linear-gradient(135deg,#6366F1,#8B5CF6)",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
         <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/>
@@ -55,7 +55,7 @@ const FEATURES = [
   {
     title: "Privacy First",
     body: "All processing is local. Nothing leaves your device.",
-    grad: "linear-gradient(135deg,#B87333,#D99058)",
+    grad: "linear-gradient(135deg,#2DD4BF,#22D3EE)",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -65,7 +65,7 @@ const FEATURES = [
   {
     title: "Continuous Learning",
     body: "The system refines its understanding with every session.",
-    grad: "linear-gradient(135deg,#B91C1C,#EF4444)",
+    grad: "linear-gradient(135deg,#F472B6,#8B5CF6)",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="22" height="22">
         <path d="M21 12a9 9 0 11-6.219-8.56"/><polyline points="21,3 21,9 15,9"/>

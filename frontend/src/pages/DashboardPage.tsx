@@ -1,9 +1,9 @@
-// @ts-nocheck
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Camera from "../components/Camera";
 import type { DetectionResult } from "../components/Camera";
-import { Activity, ShieldAlert, Cpu, BarChart3, Database, Disc, Zap, Eye, Brain, Sliders, Waves, Layers } from "lucide-react";
+import { Wordmark } from "../components/Brand";
+import { Activity, ShieldAlert, Database, Zap, Eye, Brain, Sliders } from "lucide-react";
 import {
   ResponsiveContainer,
   RadarChart,
@@ -228,10 +228,9 @@ export default function DashboardPage() {
         display: "flex", alignItems: "center",
         padding: "0 40px", height: 64, gap: 16,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", fontWeight: 800, color: "var(--text-1)" }}>
-          <Disc size={18} style={{ color: "var(--gold)" }} />
-          <span className="font-brand">Music Mirror</span>
-          <span style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "var(--gold)", background: "rgba(212,175,55,0.1)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.2)", letterSpacing: "0.08em" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Wordmark size="md" showBadge={true} />
+          <span style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "var(--accent-violet)", background: "rgba(139,92,246,0.1)", padding: "2px 10px", borderRadius: "999px", border: "1px solid rgba(139,92,246,0.2)", letterSpacing: "0.08em" }}>
             BIOMETRIC TELEMETRY LAB
           </span>
         </div>
@@ -276,7 +275,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── METRIC TILES ROW ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 14, marginBottom: 28 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 14, marginBottom: 28 }}>
           {[
             { icon: <Zap size={16} />, label: "Inference Latency", value: avgInferenceMs ? `${avgInferenceMs} ms` : "16 ms", color: "#D4AF37", sub: "WebGL acceleration" },
             { icon: <Activity size={16} />, label: "Detection Rate", value: fps ? `${fps} FPS` : "60 FPS", color: "#22C55E", sub: "TinyFaceDetector" },

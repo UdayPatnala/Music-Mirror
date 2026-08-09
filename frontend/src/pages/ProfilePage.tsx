@@ -2,7 +2,8 @@ import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import type { Song, UserProfile } from "../types";
-import { BarChart3, Heart, Sparkles, ArrowRight, ShieldCheck, Plus, Trash2, Upload, Disc } from "lucide-react";
+import { BarChart3, Heart, Sparkles, ArrowRight, ShieldCheck, Plus, Trash2, Upload } from "lucide-react";
+import { Wordmark } from "../components/Brand";
 
 /* ── AI-generated default avatars (5 themes) ─────────────────── */
 const AI_AVATARS = [
@@ -27,19 +28,18 @@ const DEFAULT_SAVED: Song[] = [
 ];
 
 const LANG_COLOR: Record<string, string> = {
-  Telugu:  "var(--gold)",
-  English: "var(--sapphire-lt)",
-  Tamil:   "var(--emerald-lt)",
-  Hindi:   "var(--purple-lt)",
+  Telugu:  "#22D3EE",
+  English: "#6366F1",
+  Tamil:   "#2DD4BF",
+  Hindi:   "#8B5CF6",
 };
 
 const ART_COLORS = [
-  "linear-gradient(135deg,#D4AF37,#FFD56A)",
-  "linear-gradient(135deg,#2563EB,#60A5FA)",
-  "linear-gradient(135deg,#7E22CE,#C084FC)",
-  "linear-gradient(135deg,#16A34A,#34D399)",
-  "linear-gradient(135deg,#B91C1C,#EF4444)",
-  "linear-gradient(135deg,#B87333,#D99058)",
+  "linear-gradient(135deg,#22D3EE,#6366F1)",
+  "linear-gradient(135deg,#8B5CF6,#6366F1)",
+  "linear-gradient(135deg,#2DD4BF,#34D399)",
+  "linear-gradient(135deg,#F472B6,#8B5CF6)",
+  "linear-gradient(135deg,#F59E0B,#22D3EE)",
 ];
 function artBg(title: string): string {
   let h = 0;
@@ -48,11 +48,11 @@ function artBg(title: string): string {
 }
 
 const MOOD_DIST = [
-  { label: "Happy",        percent: 45, color: "#D4AF37" },
-  { label: "Calm",         percent: 25, color: "#7E22CE" },
-  { label: "Reflective",   percent: 15, color: "#2563EB" },
-  { label: "Surprised",    percent: 10, color: "#16A34A" },
-  { label: "Intense",      percent:  5, color: "#B91C1C" },
+  { label: "Happy",        percent: 45, color: "#F59E0B" },
+  { label: "Calm",         percent: 25, color: "#2DD4BF" },
+  { label: "Reflective",   percent: 15, color: "#22D3EE" },
+  { label: "Focused",      percent: 10, color: "#6366F1" },
+  { label: "Energetic",    percent:  5, color: "#8B5CF6" },
 ];
 
 export default function ProfilePage() {
@@ -110,15 +110,14 @@ export default function ProfilePage() {
   return (
     <div className="pr-root">
       {/* ── NAV ──────────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid var(--glass-border)", background: "rgba(9,9,9,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", fontWeight: 800, color: "var(--text-1)" }}>
-          <Disc size={18} style={{ color: "var(--gold)" }} />
-          <span>Music Mirror</span>
-          <span style={{ marginLeft: 4, fontSize: "0.7rem", fontWeight: 600, color: "var(--text-3)", background: "rgba(212,175,55,0.08)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.15)" }}>Profile</span>
+      <header style={{ borderBottom: "1px solid var(--border-subtle)", background: "rgba(8,9,13,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Wordmark size="md" showBadge={true} />
+          <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--accent-cyan)", background: "rgba(34,211,238,0.08)", padding: "2px 10px", borderRadius: "999px", border: "1px solid rgba(34,211,238,0.2)" }}>User Profile</span>
         </div>
         <div style={{ marginLeft: "auto" }}>
-          <button className="pill-button primary small" onClick={() => navigate("/room")} type="button" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            Enter Room <ArrowRight size={14} />
+          <button className="pill-button primary small" onClick={() => navigate("/room")} type="button" style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent-cyan)", color: "#08090D", border: "none" }}>
+            Enter Studio <ArrowRight size={14} />
           </button>
         </div>
       </header>

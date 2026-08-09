@@ -1,8 +1,7 @@
-// @ts-nocheck
-import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Disc } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Wordmark } from "../components/Brand";
 
 export default function SummaryPage() {
   const navigate = useNavigate();
@@ -14,21 +13,20 @@ export default function SummaryPage() {
 
   const cardVariants = {
     hidden: { y: 30, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100 } }
+    visible: { y: 0, opacity: 1, transition: { type: "spring" as const, stiffness: 100 } }
   };
 
   return (
     <div className="pr-root">
       {/* ── NAV ──────────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid var(--glass-border)", background: "rgba(9,9,9,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "1rem", fontWeight: 800, color: "var(--text-1)" }}>
-          <Disc size={18} style={{ color: "var(--gold)" }} />
-          <span>Music Mirror</span>
-          <span style={{ marginLeft: 4, fontSize: "0.7rem", fontWeight: 600, color: "var(--text-3)", background: "rgba(212,175,55,0.08)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.15)" }}>About</span>
+      <header style={{ borderBottom: "1px solid var(--border-subtle)", background: "rgba(8,9,13,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Wordmark size="md" showBadge={true} />
+          <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--accent-cyan)", background: "rgba(34,211,238,0.08)", padding: "2px 10px", borderRadius: "999px", border: "1px solid rgba(34,211,238,0.2)" }}>Architecture Blueprint</span>
         </div>
         <div style={{ marginLeft: "auto" }}>
-          <Link to="/room" style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--gold)", background: "var(--gold-dim)", padding: "8px 20px", borderRadius: "999px", border: "1px solid var(--gold-border)" }}>
-            Enter Room
+          <Link to="/room" style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--bg-primary)", background: "var(--accent-cyan)", padding: "8px 22px", borderRadius: "999px", transition: "all 0.2s ease" }}>
+            Enter Studio
           </Link>
         </div>
       </header>
