@@ -60,6 +60,10 @@ export default function ProfilePage() {
   const navigate  = useNavigate();
   const profile   = useAppStore(s => s.profile);
   const setProfile = useAppStore(s => s.setProfile);
+  const setCurrentSong = useAppStore(s => s.setCurrentSong);
+  const setSongsQueue = useAppStore(s => s.setSongsQueue);
+  const favs = useAppStore(s => s.favs);
+  const toggleFav = useAppStore(s => s.toggleFav);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isEditing, setIsEditing] = useState(!profile);
@@ -119,7 +123,7 @@ export default function ProfilePage() {
   return (
     <div className="pr-root">
       {/* ── NAV ──────────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid var(--border-subtle)", background: "rgba(8,9,13,0.92)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
+      <header style={{ borderBottom: "1px solid #E2E8F0", background: "rgba(255, 255, 255, 0.88)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Wordmark size="md" showBadge={true} />
           <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--accent-cyan)", background: "rgba(34,211,238,0.08)", padding: "2px 10px", borderRadius: "999px", border: "1px solid rgba(34,211,238,0.2)" }}>User Profile</span>
@@ -314,39 +318,64 @@ export default function ProfilePage() {
 
             {/* Saved songs */}
             <section className="panel">
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <h3 style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.01em", display: "flex", alignItems: "center", gap: 8 }}>
-                  <Heart size={18} style={{ color: "var(--crimson-lt)" }} /> Saved Songs
-                </h3>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>{form.savedSongs?.length || 0} tracks</span>
-              </div>
-
-              <div>
-                {form.savedSongs?.map((song, i) => {
-                  const title = song.title || song.name || "Unknown";
-                  return (
-                    <div key={i} className="pr-song-row">
-                      <div className="pr-song-art" style={{ background: artBg(title) }}>
-                        {title[0]?.toUpperCase()}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p className="pr-song-title" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</p>
-                        <p className="pr-song-artist">{song.artist}</p>
-                      </div>
-                      <span className="pr-song-lang" style={{ color: LANG_COLOR[song.language || ""] || "var(--text-3)" }}>
-                        {song.language || "—"}
-                      </span>
-                      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                        <button className="pill-button primary small" onClick={() => navigate("/room")} type="button">Play</button>
-                        <button onClick={() => handleRemoveSong(title)} style={{ background: "none", border: "none", color: "var(--text-4)", cursor: "pointer", padding: 4 }} title="Remove" type="button">
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+              {/* Merge store favs + profile savedSongs (dedupe by title+artist) */}
+              {(() => {
+                const favKey = (s: Song) => `${s.title || s.name}::${s.artist}`;
+                const favSet = new Set(favs.map(favKey));
+                const savedOnly = (form.savedSongs || []).filter(s => !favSet.has(favKey(s)));
+                const allSongs: (Song & { fromFav?: boolean })[] = [
+                  ...favs.map(s => ({ ...s, fromFav: true })),
+                  ...savedOnly,
+                ];
+                return (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                      <h3 style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.01em", display: "flex", alignItems: "center", gap: 8 }}>
+                        <Heart size={18} style={{ color: "var(--crimson-lt)" }} /> Saved Songs
+                      </h3>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>{allSongs.length} tracks</span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div>
+                      {allSongs.map((song, i) => {
+                        const title = song.title || song.name || "Unknown";
+                        return (
+                          <div key={i} className="pr-song-row">
+                            <div className="pr-song-art" style={{ background: artBg(title) }}>
+                              {title[0]?.toUpperCase()}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p className="pr-song-title" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</p>
+                              <p className="pr-song-artist">{song.artist}{song.fromFav && <span style={{ marginLeft: 6, fontSize: "0.65rem", color: "#F472B6", fontWeight: 700 }}>♥ Favorited</span>}</p>
+                            </div>
+                            <span className="pr-song-lang" style={{ color: LANG_COLOR[song.language || ""] || "var(--text-3)" }}>
+                              {song.language || "—"}
+                            </span>
+                            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                              <button className="pill-button primary small" onClick={() => {
+                                const storeSong: Song = { ...song, name: song.title || song.name || 'Unknown' };
+                                setSongsQueue([storeSong]);
+                                setCurrentSong(storeSong);
+                                navigate("/room");
+                              }} type="button">Play</button>
+                              {song.fromFav ? (
+                                <button onClick={() => toggleFav(song)} style={{ background: "none", border: "none", color: "#F472B6", cursor: "pointer", padding: 4 }} title="Remove from favorites" type="button">
+                                  <Heart size={13} fill="#F472B6" />
+                                </button>
+                              ) : (
+                                <button onClick={() => handleRemoveSong(title)} style={{ background: "none", border: "none", color: "var(--text-4)", cursor: "pointer", padding: 4 }} title="Remove" type="button">
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                );
+              })()}
             </section>
+
 
             {/* Summary link */}
             <section className="panel" style={{ borderColor: "rgba(37,99,235,0.3)" }}>

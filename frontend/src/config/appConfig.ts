@@ -63,3 +63,14 @@ export const appConfig: AppConfig = {
     enableFallbackOnFailure: true,
   },
 };
+
+export function validateAppConfig(): { isValid: boolean; warnings: string[] } {
+  const warnings: string[] = [];
+  if (!import.meta.env?.VITE_JAMENDO_CLIENT_ID) {
+    warnings.push('VITE_JAMENDO_CLIENT_ID is unset. Using default public Jamendo client ID.');
+  }
+  if (!import.meta.env?.VITE_API_BASE_URL && appConfig.env === 'production') {
+    warnings.push('VITE_API_BASE_URL is unset in production mode. Defaulting to localhost:8000.');
+  }
+  return { isValid: true, warnings };
+}

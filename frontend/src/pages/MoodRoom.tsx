@@ -1,14 +1,13 @@
 // @ts-nocheck
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Camera from "../components/Camera";
 import type { DetectionResult } from "../components/Camera";
 import { CDDisc } from "../components/Brand";
 import { useAppStore } from "../store/useAppStore";
-import type { Song } from "../store/useAppStore";
-import { sessionOrchestrator } from "../architecture/orchestrator/SessionOrchestrator";
+import type { Song } from "../types";
 import { JamendoProviderAdapter } from "../architecture/layers/ProviderAdapterLayer/JamendoProviderAdapter";
-import { Disc, Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Music } from "lucide-react";
+import { Disc, Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Music, Heart } from "lucide-react";
 
 /* ─── Emotion configuration ──────────────────────────────── */
 const MOODS = ["calm", "happy", "sad", "energetic", "focused", "romantic", "neutral"];
@@ -70,6 +69,14 @@ export default function MoodRoom() {
   const setSongsQueue = useAppStore(s => s.setSongsQueue);
   const playerMode = useAppStore(s => s.playerMode);
   const setPlayerMode = useAppStore(s => s.setPlayerMode);
+  const toggleFav = useAppStore(s => s.toggleFav);
+  const favs = useAppStore(s => s.favs);
+
+  // Keep live refs to avoid stale closures in audio event handlers
+  const songsQueueRef = useRef<Song[]>([]);
+  const currentSongRef = useRef<Song | null>(null);
+  songsQueueRef.current = songsQueue;
+  currentSongRef.current = currentSong;
 
   const [camOpen, setCamOpen] = useState(true);
   const [isBioCollapsed, setIsBioCollapsed] = useState(false);
@@ -80,15 +87,8 @@ export default function MoodRoom() {
   const [currentTimeStr, setCurrentTimeStr] = useState("1:24");
   const [durationStr, setDurationStr] = useState("3:40");
 
-  /* Subscribe to session orchestrator playback state */
-  useEffect(() => {
-    const unsub = sessionOrchestrator.subscribe((st) => {
-      setIsPlaying(st.isPlaying);
-      if (st.volume !== undefined) setVolume(st.volume);
-      if (st.isMuted !== undefined) setIsMuted(st.isMuted);
-    });
-    return () => unsub();
-  }, []);
+  /* Subscribe to session orchestrator playback state has been removed;
+     MoodRoom owns its own audioRef element and manages playback directly */
 
   /* Synchronize catalog whenever playerMode or activeMood changes */
   useEffect(() => {
@@ -136,7 +136,8 @@ export default function MoodRoom() {
       audioRef.current = new Audio();
     }
     const audio = audioRef.current;
-    audio.volume = isMuted ? 0 : volume / 100;
+    // volume is 0-1 range; no division needed
+    audio.volume = 0.8;
 
     const handleTimeUpdate = () => {
       if (audio.duration && !isNaN(audio.duration) && audio.duration > 0) {
@@ -154,8 +155,14 @@ export default function MoodRoom() {
       }
     };
 
+    // Use refs to avoid stale closure — always reads live queue state
     const handleEnded = () => {
-      handleSkipNext();
+      const queue = songsQueueRef.current;
+      const cur = currentSongRef.current;
+      if (!queue.length) return;
+      const curIdx = queue.findIndex(s => key(s) === key(cur || queue[0]));
+      const nextIdx = (curIdx + 1) % queue.length;
+      setCurrentSong(queue[nextIdx]);
     };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -166,12 +173,13 @@ export default function MoodRoom() {
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = isMuted ? 0 : volume / 100;
+    // volume state is 0-1 range
+    audio.volume = isMuted ? 0 : volume;
   }, [volume, isMuted]);
 
   const activeSong = currentSong || songsQueue[0] || PROVIDER_CATALOGS.jamendo[0];
@@ -201,8 +209,6 @@ export default function MoodRoom() {
 
   const handleTogglePlay = () => {
     const audio = audioRef.current;
-    sessionOrchestrator.togglePlayPause();
-    
     if (isPlaying) {
       if (audio) audio.pause();
       setIsPlaying(false);
@@ -218,8 +224,6 @@ export default function MoodRoom() {
           console.warn("Audio play blocked:", err);
           setIsPlaying(false);
         });
-      } else {
-        setIsPlaying(true);
       }
     }
   };
@@ -229,7 +233,6 @@ export default function MoodRoom() {
     const curIdx = songsQueue.findIndex(s => key(s) === key(currentSong || songsQueue[0]));
     const nextIdx = (curIdx + 1) % songsQueue.length;
     setCurrentSong(songsQueue[nextIdx]);
-    sessionOrchestrator.skipNext();
   };
 
   const handleSkipPrev = () => {
@@ -237,6 +240,9 @@ export default function MoodRoom() {
     const curIdx = songsQueue.findIndex(s => key(s) === key(currentSong || songsQueue[0]));
     const prevIdx = (curIdx - 1 + songsQueue.length) % songsQueue.length;
     setCurrentSong(songsQueue[prevIdx]);
+    // Restart from beginning of prev track
+    const audio = audioRef.current;
+    if (audio) { audio.currentTime = 0; }
   };
   const songTitle = activeSong?.title || activeSong?.name || "Music Mirror Audio";
   const songArtist = activeSong?.artist || "AI Recommended";
@@ -442,8 +448,18 @@ export default function MoodRoom() {
                 <span style={{ fontSize: "0.72rem", color: "#4F46E5", border: "1px solid #CBD5E1", padding: "1px 8px", borderRadius: "999px", background: "#EEF2FF" }}>
                   {songLang}
                 </span>
+                {/* Favorite toggle */}
+                <button
+                  onClick={() => activeSong && toggleFav(activeSong)}
+                  aria-label={favs.some(f => key(f) === key(activeSong)) ? "Remove from favorites" : "Add to favorites"}
+                  title={favs.some(f => key(f) === key(activeSong)) ? "Saved" : "Save"}
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 4px", display: "flex", alignItems: "center", color: favs.some(f => key(f) === key(activeSong)) ? "#F472B6" : "#A8B1BF", transition: "color 0.2s" }}
+                >
+                  <Heart size={18} fill={favs.some(f => key(f) === key(activeSong)) ? "#F472B6" : "none"} />
+                </button>
               </div>
             </div>
+
 
             {/* Progress Seek Bar */}
             <div style={{ width: "100%", marginBottom: 24, zIndex: 2 }}>
@@ -516,7 +532,8 @@ export default function MoodRoom() {
                   onClick={() => {
                     const nextMute = !isMuted;
                     setIsMuted(nextMute);
-                    sessionOrchestrator.setMute(nextMute);
+                    const audio = audioRef.current;
+                    if (audio) audio.volume = nextMute ? 0 : volume;
                   }}
                   style={{ background: "none", border: "none", color: "#475569", cursor: "pointer" }}
                 >
@@ -532,7 +549,6 @@ export default function MoodRoom() {
                     const v = Number(e.target.value);
                     setVolume(v);
                     setIsMuted(v === 0);
-                    sessionOrchestrator.setVolume(v);
                   }}
                   style={{ width: 80, height: 4, accentColor: "#4F46E5", cursor: "pointer" }}
                 />
