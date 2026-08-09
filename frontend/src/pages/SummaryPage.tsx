@@ -152,6 +152,18 @@ export default function SummaryPage() {
               </div>
             </div>
           </div>
+
+          {/* Sole Creator & Developer Attribution */}
+          <div className="panel" style={{ marginTop: 24, background: "#EEF2FF", borderColor: "#C7D2FE" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#4F46E5", textTransform: "uppercase", letterSpacing: "0.08em" }}>Sole Creator & Architect</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#1E293B", marginTop: 2 }}>Patnala Uday Kumar</div>
+                <div style={{ fontSize: "0.85rem", color: "#64748B", marginTop: 2 }}>B.Tech Final Year Project — Full-Stack Real-Time Emotion Audio Intelligence</div>
+              </div>
+              <span style={{ fontSize: "0.78rem", fontWeight: 700, background: "#4F46E5", color: "#FFFFFF", padding: "6px 16px", borderRadius: "999px" }}>Original System</span>
+            </div>
+          </div>
         </section>
 
         {/* ── ENDING SECTION CTA ────────────────────────────────── */}
