@@ -64,6 +64,9 @@ export default function ProfilePage() {
   const setSongsQueue = useAppStore(s => s.setSongsQueue);
   const favs = useAppStore(s => s.favs);
   const toggleFav = useAppStore(s => s.toggleFav);
+  const clearFavs = useAppStore(s => s.clearFavs);
+  const clearPlaybackHistory = useAppStore(s => s.clearPlaybackHistory);
+  const purgeAllData = useAppStore(s => s.purgeAllData);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isEditing, setIsEditing] = useState(!profile);
@@ -390,6 +393,34 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
+
+      {/* ── Privacy Controls (below main, above nav) ── */}
+      <section style={{ maxWidth: 900, margin: "0 auto 80px", padding: "0 24px" }}>
+        <div className="panel" style={{ borderColor: "rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.02)" }}>
+          <h3 style={{ fontSize: "0.92rem", fontWeight: 800, color: "var(--text-1)", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+            🔒 Privacy Controls
+          </h3>
+          <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginBottom: 16, lineHeight: 1.5 }}>
+            All data is stored locally in your browser. No data is sent to any server.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button type="button" className="pill-button secondary small"
+              onClick={() => { clearFavs(); }}
+            >Clear Favorites ({favs.length})</button>
+            <button type="button" className="pill-button secondary small"
+              onClick={() => { clearPlaybackHistory(); }}
+            >Clear Playback History</button>
+            <button type="button"
+              style={{ padding: "8px 16px", borderRadius: "999px", border: "1px solid rgba(239,68,68,0.4)", background: "rgba(239,68,68,0.06)", color: "#DC2626", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer" }}
+              onClick={() => {
+                if (window.confirm("Delete ALL your MusicMirror data? This cannot be undone.")) {
+                  purgeAllData();
+                }
+              }}
+            >🗑 Delete All My Data</button>
+          </div>
+        </div>
+      </section>
 
       {/* ── Floating Bottom Navigation Pill ── */}
       <nav className="studio-nav-bar">
