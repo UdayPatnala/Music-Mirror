@@ -1,6 +1,6 @@
 import math
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
 
@@ -127,7 +127,7 @@ class SelfHealingEngine:
             active_source.failure_count += 1
             active_source.consecutive_failures += 1
             active_source.health_score = max(0.0, round(active_source.health_score - 0.25, 2))
-            active_source.last_checked_at = datetime.utcnow()
+            active_source.last_checked_at = datetime.now(timezone.utc)
 
             if active_source.consecutive_failures >= 2 or classification == "WRONG_SONG":
                 active_source.status = "QUARANTINED" if classification == "WRONG_SONG" else "DEGRADED"
@@ -194,7 +194,7 @@ class SelfHealingEngine:
                 candidate.priority = 1
                 candidate.success_count += 1
                 candidate.reliability_score = min(1.0, round(candidate.reliability_score + 0.10, 2))
-                candidate.last_verified_at = datetime.utcnow()
+                candidate.last_verified_at = datetime.now(timezone.utc)
 
                 if failed_source:
                     failed_source.priority = 2

@@ -1,7 +1,6 @@
 import math
-import time
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class DatasetTracker:
@@ -14,7 +13,7 @@ class DatasetTracker:
         "ds_music_v2.0.0": {
             "dataset_id": "ds_music_v2.0.0",
             "dataset_version": "v2.0.0",
-            "creation_time": datetime.utcnow().isoformat(),
+            "creation_time": datetime.now(timezone.utc).isoformat(),
             "source": "canonical_music_database",
             "schema_version": "v2.0",
             "feature_version": "f_v2",
@@ -33,7 +32,7 @@ class DatasetTracker:
         record = {
             "dataset_id": dataset_id,
             "dataset_version": version,
-            "creation_time": datetime.utcnow().isoformat(),
+            "creation_time": datetime.now(timezone.utc).isoformat(),
             "source": "canonical_music_database",
             "schema_version": "v2.0",
             "feature_version": "f_v2",
@@ -96,7 +95,7 @@ class MLOpsPipelineEngine:
     def evaluate_model_offline(cls, model_id: str, precision: float, recall: float, ndcg: float) -> Dict[str, Any]:
         eval_record = {
             "model_id": model_id,
-            "evaluation_time": datetime.utcnow().isoformat(),
+            "evaluation_time": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "precision": precision,
                 "recall": recall,
@@ -114,5 +113,5 @@ class MLOpsPipelineEngine:
             "model_id": model_id,
             "restored_model_id": "audio_embedding_v1",
             "reason": reason,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }

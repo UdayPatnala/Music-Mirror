@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 
@@ -32,7 +32,7 @@ class CircuitBreakerManager:
 
     def record_repair_failure(self) -> bool:
         """Records a repair failure. Returns True if circuit breaker was triggered."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         self._repair_failures.append(now)
         self._clean_old_failures()
 
@@ -43,7 +43,7 @@ class CircuitBreakerManager:
 
     def record_provider_failure(self) -> bool:
         """Records a provider network failure. Returns True if circuit breaker was triggered."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         self._provider_failures.append(now)
         self._clean_old_failures()
 
@@ -53,7 +53,7 @@ class CircuitBreakerManager:
         return False
 
     def _clean_old_failures(self):
-        cutoff = datetime.utcnow() - timedelta(seconds=self._window_seconds)
+        cutoff = datetime.now(timezone.utc) - timedelta(seconds=self._window_seconds)
         self._repair_failures = [t for t in self._repair_failures if t > cutoff]
         self._provider_failures = [t for t in self._provider_failures if t > cutoff]
 
@@ -94,7 +94,7 @@ class GovernanceAuditLog:
             "verification_result": verification_result,
             "canary_passed": canary_passed,
             "algorithm_version": "v2.0.0-governed",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "rolled_back": False,
         }
         cls._audit_records.append(record)

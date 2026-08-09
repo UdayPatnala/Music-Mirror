@@ -1,10 +1,8 @@
 import math
-import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from sqlalchemy.orm import Session
 
-from app.db.models import Song, Artist, SongSource, UserMusicPreference
+from app.db.models import Song, SongSource, UserMusicPreference
 from app.services.self_healing_engine import levenshtein_similarity
 
 

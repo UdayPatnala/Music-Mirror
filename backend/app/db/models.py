@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import (
     Column,
     String,
@@ -30,8 +30,8 @@ class Artist(Base):
     bio = Column(Text, nullable=True)
     genres = Column(String(255), nullable=True)
     country = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     songs = relationship("Song", back_populates="artist", cascade="all, delete-orphan")
     albums = relationship("Album", back_populates="artist", cascade="all, delete-orphan")
@@ -48,8 +48,8 @@ class Album(Base):
     release_date = Column(String(50), nullable=True)
     album_type = Column(String(50), default="album")
     total_tracks = Column(Integer, default=1)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     artist = relationship("Artist", back_populates="albums")
     songs = relationship("Song", back_populates="album", cascade="all, delete-orphan")
@@ -101,8 +101,8 @@ class Song(Base):
     youtube_id = Column(String(100), nullable=True, index=True)
     is_estimated_ai_metrics = Column(Boolean, default=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     artist = relationship("Artist", back_populates="songs")
     album = relationship("Album", back_populates="songs")
@@ -141,8 +141,8 @@ class SongSource(Base):
     last_checked_at = Column(DateTime, nullable=True)
     last_verified_at = Column(DateTime, nullable=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     song = relationship("Song", back_populates="sources")
 
@@ -172,8 +172,8 @@ class UserMusicPreference(Base):
     blocked_artists = Column(Text, nullable=True) # JSON array of excluded artists e.g. ["Artist X"]
     blocked_songs = Column(Text, nullable=True) # JSON array of excluded song IDs
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
 
 class UserPlaybackReport(Base):
@@ -192,5 +192,5 @@ class UserPlaybackReport(Base):
     status = Column(String(50), nullable=False, default="PENDING") # 'PENDING', 'DIAGNOSED', 'REPAIRED', 'UNRESOLVED'
     confidence = Column(String(20), nullable=False, default="MEDIUM") # 'LOW', 'MEDIUM', 'HIGH'
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
