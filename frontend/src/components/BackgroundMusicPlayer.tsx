@@ -91,38 +91,44 @@ export function BackgroundMusicPlayer() {
     <div
       style={{
         position: "fixed",
-        bottom: 28,
+        bottom: 92,
         right: 28,
-        zIndex: 300,
+        zIndex: 400,
         display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end",
-        gap: 8,
+        alignItems: "center",
+        gap: 10,
+        background: "rgba(18,18,18,0.85)",
+        backdropFilter: "blur(16px)",
+        border: `1px solid ${playing ? "rgba(212,175,55,0.3)" : "rgba(255,255,255,0.08)"}`,
+        borderRadius: "999px",
+        padding: "4px 6px 4px 14px",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+        transition: "all 0.3s cubic-bezier(0.25,0.8,0.25,1)",
       }}
     >
       {/* Label */}
-      <div
+      <span
         style={{
           fontSize: "0.68rem",
-          fontWeight: 600,
+          fontWeight: 700,
           letterSpacing: "0.08em",
-          color: playing ? "rgba(212,175,55,0.8)" : "rgba(255,255,255,0.25)",
+          color: playing ? "var(--gold)" : "rgba(255,255,255,0.4)",
           textTransform: "uppercase",
-          transition: "color 0.4s ease",
-          pointerEvents: "none",
           userSelect: "none",
+          whiteSpace: "nowrap",
         }}
       >
-        {playing ? "Ambient" : "Music Off"}
-      </div>
+        {playing ? "Ambient On" : "Ambient Off"}
+      </span>
+
 
       {/* Button */}
       <button
         onClick={toggle}
         aria-label={playing ? "Mute background music" : "Play ambient background music"}
         style={{
-          width: 48,
-          height: 48,
+          width: 36,
+          height: 36,
           borderRadius: "50%",
           border: `1px solid ${playing ? "rgba(212,175,55,0.4)" : "rgba(255,255,255,0.1)"}`,
           background: playing

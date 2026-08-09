@@ -1233,22 +1233,26 @@ img { max-width: 100%; display: block; }
 /* ── Page Layout: Studio (Music Room) ────────────────────────── */
 .studio-layout {
   display: grid;
-  grid-template-columns: 280px 1fr 340px;
-  gap: 32px;
-  max-width: 1440px;
+  grid-template-columns: 310px 1fr 340px;
+  gap: 28px;
+  max-width: 1480px;
   margin: 0 auto;
-  padding: 110px 56px 80px;
-  min-height: 100vh;
+  padding: 20px 32px 90px;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  align-items: stretch;
 }
 .studio-acoustic-panel {
   border-radius: var(--r-24);
   background: var(--surface);
   border: 1px solid var(--glass-border);
   padding: 24px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-deep);
   display: flex;
   flex-direction: column;
-  height: fit-content;
+  height: 100%;
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
 }
 .studio-wood-trim {
   border-top: 4px solid var(--gold);
