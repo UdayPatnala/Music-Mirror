@@ -246,7 +246,7 @@ export default function MoodRoom() {
   const songTitle = activeSong?.title || activeSong?.name || "Music Mirror Audio";
   const songArtist = activeSong?.artist || "AI Recommended";
   const songLang = activeSong?.language || "English";
-  const moodColor = MOOD_COLOR[activeMood] || "#6E1835";
+  const moodColor = MOOD_COLOR[activeMood] || "#6846E8";
 
   return (
     <div className="pr-root" style={{ background: "var(--bg-primary)", minHeight: "100vh", position: "relative" }}>

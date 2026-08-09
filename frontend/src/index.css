@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   MUSIC MIRROR V2 — WARM IVORY × BURGUNDY LUXURY MUSIC SYSTEM
-   Palette: Warm Ivory · Burgundy · Deep Rose · Champagne Gold
-   Philosophy: Expensive, Editorial, Sophisticated, Music-First.
+   MUSIC MIRROR V2 — ELECTRIC VIOLET & AURORA GLASS SYSTEM
+   Palette: Soft Pearl · Pure White · Electric Violet · Iris · Aurora Blue · Orchid · Cyan Mist
+   Philosophy: Modern, High-Contrast, Glassmorphism, Music-First Intelligence.
  ═══════════════════════════════════════════════════════════════ */
 
 /* Typography is pre-loaded in index.html via <link> for optimal performance */
@@ -9,11 +9,11 @@
 
 /* ── Reset ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { background: #FAF8F4; scroll-behavior: smooth; }
+html { background: #F5F7FB; scroll-behavior: smooth; }
 body {
   font-family: "Outfit", "Space Grotesk", system-ui, sans-serif;
-  background: #FAF8F4;
-  color: #211B1D;
+  background: #F5F7FB;
+  color: #151522;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -37,8 +37,8 @@ button, input, select, textarea { font: inherit; }
 /* Global light-theme dropdown styling */
 select {
   background-color: #FFFFFF;
-  color: #211B1D;
-  border: 1px solid #E9E2DF;
+  color: #151522;
+  border: 1px solid #E5E7EF;
   border-radius: 8px;
   padding: 6px 12px;
   outline: none;
@@ -47,15 +47,15 @@ select {
 
 select option {
   background-color: #FFFFFF;
-  color: #211B1D;
+  color: #151522;
   padding: 10px 14px;
 }
 
 select option:hover,
 select option:focus,
 select option:checked {
-  background-color: #F7EBF0;
-  color: #6E1835;
+  background-color: #F4F1FF;
+  color: #6846E8;
 }
 
 #root { min-height: 100vh; }
@@ -67,15 +67,15 @@ img { max-width: 100%; display: block; }
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(244, 239, 234, 0.8);
+  background: rgba(244, 241, 255, 0.8);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(126, 116, 119, 0.25);
+  background: rgba(111, 113, 128, 0.25);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #6E1835;
+  background: #6846E8;
 }
 ::-webkit-scrollbar-button {
   display: none !important;
@@ -85,107 +85,131 @@ img { max-width: 100%; display: block; }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(126, 116, 119, 0.25) rgba(244, 239, 234, 0.8);
+  scrollbar-color: rgba(111, 113, 128, 0.25) rgba(244, 241, 255, 0.8);
 }
 
-/* ── Warm Ivory × Burgundy Design Tokens ────────────────────────────── */
+/* ── Electric Violet & Aurora Glass System Design Tokens ────────────────────────────── */
 :root {
-  /* Surfaces & Backgrounds (70% Warm Ivory Canvas) */
-  --bg-primary:       #FAF8F4;
-  --bg-secondary:     #F4EFEA;
-  --bg-0:             #FAF8F4;
-  --bg-1:             #FAF8F4;
-  --bg-2:             #F4EFEA;
-  --bg:               #FAF8F4;
-  --surface-primary:  #FFFFFF;
+  /* Surfaces & Backgrounds (Soft Pearl Canvas & Pure White Glass Surface) */
+  --bg-primary:       #F5F7FB;  /* Soft Pearl */
+  --bg-secondary:     #F4F1FF;  /* Cool Lavender Glass Tint */
+  --bg-0:             #F5F7FB;
+  --bg-1:             #F5F7FB;
+  --bg-2:             #F4F1FF;
+  --bg:               #F5F7FB;
+  --surface-primary:  #FFFFFF;  /* Pure White Glass Surface */
   --surface-elevated: #FFFFFF;
   --surface:          #FFFFFF;
   --card:             #FFFFFF;
   --card-elevated:    #FFFFFF;
-  --card-hover:       #FAF6F2;
+  --card-hover:       #F4F1FF;
 
-  /* Glassmorphism System */
-  --surface-glass:       rgba(255, 255, 255, 0.90);
-  --surface-hover:       rgba(244, 239, 234, 0.95);
-  --border-subtle:       #E9E2DF;
-  --border-active:       #D8CDC8;
-  --glass-bg:            rgba(255, 255, 255, 0.90);
-  --glass-bg-strong:     rgba(255, 255, 255, 0.97);
-  --glass-border:        #E9E2DF;
-  --glass-border-hover:  #D8CDC8;
-  --glass-shadow:        rgba(33, 27, 29, 0.05);
-  --glass-blur:          20px;
+  /* ── Liquid Glass Layer System ──────────────────────────── */
+  --glass-bg:            rgba(255, 255, 255, 0.58);
+  --glass-bg-strong:     rgba(255, 255, 255, 0.72);
+  --glass-bg-subtle:     rgba(255, 255, 255, 0.42);
+  --glass-border:        rgba(255, 255, 255, 0.70);
+  --glass-border-strong: rgba(255, 255, 255, 0.85);
+  --glass-shadow:        rgba(30, 25, 70, 0.08);
+  --glass-highlight:     rgba(255, 255, 255, 0.85);
+  --glass-blur:          32px;
   --glass-saturation:    110%;
 
-  /* Text Hierarchy (20% Dark Warm Charcoal Typography) */
-  --text-primary:     #211B1D;
-  --text-secondary:   #6E1835;
-  --text-muted:       #7E7477;
-  --text-disabled:    #A89F9E;
-  --text-1:          #211B1D;
-  --text-2:          #473D40;
-  --text-3:          #7E7477;
-  --text-4:          #A89F9E;
+  /* Text Hierarchy */
+  --text-primary:     #151522;  /* Deep Ink */
+  --text-secondary:   #6846E8;  /* Electric Violet Accent */
+  --text-muted:       #6F7180;  /* Slate */
+  --text-disabled:    #A5A7B8;
+  --text-1:          #151522;
+  --text-2:          #3A3C4D;
+  --text-3:          #6F7180;
+  --text-4:          #A5A7B8;
 
-  /* Warm Luxury Palette (8% Primary Burgundy + 2% Warm Gold Accent) */
-  --accent-burgundy:  #6E1835;  /* Primary Action & Progress */
-  --accent-rose:      #9E3155;  /* Secondary Deep Rose */
-  --accent-gold:      #D5A85C;  /* Vibrant Warm Gold Accent */
-  --accent-indigo:    #6E1835;  /* Brand primary mapping */
-  --accent-cyan:      #9E3155;  /* Secondary mapping */
-  --accent-violet:    #6E1835;
-  --accent-teal:      #8C2548;
-  --accent-champagne: #D5A85C;  /* Warm Gold */
-  --accent-amber:     #D5A85C;
+  /* ── Aurora Palette Tokens ──────────────────────────────── */
+  --accent-violet:    #6846E8;  /* Primary Electric Violet */
+  --accent-iris:      #9275FF;  /* Secondary Iris */
+  --accent-blue:      #4C9AFF;  /* Aurora Blue AI Accent */
+  --accent-orchid:    #D56CFF;  /* Orchid Aurora Accent */
+  --accent-cyan:      #6DE0E8;  /* Cyan Mist Highlight */
+  --accent-indigo:    #6846E8;
+  --accent-rose:      #D56CFF;
+  --accent-gold:      #6DE0E8;
+  --accent-teal:      #6DE0E8;
+  --accent-champagne: #6DE0E8;
+  --accent-amber:     #4C9AFF;
+
+  /* ── Aurora Gradients System ────────────────────────────── */
+  --aurora-violet:  linear-gradient(135deg, #6846E8 0%, #9275FF 100%);
+  --aurora-blue:    linear-gradient(135deg, #4C9AFF 0%, #6DE0E8 100%);
+  --aurora-dream:   linear-gradient(135deg, #9275FF 0%, #D56CFF 50%, #6DE0E8 100%);
+  --ai-pulse:       linear-gradient(135deg, #6846E8 0%, #4C9AFF 50%, #D56CFF 100%);
+
+  /* ── Bento UI Surface Hierarchy ──────────────────────────── */
+  --bento-primary:   #FFFFFF;
+  --bento-secondary: #F8F9FC;
+  --bento-featured:  #F3EFFF;
+  --bento-ai:        linear-gradient(135deg, #F4F0FF 0%, #EEF6FF 100%);
+  --bento-music:     linear-gradient(135deg, #FFF5FC 0%, #F1F5FF 100%);
+
+  /* ── Spatial UI Depth Levels & Shadows ───────────────────── */
+  --spatial-level-1:  #F5F7FB;
+  --spatial-level-2:  rgba(255, 255, 255, 0.55);
+  --spatial-level-3:  rgba(255, 255, 255, 0.80);
+  --spatial-shadow-1: 0 4px 20px rgba(30, 25, 70, 0.04);
+  --spatial-shadow-2: 0 12px 40px rgba(30, 25, 70, 0.07);
+  --spatial-shadow-3: 0 20px 60px rgba(30, 25, 70, 0.10);
 
   /* Semantic System Tokens */
-  --playback-accent:  #6E1835;
-  --playback-glow:    rgba(110, 24, 53, 0.12);
-  --ai-accent:        #9E3155;
-  --ai-glow:          rgba(158, 49, 85, 0.12);
-  --biometric-accent: #D5A85C;
-  --biometric-glow:   rgba(213, 168, 92, 0.15);
-  --premium-accent:   #D5A85C;
-  --premium-glow:     rgba(213, 168, 92, 0.18);
+  --playback-accent:  #6846E8;
+  --playback-glow:    rgba(104, 70, 232, 0.15);
+  --ai-accent:        #4C9AFF;
+  --ai-glow:          rgba(76, 154, 255, 0.15);
+  --biometric-accent: #6DE0E8;
+  --biometric-glow:   rgba(109, 224, 232, 0.18);
+  --premium-accent:   #D56CFF;
+  --premium-glow:     rgba(213, 108, 255, 0.18);
 
-  /* Status Colors */
-  --state-success:    #2D7A5D;
-  --state-error:      #A82424;
-  --state-warning:    #D5A85C;
-  --success:          #2D7A5D;
-  --error:            #A82424;
-  --warning:          #D5A85C;
-  --info:             #6E1835;
+  /* Motion & Status Colors */
+  --state-success:    #27B889;
+  --state-error:      #E05A67;
+  --state-warning:    #E5A83B;
+  --success:          #27B889;
+  --error:            #E05A67;
+  --warning:          #E5A83B;
+  --info:             #4C9AFF;
+  --btn-play-hover:   #795AF0;
+  --btn-play-active:  #5838D0;
+  --progress-track:   #E5E4EC;
 
   /* Backward Compatibility Aliases */
-  --gold:             var(--accent-burgundy);
-  --royal-gold:       var(--accent-burgundy);
-  --gold-dim:         rgba(110, 24, 53, 0.08);
-  --gold-border:      rgba(110, 24, 53, 0.18);
-  --purple:           var(--accent-rose);
-  --amethyst:         var(--accent-rose);
-  --purple-dim:       rgba(158, 49, 85, 0.08);
-  --highlight:        var(--accent-gold);
+  --gold:             var(--accent-violet);
+  --royal-gold:       var(--accent-violet);
+  --gold-dim:         rgba(104, 70, 232, 0.10);
+  --gold-border:      rgba(104, 70, 232, 0.20);
+  --purple:           var(--accent-iris);
+  --amethyst:         var(--accent-iris);
+  --purple-dim:       rgba(146, 117, 255, 0.10);
+  --highlight:        var(--accent-cyan);
 
-  /* Dynamic Emotion Accents (Warm Editorial Tone) */
-  --mood-calm:        #8C2548;
-  --mood-happy:       #D5A85C;
-  --mood-sad:         #5B6478;
-  --mood-energetic:   #9E3155;
-  --mood-focused:     #6E1835;
-  --mood-romantic:    #C24B70;
-  --mood-neutral:     #7E7477;
+  /* Dynamic Emotion Accents */
+  --mood-calm:        #6DE0E8;
+  --mood-happy:       #4C9AFF;
+  --mood-sad:         #6F7180;
+  --mood-energetic:   #D56CFF;
+  --mood-focused:     #6846E8;
+  --mood-romantic:    #9275FF;
+  --mood-neutral:     #6F7180;
 
   /* ── Edge Lighting System Tokens ───────────────────────────── */
-  --edge-neutral:     rgba(233, 226, 223, 0.85);
-  --edge-primary:     rgba(110, 24, 53, 0.35);
-  --edge-music:       rgba(158, 49, 85, 0.35);
-  --edge-ai:          rgba(110, 24, 53, 0.35);
-  --edge-biometric:   rgba(213, 168, 92, 0.40);
-  --edge-premium:     rgba(213, 168, 92, 0.45);
-  --edge-success:     rgba(45, 122, 93, 0.35);
-  --edge-warning:     rgba(213, 168, 92, 0.35);
-  --edge-error:       rgba(168, 36, 36, 0.35);
+  --edge-neutral:     rgba(229, 231, 239, 0.85);
+  --edge-primary:     rgba(104, 70, 232, 0.35);
+  --edge-music:       rgba(146, 117, 255, 0.35);
+  --edge-ai:          rgba(76, 154, 255, 0.35);
+  --edge-biometric:   rgba(109, 224, 232, 0.40);
+  --edge-premium:     rgba(213, 108, 255, 0.45);
+  --edge-success:     rgba(39, 184, 137, 0.35);
+  --edge-warning:     rgba(229, 168, 59, 0.35);
+  --edge-error:       rgba(224, 90, 103, 0.35);
 
   --edge-opacity-default: 0.15;
   --edge-opacity-hover:   0.35;

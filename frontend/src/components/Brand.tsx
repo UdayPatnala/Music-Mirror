@@ -34,7 +34,7 @@ interface CDDiscProps {
 }
 
 export function CDDisc({ size = 180, spinning = true, className = "", moodColor }: CDDiscProps) {
-  const primaryGlow = moodColor || "var(--accent-burgundy)";
+  const primaryGlow = moodColor || "var(--accent-violet)";
 
   return (
     <div
@@ -43,9 +43,9 @@ export function CDDisc({ size = 180, spinning = true, className = "", moodColor 
         width: size,
         height: size,
         borderRadius: "50%",
-        background: "radial-gradient(circle at 35% 35%, #FFFFFF 0%, #FAF6F2 55%, #E9E2DF 100%)",
+        background: "radial-gradient(circle at 35% 35%, #FFFFFF 0%, #F4F1FF 55%, #E5E7EF 100%)",
         border: `2px solid ${primaryGlow}`,
-        boxShadow: `0 8px 24px ${primaryGlow}20, 0 12px 36px rgba(33,27,29,0.06)`,
+        boxShadow: `0 12px 40px rgba(30,25,70,0.08)`,
         position: "relative",
         display: "flex",
         alignItems: "center",
@@ -62,8 +62,8 @@ export function CDDisc({ size = 180, spinning = true, className = "", moodColor 
           position: "absolute",
           inset: "8%",
           borderRadius: "50%",
-          border: "1px solid rgba(126,116,119,0.12)",
-          boxShadow: "inset 0 0 16px rgba(110,24,53,0.06)",
+          border: "1px solid rgba(111,113,128,0.12)",
+          boxShadow: "inset 0 0 16px rgba(104,70,232,0.06)",
         }}
       />
       <div
@@ -79,41 +79,41 @@ export function CDDisc({ size = 180, spinning = true, className = "", moodColor 
           position: "absolute",
           inset: "36%",
           borderRadius: "50%",
-          border: "1px solid rgba(126,116,119,0.12)",
+          border: "1px solid rgba(111,113,128,0.12)",
         }}
       />
 
-      {/* Subtle light sheen reflection */}
+      {/* Subtle Aurora light sheen reflection */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 45%, rgba(158,49,85,0.08) 50%, rgba(213,168,92,0.08) 100%)",
+          background: "linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 45%, rgba(76,154,255,0.08) 50%, rgba(213,108,255,0.08) 100%)",
           pointerEvents: "none",
         }}
       />
 
-      {/* Multi-Accent Center Ring */}
+      {/* Aurora Center Ring */}
       <div
         style={{
           width: "32%",
           height: "32%",
           borderRadius: "50%",
-          background: `linear-gradient(135deg, ${primaryGlow} 0%, #9E3155 100%)`,
+          background: `var(--aurora-violet)`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: `0 4px 12px ${primaryGlow}30`,
+          boxShadow: `0 4px 16px rgba(104,70,232,0.30)`,
           transition: "background 500ms ease",
         }}
       >
-        {/* Warm Gold AI Core */}
+        {/* Aurora Blue AI Core */}
         <div
           style={{
             width: "55%",
             height: "55%",
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #D5A85C 0%, #FAF6F2 100%)",
+            background: "var(--aurora-blue)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -126,8 +126,8 @@ export function CDDisc({ size = 180, spinning = true, className = "", moodColor 
               height: "45%",
               borderRadius: "50%",
               background: "#FFFFFF",
-              border: "1px solid #E9E2DF",
-              boxShadow: "inset 0 0 4px rgba(33,27,29,0.12)",
+              border: "1px solid #E5E7EF",
+              boxShadow: "inset 0 0 4px rgba(21,21,34,0.12)",
             }}
           />
         </div>
@@ -149,12 +149,13 @@ export function LogoSVG({ size = 32 }: { size?: number }) {
     >
       <defs>
         <linearGradient id="mmg1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6E1835" />
-          <stop offset="50%" stopColor="#9E3155" />
-          <stop offset="100%" stopColor="#D5A85C" />
+          <stop offset="0%" stopColor="#6846E8" />
+          <stop offset="35%" stopColor="#9275FF" />
+          <stop offset="70%" stopColor="#4C9AFF" />
+          <stop offset="100%" stopColor="#6DE0E8" />
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="14" fill="#FFFFFF" stroke="#E9E2DF" />
+      <rect width="64" height="64" rx="14" fill="#FFFFFF" stroke="#E5E7EF" />
       {/* Face profile */}
       <path
         d="M14 26 C14 15 22 10 30 12 C26 13 23 17 23 22 L23 36 C23 40 25 43 28 44 L20 44 C16 42 14 38 14 34 Z"
@@ -186,10 +187,10 @@ export function Wordmark({ size = "md", showBadge = false }: WordmarkProps) {
   return (
     <span className="mm-wordmark" style={{ gap: iconSize * 0.32 }}>
       <LogoSVG size={iconSize} />
-      <span className="mm-wordmark-text" style={{ fontSize, background: "linear-gradient(135deg, #211B1D 0%, #6E1835 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+      <span className="mm-wordmark-text" style={{ fontSize, background: "linear-gradient(135deg, #151522 0%, #6846E8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
         Music Mirror
       </span>
-      {showBadge && <span className="mm-wordmark-badge" style={{ color: "#6E1835", borderColor: "#E9E2DF" }}>v2</span>}
+      {showBadge && <span className="mm-wordmark-badge" style={{ color: "#6846E8", borderColor: "#E5E7EF" }}>v2</span>}
     </span>
   );
 }
