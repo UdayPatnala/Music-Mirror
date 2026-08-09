@@ -65,7 +65,24 @@ def to_dto(pref: UserMusicPreference) -> UserMusicPreferenceDTO:
         preferred_artists=parse_json_list(pref.preferred_artists),
         preferred_moods=parse_json_list(pref.preferred_moods),
         preferred_languages=parse_json_list(pref.preferred_languages),
+        blocked_artists=parse_json_list(pref.blocked_artists),
+        blocked_songs=parse_json_list(pref.blocked_songs),
     )
+
+
+@router.get("/export")
+def export_user_data(
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    pref = get_user_preference_model(db, current_user.id)
+    return {
+        "status": "success",
+        "exported_at": "2026-08-09T19:29:00Z",
+        "user_id": current_user.id,
+        "profile": to_dto(pref).model_dump(),
+        "disclaimer": "This export contains your personal profile data and preferences.",
+    }
 
 
 @router.get("", response_model=UserMusicPreferenceDTO)
@@ -116,6 +133,13 @@ def update_user_preferences(
         pref.preferred_languages = serialize_json_list(payload.preferred_languages)
         modified = True
 
+    if payload.blocked_artists is not None:
+        pref.blocked_artists = serialize_json_list(payload.blocked_artists)
+        modified = True
+    if payload.blocked_songs is not None:
+        pref.blocked_songs = serialize_json_list(payload.blocked_songs)
+        modified = True
+
     if modified:
         pref.profile_version = (pref.profile_version or 1) + 1
 
@@ -139,6 +163,8 @@ def reset_user_preferences(
     pref.preferred_artists = serialize_json_list([])
     pref.preferred_moods = serialize_json_list(["happy"])
     pref.preferred_languages = serialize_json_list(["Telugu", "English"])
+    pref.blocked_artists = serialize_json_list([])
+    pref.blocked_songs = serialize_json_list([])
 
     db.commit()
     return to_dto(pref)

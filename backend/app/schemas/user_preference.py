@@ -1,6 +1,5 @@
-import json
-from typing import Optional, List
-from pydantic import BaseModel, ConfigDict, Field
+from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class UserMusicPreferenceDTO(BaseModel):
@@ -19,6 +18,9 @@ class UserMusicPreferenceDTO(BaseModel):
     preferred_moods: List[str] = Field(default_factory=list)
     preferred_languages: List[str] = Field(default_factory=list)
 
+    blocked_artists: List[str] = Field(default_factory=list)
+    blocked_songs: List[str] = Field(default_factory=list)
+
 
 class UpdateUserMusicPreferencePayload(BaseModel):
     discovery_mode: Optional[str] = None
@@ -31,3 +33,6 @@ class UpdateUserMusicPreferencePayload(BaseModel):
     preferred_artists: Optional[List[str]] = None
     preferred_moods: Optional[List[str]] = None
     preferred_languages: Optional[List[str]] = None
+
+    blocked_artists: Optional[List[str]] = None
+    blocked_songs: Optional[List[str]] = None

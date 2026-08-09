@@ -161,5 +161,8 @@ class UserMusicPreference(Base):
     preferred_moods = Column(Text, nullable=True) # JSON array e.g. ["happy", "romantic"]
     preferred_languages = Column(Text, nullable=True) # JSON array e.g. ["Telugu", "Tamil", "English"]
 
+    blocked_artists = Column(Text, nullable=True) # JSON array of excluded artists e.g. ["Artist X"]
+    blocked_songs = Column(Text, nullable=True) # JSON array of excluded song IDs
+
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

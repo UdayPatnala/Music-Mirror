@@ -162,6 +162,8 @@ class RecommendationService:
                     "preferred_artists": parse_json_list(pref.preferred_artists),
                     "preferred_moods": parse_json_list(pref.preferred_moods),
                     "preferred_languages": parse_json_list(pref.preferred_languages),
+                    "blocked_artists": parse_json_list(pref.blocked_artists),
+                    "blocked_songs": parse_json_list(pref.blocked_songs),
                 }
         except Exception:
             pass
@@ -179,6 +181,8 @@ class RecommendationService:
             "preferred_artists": [],
             "preferred_moods": [],
             "preferred_languages": [],
+            "blocked_artists": [],
+            "blocked_songs": [],
         }
 
     @staticmethod
@@ -251,7 +255,16 @@ class RecommendationService:
         candidates = cls.get_database_songs(db)
         user_prefs = cls.get_user_preferences_from_db(user_id, db)
 
-        # ── 1. HARD SAFETY FILTERS ──
+        # ── 1. HARD SAFETY & BLOCKLIST FILTERS ──
+        blocked_artists = user_prefs.get("blocked_artists", [])
+        blocked_songs = user_prefs.get("blocked_songs", [])
+        if blocked_artists or blocked_songs:
+            candidates = [
+                c for c in candidates
+                if str(c.get("id", "")).lower() not in blocked_songs
+                and not any(ba in str(c.get("artist", "")).lower() for ba in blocked_artists)
+            ]
+
         explicit_mode = user_prefs.get("explicit_content_mode", "filter")
         if explicit_mode == "hide" or explicit_mode == "filter":
             candidates = [c for c in candidates if not c.get("explicit", False)] or candidates
