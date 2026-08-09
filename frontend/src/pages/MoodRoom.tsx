@@ -116,15 +116,32 @@ export default function MoodRoom() {
           <span className="room-brand-name">Music Mirror</span>
           <span className="room-brand-v2" style={{ marginLeft: 6, fontSize: "0.7rem", fontWeight: 600, color: "var(--text-3)", background: "rgba(212,175,55,0.08)", padding: "2px 8px", borderRadius: "999px", border: "1px solid rgba(212,175,55,0.15)" }}>Studio</span>
         </div>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: "var(--glass-bg)", border: "1px solid var(--glass-border)", borderRadius: "999px", padding: "4px 16px" }}>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, background: "rgba(20,20,20,0.85)", border: "1px solid var(--glass-border)", borderRadius: "999px", padding: "4px 14px" }}>
           <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Source</span>
           <select
             value={playerMode}
             onChange={e => setPlayerMode(e.target.value as any)}
-            style={{ background: "none", border: "none", color: "var(--gold)", fontSize: "0.78rem", fontWeight: 700, outline: "none", cursor: "pointer" }}
+            style={{
+              background: "#121212",
+              border: "1px solid rgba(212,175,55,0.25)",
+              color: "var(--gold)",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              borderRadius: "999px",
+              padding: "4px 26px 4px 12px",
+              outline: "none",
+              cursor: "pointer",
+              appearance: "none",
+              WebkitAppearance: "none",
+              MozAppearance: "none",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D4AF37' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 9px center",
+            }}
           >
-            <option value="youtube">YouTube</option>
-            <option value="spotify">Spotify</option>
+            <option value="youtube" style={{ background: "#141414", color: "#FFFFFF" }}>YouTube Engine</option>
+            <option value="jamendo" style={{ background: "#141414", color: "#FFFFFF" }}>Jamendo CC (Royalty-Free)</option>
+            <option value="local" style={{ background: "#141414", color: "#FFFFFF" }}>Local Audio Disk</option>
           </select>
         </div>
       </header>

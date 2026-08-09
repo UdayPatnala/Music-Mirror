@@ -14,8 +14,8 @@ interface AppState {
     setActiveMood: (mood: string) => void;
     songsQueue: Song[];
     setSongsQueue: (songs: Song[]) => void;
-    playerMode: 'youtube' | 'spotify';
-    setPlayerMode: (mode: 'youtube' | 'spotify') => void;
+    playerMode: 'youtube' | 'jamendo' | 'local' | 'spotify';
+    setPlayerMode: (mode: 'youtube' | 'jamendo' | 'local' | 'spotify') => void;
     favs: Song[];
     toggleFav: (song: Song) => void;
 }
