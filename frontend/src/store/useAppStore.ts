@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { UserProfile, Song } from '../types';
+import type { UserMusicPreference } from '../services/userPreferencesApi';
+import { DEFAULT_USER_PREFERENCES, UserPreferencesApi } from '../services/userPreferencesApi';
 
 const DEFAULT_PROFILE: UserProfile = {
   name: "Guest Listener",
@@ -18,6 +20,12 @@ interface AppState {
     profile: UserProfile | null;
     setProfile: (profile: UserProfile) => void;
     clearProfile: () => void;
+
+    userPreferences: UserMusicPreference;
+    setUserPreferences: (prefs: UserMusicPreference) => void;
+    updateUserPreferences: (updates: Partial<UserMusicPreference>) => Promise<void>;
+    resetUserPreferences: () => Promise<void>;
+    loadUserPreferences: () => Promise<void>;
 
     currentSong: Song | null;
     setCurrentSong: (song: Song | null) => void;
@@ -38,6 +46,7 @@ interface AppState {
 
 const RESET_STATE = {
     profile: DEFAULT_PROFILE,
+    userPreferences: DEFAULT_USER_PREFERENCES,
     currentSong: null as Song | null,
     activeMood: 'neutral',
     songsQueue: [] as Song[],
@@ -47,11 +56,52 @@ const RESET_STATE = {
 
 export const useAppStore = create<AppState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             ...RESET_STATE,
 
             setProfile: (profile) => set({ profile }),
             clearProfile: () => set({ profile: DEFAULT_PROFILE, currentSong: null, songsQueue: [], activeMood: 'neutral' }),
+
+            setUserPreferences: (userPreferences) => set({ userPreferences }),
+
+            updateUserPreferences: async (updates) => {
+                const prev = get().userPreferences;
+                // Optimistic UI update
+                const next = { ...prev, ...updates };
+                set({ userPreferences: next });
+
+                try {
+                    const saved = await UserPreferencesApi.updatePreferences(updates, prev.user_id);
+                    set({ userPreferences: saved });
+                } catch (err) {
+                    // Rollback on server rejection/error
+                    console.warn('[useAppStore] Rolling back preferences update due to API error:', err);
+                    set({ userPreferences: prev });
+                    throw err;
+                }
+            },
+
+            resetUserPreferences: async () => {
+                const prev = get().userPreferences;
+                set({ userPreferences: DEFAULT_USER_PREFERENCES });
+                try {
+                    const resetData = await UserPreferencesApi.resetPreferences(prev.user_id);
+                    set({ userPreferences: resetData });
+                } catch (err) {
+                    set({ userPreferences: prev });
+                    throw err;
+                }
+            },
+
+            loadUserPreferences: async () => {
+                const currentUserId = get().userPreferences?.user_id || 'default_user';
+                try {
+                    const fetched = await UserPreferencesApi.fetchPreferences(currentUserId);
+                    set({ userPreferences: fetched });
+                } catch (_) {
+                    // fallback to current local state
+                }
+            },
 
             setCurrentSong: (currentSong) => set({ currentSong }),
             setActiveMood: (activeMood) => set({ activeMood: activeMood || 'neutral' }),
@@ -82,15 +132,16 @@ export const useAppStore = create<AppState>()(
         }),
         {
             name: STORAGE_KEY,
-            version: 2,
+            version: 3,
             migrate: (persistedState: any) => {
                 if (!persistedState || typeof persistedState !== 'object') return { ...RESET_STATE };
 
                 const migrated = { ...persistedState };
                 if (!migrated.profile || typeof migrated.profile !== 'object') {
                     migrated.profile = DEFAULT_PROFILE;
-                } else {
-                    migrated.profile = { ...DEFAULT_PROFILE, ...migrated.profile };
+                }
+                if (!migrated.userPreferences || typeof migrated.userPreferences !== 'object') {
+                    migrated.userPreferences = DEFAULT_USER_PREFERENCES;
                 }
                 if (!Array.isArray(migrated.songsQueue)) migrated.songsQueue = [];
                 if (!Array.isArray(migrated.favs)) migrated.favs = [];

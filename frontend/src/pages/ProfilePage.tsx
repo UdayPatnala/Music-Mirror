@@ -1,8 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import type { Song, UserProfile } from "../types";
-import { BarChart3, Heart, Sparkles, ArrowRight, ShieldCheck, Plus, Trash2, Upload } from "lucide-react";
+import { BarChart3, Heart, ShieldCheck, Plus, Trash2, Upload, Sliders, RefreshCw, Check } from "lucide-react";
 import { Wordmark } from "../components/Brand";
 import { sanitizeInputText } from "../utils/security";
 
@@ -18,6 +18,20 @@ const AI_AVATARS = [
 const DEFAULT_ARTISTS = [
   "Sid Sriram", "Armaan Malik", "The Weeknd", "Dua Lipa",
   "Arijit Singh", "Anirudh Ravichander", "Harry Styles",
+];
+
+const AVAILABLE_GENRES = [
+  "Telugu Pop", "Telugu Melodic", "Telugu Classical Fusion", "Telugu Folk Dance",
+  "Tamil Kuthu", "Tamil Classic Soul", "Bollywood Romantic", "Bollywood Dance",
+  "Indie Pop", "Synthwave Pop", "Classic Rock", "Lo-Fi Ambient", "Classical Piano",
+];
+
+const AVAILABLE_MOODS = [
+  "happy", "calm", "energetic", "romantic", "focused", "sad", "nostalgic", "epic",
+];
+
+const AVAILABLE_LANGUAGES = [
+  "Telugu", "Tamil", "Hindi", "English", "Malayalam", "Punjabi", "Instrumental",
 ];
 
 const DEFAULT_SAVED: Song[] = [
@@ -48,18 +62,15 @@ function artBg(title: string): string {
   return ART_COLORS[Math.abs(h) % ART_COLORS.length];
 }
 
-const MOOD_DIST = [
-  { label: "Happy",        percent: 45, color: "#F59E0B" },
-  { label: "Calm",         percent: 25, color: "#2DD4BF" },
-  { label: "Reflective",   percent: 15, color: "#22D3EE" },
-  { label: "Focused",      percent: 10, color: "#6366F1" },
-  { label: "Energetic",    percent:  5, color: "#8B5CF6" },
-];
-
 export default function ProfilePage() {
   const navigate  = useNavigate();
   const profile   = useAppStore(s => s.profile);
   const setProfile = useAppStore(s => s.setProfile);
+  const userPreferences = useAppStore(s => s.userPreferences);
+  const updateUserPreferences = useAppStore(s => s.updateUserPreferences);
+  const resetUserPreferences = useAppStore(s => s.resetUserPreferences);
+  const loadUserPreferences = useAppStore(s => s.loadUserPreferences);
+
   const setCurrentSong = useAppStore(s => s.setCurrentSong);
   const setSongsQueue = useAppStore(s => s.setSongsQueue);
   const favs = useAppStore(s => s.favs);
@@ -71,6 +82,8 @@ export default function ProfilePage() {
 
   const [isEditing, setIsEditing] = useState(!profile);
   const [newArtist, setNewArtist] = useState("");
+  const [prefSyncing, setPrefSyncing] = useState(false);
+  const [prefSuccess, setPrefSuccess] = useState(false);
 
   const [form, setForm] = useState<UserProfile>({
     name:            profile?.name            || "Patnala Uday Kumar",
@@ -82,6 +95,10 @@ export default function ProfilePage() {
     favoriteArtists: profile?.favoriteArtists || DEFAULT_ARTISTS,
     savedSongs:      profile?.savedSongs      || DEFAULT_SAVED,
   });
+
+  useEffect(() => {
+    loadUserPreferences();
+  }, [loadUserPreferences]);
 
   /* Local file profile picture */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,205 +116,428 @@ export default function ProfilePage() {
       ...form,
       name: sanitizeInputText(form.name, 60) || "Patnala Uday Kumar",
       email: sanitizeInputText(form.email, 80) || "uday@musicmirror.ai",
-      genre: sanitizeInputText(form.genre, 40) || "Telugu Pop",
     };
-    setForm(sanitizedForm);
+
     setProfile(sanitizedForm);
     setIsEditing(false);
   };
 
   const handleAddArtist = () => {
-    const cleanArtist = sanitizeInputText(newArtist, 50);
-    if (!cleanArtist) return;
-    const updated = { ...form, favoriteArtists: [...(form.favoriteArtists || []), cleanArtist] };
-    setForm(updated); setProfile(updated); setNewArtist("");
+    const trimmed = sanitizeInputText(newArtist.trim(), 50);
+    if (!trimmed) return;
+
+    const currentArtists = form.favoriteArtists || [];
+    if (!currentArtists.includes(trimmed)) {
+      const updated = { ...form, favoriteArtists: [...currentArtists, trimmed] };
+      setForm(updated);
+      setProfile(updated);
+      // Also sync to user preferences database model
+      updateUserPreferences({
+        preferred_artists: Array.from(new Set([...(userPreferences.preferred_artists || []), trimmed])),
+      });
+    }
+    setNewArtist("");
   };
 
-  const handleRemoveArtist = (name: string) => {
-    const updated = { ...form, favoriteArtists: (form.favoriteArtists || []).filter(a => a !== name) };
-    setForm(updated); setProfile(updated);
+  const handleRemoveArtist = (artist: string) => {
+    const currentArtists = form.favoriteArtists || [];
+    const updated = { ...form, favoriteArtists: currentArtists.filter(a => a !== artist) };
+    setForm(updated);
+    setProfile(updated);
+    updateUserPreferences({
+      preferred_artists: (userPreferences.preferred_artists || []).filter(a => a !== artist),
+    });
   };
 
   const handleRemoveSong = (title: string) => {
     const updated = { ...form, savedSongs: (form.savedSongs || []).filter(s => (s.title || s.name) !== title) };
-    setForm(updated); setProfile(updated);
+    setForm(updated);
+    setProfile(updated);
+  };
+
+  const handleToggleGenrePref = async (genre: string) => {
+    setPrefSyncing(true);
+    const current = userPreferences.preferred_genres || [];
+    const next = current.includes(genre)
+      ? current.filter(g => g !== genre)
+      : [...current, genre];
+    try {
+      await updateUserPreferences({ preferred_genres: next });
+      setPrefSuccess(true);
+      setTimeout(() => setPrefSuccess(false), 2000);
+    } catch (_) {
+      // Handled via store rollback
+    } finally {
+      setPrefSyncing(false);
+    }
+  };
+
+  const handleToggleMoodPref = async (mood: string) => {
+    setPrefSyncing(true);
+    const current = userPreferences.preferred_moods || [];
+    const next = current.includes(mood)
+      ? current.filter(m => m !== mood)
+      : [...current, mood];
+    try {
+      await updateUserPreferences({ preferred_moods: next });
+      setPrefSuccess(true);
+      setTimeout(() => setPrefSuccess(false), 2000);
+    } catch (_) {
+      // Handled via store rollback
+    } finally {
+      setPrefSyncing(false);
+    }
+  };
+
+  const handleToggleLangPref = async (lang: string) => {
+    setPrefSyncing(true);
+    const current = userPreferences.preferred_languages || [];
+    const next = current.includes(lang)
+      ? current.filter(l => l !== lang)
+      : [...current, lang];
+    try {
+      await updateUserPreferences({ preferred_languages: next });
+      setPrefSuccess(true);
+      setTimeout(() => setPrefSuccess(false), 2000);
+    } catch (_) {
+      // Handled via store rollback
+    } finally {
+      setPrefSyncing(false);
+    }
+  };
+
+  const handleSetPreferenceField = async (field: string, val: string) => {
+    setPrefSyncing(true);
+    try {
+      await updateUserPreferences({ [field]: val });
+      setPrefSuccess(true);
+      setTimeout(() => setPrefSuccess(false), 2000);
+    } catch (_) {
+      // Handled via store rollback
+    } finally {
+      setPrefSyncing(false);
+    }
+  };
+
+  const handleResetPreferences = async () => {
+    if (window.confirm("Reset all your music preferences to default settings?")) {
+      setPrefSyncing(true);
+      try {
+        await resetUserPreferences();
+        setPrefSuccess(true);
+        setTimeout(() => setPrefSuccess(false), 2000);
+      } finally {
+        setPrefSyncing(false);
+      }
+    }
   };
 
   return (
-    <div className="pr-root">
-      {/* ── NAV ──────────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid #E2E8F0", background: "rgba(255, 255, 255, 0.88)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", padding: "0 40px", height: 64 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Wordmark size="md" showBadge={true} />
-          <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--accent-cyan)", background: "rgba(34,211,238,0.08)", padding: "2px 10px", borderRadius: "999px", border: "1px solid rgba(34,211,238,0.2)" }}>User Profile</span>
-        </div>
-        <div style={{ marginLeft: "auto" }}>
-          <button className="pill-button primary small" onClick={() => navigate("/room")} type="button" style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--accent-cyan)", color: "#08090D", border: "none" }}>
-            Enter Studio <ArrowRight size={14} />
-          </button>
-        </div>
+    <div className="min-h-screen pb-24 text-[var(--text-primary)] font-sans antialiased" style={{ background: "var(--app-bg)" }}>
+      {/* ── Top Header ── */}
+      <header className="pr-header" style={{ backdropFilter: "blur(20px)", background: "rgba(255,255,255,0.7)" }}>
+        <Wordmark size="sm" />
+        <span className="pr-header-tag" style={{ border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
+          <ShieldCheck size={11} style={{ color: "#22D3EE" }} /> Master System v2.0
+        </span>
       </header>
 
       <main className="pr-main">
-
-        {/* ── PROFILE HERO ─────────────────────────────────── */}
-        <section className="pr-hero">
-          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-            {/* Avatar — click to upload */}
-            <div className="pr-avatar-wrap" onClick={() => fileInputRef.current?.click()} title="Click to change photo">
-              <img src={form.avatarUrl || AI_AVATARS[0].src} alt="Profile" className="pr-avatar" />
-              <div className="pr-avatar-overlay">Change Photo</div>
-              <input ref={fileInputRef} type="file" accept="image/*" className="pr-avatar-input" onChange={handleFileSelect} />
-            </div>
-
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                <h1 className="pr-name">{form.name}</h1>
-                <span className="pr-badge pr-badge-success">
-                  <ShieldCheck size={11} /> Active
-                </span>
-              </div>
-              <p className="pr-email">{form.email}</p>
-              <div>
-                <span className="pr-badge pr-badge-gold">{form.genre}</span>
-                <span className="pr-badge pr-badge-sapp">{form.goal}</span>
-                {form.languages?.map(l => (
-                  <span key={l} className="pr-badge pr-badge-neutral">{l}</span>
-                ))}
-              </div>
-            </div>
+        {/* ── HERO BANNER ── */}
+        <section className="pr-hero-card">
+          <div className="pr-avatar-container">
+            <img src={form.avatarUrl} alt={form.name} className="pr-avatar-img" />
+            <button
+              type="button"
+              className="pr-avatar-upload-btn"
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload profile picture"
+            >
+              <Upload size={12} />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleFileSelect}
+            />
           </div>
 
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="pill-button secondary" onClick={() => setIsEditing(v => !v)} type="button">
-              {isEditing ? "Cancel" : "Edit Profile"}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+              <h1 className="pr-hero-name">{form.name}</h1>
+              <span className="pill-button secondary small" style={{ fontSize: "0.68rem", cursor: "default" }}>
+                AI Pro Listener
+              </span>
+            </div>
+            <p className="pr-hero-email">{form.email}</p>
+            <p className="pr-hero-meta">
+              <span>Goal: <strong>{form.goal}</strong></span>
+              <span style={{ color: "var(--text-4)" }}>•</span>
+              <span>Top Genre: <strong>{form.genre}</strong></span>
+            </p>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className={`pill-button ${isEditing ? "primary" : "secondary"} small`}
+              type="button"
+            >
+              {isEditing ? "View Profile" : "Edit Profile"}
             </button>
-            <button className="pill-button primary" onClick={() => navigate("/room")} type="button">
-              Music Room <ArrowRight size={15} />
-            </button>
+            <Link to="/dashboard" className="pill-button secondary small" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <BarChart3 size={13} /> AI Analytics
+            </Link>
           </div>
         </section>
 
-        {/* ── EDIT / SIGNUP FORM ───────────────────────────── */}
-        {isEditing && (
-          <section className="panel" style={{ marginBottom: 28, borderColor: "var(--gold-border)" }}>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: 20, letterSpacing: "-0.02em" }}>
-              Update Profile
-            </h2>
-
-            {/* Avatar picker */}
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ display: "block", fontSize: "0.76rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)", marginBottom: 12 }}>
-                Choose Avatar
-              </label>
-              {/* Upload from device */}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 18px", borderRadius: "999px", border: "1px dashed var(--gold-border)", background: "var(--gold-dim)", color: "var(--gold)", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", marginBottom: 16 }}
-              >
-                <Upload size={14} /> Upload from device
-              </button>
-              {/* AI-generated presets */}
-              <div className="pr-avatar-grid">
-                {AI_AVATARS.map(av => (
-                  <div
-                    key={av.src}
-                    className={`pr-avatar-opt ${form.avatarUrl === av.src ? "selected" : ""}`}
-                    onClick={() => { const u = { ...form, avatarUrl: av.src }; setForm(u); setProfile(u); }}
-                    title={av.label}
-                  >
-                    <img src={av.src} alt={av.label} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <form onSubmit={handleSave}>
-              <div className="lp-form-row">
-                <div className="lp-form-group">
-                  <label>Display Name</label>
-                  <input type="text" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="lp-input" required />
-                </div>
-                <div className="lp-form-group">
-                  <label>Email</label>
-                  <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className="lp-input" required />
-                </div>
-              </div>
-              <div className="lp-form-row">
-                <div className="lp-form-group">
-                  <label>Preferred Genre</label>
-                  <select value={form.genre} onChange={e => setForm(p => ({ ...p, genre: e.target.value }))} className="lp-input">
-                    <option>Telugu Pop</option><option>Pop</option><option>Synthpop</option>
-                    <option>Bollywood Ballad</option><option>Tamil Dance</option><option>Lo-Fi</option>
-                  </select>
-                </div>
-                <div className="lp-form-group">
-                  <label>Music Goal</label>
-                  <select value={form.goal} onChange={e => setForm(p => ({ ...p, goal: e.target.value }))} className="lp-input">
-                    <option>Match my mood</option><option value="lift">Lift my mood</option>
-                    <option value="relax">Relax</option><option value="focus">Deep Focus</option>
-                  </select>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-                <button type="submit" className="auth-submit" style={{ flex: 1 }}>Save Profile</button>
-                <button type="button" className="ghost-btn" onClick={() => setIsEditing(false)}>Cancel</button>
-              </div>
-            </form>
-          </section>
-        )}
-
-        {/* ── TWO COLUMN ───────────────────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-
-          {/* LEFT */}
+        {/* ── GRID LAYOUT ── */}
+        <div className="pr-grid">
+          {/* LEFT COLUMN */}
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
-            {/* Mood analytics */}
-            <section className="panel">
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                <h3 style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.01em", display: "flex", alignItems: "center", gap: 8 }}>
-                  <BarChart3 size={18} style={{ color: "var(--gold)" }} /> Mood Analytics
+            {/* Profile Form (Edit Mode) */}
+            {isEditing && (
+              <section className="panel">
+                <h3 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: 16, letterSpacing: "-0.01em" }}>
+                  Edit Listener Profile
                 </h3>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>Last 30 sessions</span>
-              </div>
+                <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <label className="lp-label" style={{ fontSize: "0.75rem", marginBottom: 4, display: "block" }}>Full Name</label>
+                    <input
+                      type="text" value={form.name}
+                      onChange={e => setForm({ ...form, name: e.target.value })}
+                      className="lp-input" required
+                    />
+                  </div>
+                  <div>
+                    <label className="lp-label" style={{ fontSize: "0.75rem", marginBottom: 4, display: "block" }}>Email</label>
+                    <input
+                      type="email" value={form.email}
+                      onChange={e => setForm({ ...form, email: e.target.value })}
+                      className="lp-input" required
+                    />
+                  </div>
+                  <div>
+                    <label className="lp-label" style={{ fontSize: "0.75rem", marginBottom: 4, display: "block" }}>Listening Goal</label>
+                    <select
+                      value={form.goal}
+                      onChange={e => setForm({ ...form, goal: e.target.value })}
+                      className="lp-input"
+                    >
+                      <option value="Match my mood">Match my mood</option>
+                      <option value="Boost focus & energy">Boost focus & energy</option>
+                      <option value="Relax & de-stress">Relax & de-stress</option>
+                      <option value="Discover new songs">Discover new songs</option>
+                    </select>
+                  </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {MOOD_DIST.map(item => (
-                  <div key={item.label} className="pr-mood-bar-wrap">
-                    <div className="pr-mood-bar-label">
-                      <span>{item.label}</span>
-                      <strong style={{ color: item.color }}>{item.percent}%</strong>
-                    </div>
-                    <div className="pr-mood-bar-track">
-                      <div className="pr-mood-bar-fill" style={{ width: `${item.percent}%`, background: item.color, boxShadow: `0 0 10px ${item.color}66` }} />
+                  <div>
+                    <label className="lp-label" style={{ fontSize: "0.75rem", marginBottom: 8, display: "block" }}>Choose Avatar</label>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      {AI_AVATARS.map((av, idx) => (
+                        <img
+                          key={idx}
+                          src={av.src}
+                          alt={av.label}
+                          onClick={() => setForm({ ...form, avatarUrl: av.src })}
+                          style={{
+                            width: 36, height: 36, borderRadius: "50%", cursor: "pointer",
+                            border: form.avatarUrl === av.src ? "2px solid #6846E8" : "2px solid transparent",
+                            transform: form.avatarUrl === av.src ? "scale(1.1)" : "scale(1)",
+                            transition: "all 0.18s ease",
+                          }}
+                        />
+                      ))}
                     </div>
                   </div>
-                ))}
+
+                  <button type="submit" className="pill-button primary" style={{ marginTop: 8, justifyContent: "center" }}>
+                    Save Changes
+                  </button>
+                </form>
+              </section>
+            )}
+
+            {/* ── REAL-TIME USER MUSIC PREFERENCES SECTION (BENTO GLASS CARD) ── */}
+            <section className="panel" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(24px)", border: "1px solid var(--border)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <div>
+                  <h3 style={{ fontSize: "1.05rem", fontWeight: 800, letterSpacing: "-0.01em", display: "flex", alignItems: "center", gap: 8 }}>
+                    <Sliders size={18} style={{ color: "var(--primary-color)" }} /> Real-Time Music Personalization
+                  </h3>
+                  <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginTop: 2 }}>
+                    Persisted directly to production database and applied live to AI recommendations.
+                  </p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {prefSyncing && <span style={{ fontSize: "0.72rem", color: "var(--primary-color)", display: "flex", alignItems: "center", gap: 4 }}><RefreshCw size={11} className="spin" /> Syncing...</span>}
+                  {prefSuccess && <span style={{ fontSize: "0.72rem", color: "var(--success)", display: "flex", alignItems: "center", gap: 4 }}><Check size={11} /> Saved</span>}
+                  <button type="button" onClick={handleResetPreferences} className="pill-button secondary small" style={{ fontSize: "0.7rem" }}>
+                    Reset Defaults
+                  </button>
+                </div>
               </div>
 
-              <div style={{ marginTop: 20, padding: "12px 16px", borderRadius: "var(--r-md)", background: "var(--gold-dim)", border: "1px solid var(--gold-border)" }}>
-                <p style={{ fontSize: "0.82rem", color: "var(--gold-light)", lineHeight: 1.6, margin: 0 }}>
-                  Primary state: <strong>Happy (45%)</strong> — system auto-boosts energetic Telugu tracks.
-                </p>
+              {/* 1. Favorite Genres */}
+              <div style={{ marginBottom: 18 }}>
+                <label className="lp-label" style={{ fontSize: "0.78rem", fontWeight: 700, marginBottom: 8, display: "block" }}>
+                  Favorite Genres ({userPreferences.preferred_genres.length})
+                </label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {AVAILABLE_GENRES.map((g) => {
+                    const active = userPreferences.preferred_genres.includes(g);
+                    return (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => handleToggleGenrePref(g)}
+                        style={{
+                          padding: "5px 12px",
+                          borderRadius: 999,
+                          fontSize: "0.76rem",
+                          fontWeight: active ? 700 : 500,
+                          background: active ? "var(--primary-color)" : "var(--glass-tint)",
+                          color: active ? "#FFFFFF" : "var(--text-primary)",
+                          border: active ? "1px solid var(--primary-color)" : "1px solid var(--border)",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {active ? `✓ ${g}` : `+ ${g}`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. Favorite Moods */}
+              <div style={{ marginBottom: 18 }}>
+                <label className="lp-label" style={{ fontSize: "0.78rem", fontWeight: 700, marginBottom: 8, display: "block" }}>
+                  Preferred Moods ({userPreferences.preferred_moods.length})
+                </label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {AVAILABLE_MOODS.map((m) => {
+                    const active = userPreferences.preferred_moods.includes(m);
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => handleToggleMoodPref(m)}
+                        style={{
+                          padding: "5px 12px",
+                          borderRadius: 999,
+                          fontSize: "0.76rem",
+                          fontWeight: active ? 700 : 500,
+                          background: active ? "var(--secondary-color)" : "var(--glass-tint)",
+                          color: active ? "#FFFFFF" : "var(--text-primary)",
+                          border: active ? "1px solid var(--secondary-color)" : "1px solid var(--border)",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {active ? `✓ ${m}` : m}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. Preferred Languages */}
+              <div style={{ marginBottom: 18 }}>
+                <label className="lp-label" style={{ fontSize: "0.78rem", fontWeight: 700, marginBottom: 8, display: "block" }}>
+                  Preferred Languages ({userPreferences.preferred_languages.length})
+                </label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {AVAILABLE_LANGUAGES.map((l) => {
+                    const active = userPreferences.preferred_languages.includes(l);
+                    return (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => handleToggleLangPref(l)}
+                        style={{
+                          padding: "5px 12px",
+                          borderRadius: 999,
+                          fontSize: "0.76rem",
+                          fontWeight: active ? 700 : 500,
+                          background: active ? "#22D3EE" : "var(--glass-tint)",
+                          color: active ? "#151522" : "var(--text-primary)",
+                          border: active ? "1px solid #22D3EE" : "1px solid var(--border)",
+                          cursor: "pointer",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {active ? `✓ ${l}` : l}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 4. Listening Controls Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+                {/* Energy */}
+                <div>
+                  <label className="lp-label" style={{ fontSize: "0.72rem", marginBottom: 4, display: "block" }}>Energy Level</label>
+                  <select
+                    value={userPreferences.energy_preference}
+                    onChange={(e) => handleSetPreferenceField("energy_preference", e.target.value)}
+                    className="lp-input"
+                    style={{ fontSize: "0.8rem", padding: "6px 10px" }}
+                  >
+                    <option value="low">Low Energy</option>
+                    <option value="balanced">Balanced Energy</option>
+                    <option value="high">High Energy</option>
+                  </select>
+                </div>
+
+                {/* Discovery Mode */}
+                <div>
+                  <label className="lp-label" style={{ fontSize: "0.72rem", marginBottom: 4, display: "block" }}>Discovery Mode</label>
+                  <select
+                    value={userPreferences.discovery_mode}
+                    onChange={(e) => handleSetPreferenceField("discovery_mode", e.target.value)}
+                    className="lp-input"
+                    style={{ fontSize: "0.8rem", padding: "6px 10px" }}
+                  >
+                    <option value="more_familiar">More Like Favorites</option>
+                    <option value="balanced">Balanced Discovery</option>
+                    <option value="more_exploratory">Discover Something New</option>
+                  </select>
+                </div>
+
+                {/* Explicit Content */}
+                <div>
+                  <label className="lp-label" style={{ fontSize: "0.72rem", marginBottom: 4, display: "block" }}>Explicit Content</label>
+                  <select
+                    value={userPreferences.explicit_content_mode}
+                    onChange={(e) => handleSetPreferenceField("explicit_content_mode", e.target.value)}
+                    className="lp-input"
+                    style={{ fontSize: "0.8rem", padding: "6px 10px" }}
+                  >
+                    <option value="allow">Allow Explicit</option>
+                    <option value="filter">Filter Explicit</option>
+                    <option value="hide">Hide Explicit</option>
+                  </select>
+                </div>
               </div>
             </section>
 
-            {/* Favorite artists */}
+            {/* Favorite Artists */}
             <section className="panel">
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <h3 style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.01em", display: "flex", alignItems: "center", gap: 8 }}>
-                  <Sparkles size={18} style={{ color: "var(--sapphire-lt)" }} /> Favorite Artists
-                </h3>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>{form.favoriteArtists?.length || 0} artists</span>
-              </div>
-
-              <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {form.favoriteArtists?.map(artist => (
-                  <span key={artist} className="pr-artist-tag">
+              <h3 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: 16, letterSpacing: "-0.01em" }}>
+                Favorite Artists
+              </h3>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {(form.favoriteArtists || []).map((artist, idx) => (
+                  <span key={idx} className="pr-artist-chip">
                     {artist}
-                    <button onClick={() => handleRemoveArtist(artist)} style={{ background: "none", border: "none", color: "var(--text-4)", cursor: "pointer", padding: 0, lineHeight: 1, fontSize: "1rem" }}>×</button>
+                    <button onClick={() => handleRemoveArtist(artist)} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", padding: 0, lineHeight: 1, fontSize: "1rem" }}>×</button>
                   </span>
                 ))}
               </div>
@@ -334,9 +574,9 @@ export default function ProfilePage() {
                   <>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                       <h3 style={{ fontSize: "1rem", fontWeight: 800, letterSpacing: "-0.01em", display: "flex", alignItems: "center", gap: 8 }}>
-                        <Heart size={18} style={{ color: "var(--crimson-lt)" }} /> Saved Songs
+                        <Heart size={18} style={{ color: "#F472B6" }} /> Saved Songs
                       </h3>
-                      <span style={{ fontSize: "0.72rem", color: "var(--text-3)" }}>{allSongs.length} tracks</span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>{allSongs.length} tracks</span>
                     </div>
                     <div>
                       {allSongs.map((song, i) => {
@@ -350,7 +590,7 @@ export default function ProfilePage() {
                               <p className="pr-song-title" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</p>
                               <p className="pr-song-artist">{song.artist}{song.fromFav && <span style={{ marginLeft: 6, fontSize: "0.65rem", color: "#F472B6", fontWeight: 700 }}>♥ Favorited</span>}</p>
                             </div>
-                            <span className="pr-song-lang" style={{ color: LANG_COLOR[song.language || ""] || "var(--text-3)" }}>
+                            <span className="pr-song-lang" style={{ color: LANG_COLOR[song.language || ""] || "var(--text-secondary)" }}>
                               {song.language || "—"}
                             </span>
                             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -365,7 +605,7 @@ export default function ProfilePage() {
                                   <Heart size={13} fill="#F472B6" />
                                 </button>
                               ) : (
-                                <button onClick={() => handleRemoveSong(title)} style={{ background: "none", border: "none", color: "var(--text-4)", cursor: "pointer", padding: 4 }} title="Remove" type="button">
+                                <button onClick={() => handleRemoveSong(title)} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", padding: 4 }} title="Remove" type="button">
                                   <Trash2 size={13} />
                                 </button>
                               )}
@@ -379,11 +619,10 @@ export default function ProfilePage() {
               })()}
             </section>
 
-
             {/* Summary link */}
             <section className="panel" style={{ borderColor: "rgba(37,99,235,0.3)" }}>
               <h3 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: 8, letterSpacing: "-0.01em" }}>Project Summary</h3>
-              <p style={{ fontSize: "0.86rem", color: "var(--text-3)", lineHeight: 1.6, marginBottom: 16 }}>
+              <p style={{ fontSize: "0.86rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 16 }}>
                 View the complete BTech Final Project abstract, architecture breakdown, and technology overview.
               </p>
               <Link to="/summary" className="pill-button secondary" style={{ display: "flex", justifyContent: "center" }}>
@@ -397,11 +636,11 @@ export default function ProfilePage() {
       {/* ── Privacy Controls (below main, above nav) ── */}
       <section style={{ maxWidth: 900, margin: "0 auto 80px", padding: "0 24px" }}>
         <div className="panel" style={{ borderColor: "rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.02)" }}>
-          <h3 style={{ fontSize: "0.92rem", fontWeight: 800, color: "var(--text-1)", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+          <h3 style={{ fontSize: "0.92rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
             🔒 Privacy Controls
           </h3>
-          <p style={{ fontSize: "0.78rem", color: "var(--text-3)", marginBottom: 16, lineHeight: 1.5 }}>
-            All data is stored locally in your browser. No data is sent to any server.
+          <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.5 }}>
+            Your preferences are persisted to the database and tied to your user session.
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button type="button" className="pill-button secondary small"

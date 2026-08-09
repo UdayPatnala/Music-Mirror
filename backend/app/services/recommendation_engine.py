@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from app.db.database import SessionLocal
-from app.db.models import Song, Artist
+from app.db.models import Song, Artist, UserMusicPreference
 
 DATA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "songs.json"
 
@@ -40,6 +40,16 @@ def format_duration(seconds: int) -> str:
     mins = sec // 60
     secs = sec % 60
     return f"{mins}:{secs:02d}"
+
+
+def parse_json_list(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    try:
+        data = json.loads(raw)
+        return [str(x).strip().lower() for x in data] if isinstance(data, list) else []
+    except Exception:
+        return []
 
 
 class RecommendationService:
@@ -78,6 +88,7 @@ class RecommendationService:
                         "album": s.album_title or "Single",
                         "genre": s.genre,
                         "language": s.language,
+                        "explicit": s.explicit,
                         "duration": s.duration,
                         "duration_str": format_duration(s.duration),
                         "valence": s.valence,
@@ -106,6 +117,41 @@ class RecommendationService:
                 item_copy["duration_str"] = format_duration(sec)
                 all_static.append(item_copy)
         return all_static
+
+    @classmethod
+    def get_user_preferences_from_db(cls, user_id: str = "default_user") -> dict[str, Any]:
+        """Fetch user explicit music preferences from database."""
+        db = SessionLocal()
+        try:
+            pref = db.query(UserMusicPreference).filter(UserMusicPreference.user_id == user_id).first()
+            if pref:
+                return {
+                    "discovery_mode": pref.discovery_mode,
+                    "energy_preference": pref.energy_preference,
+                    "tempo_preference": pref.tempo_preference,
+                    "vocal_preference": pref.vocal_preference,
+                    "explicit_content_mode": pref.explicit_content_mode,
+                    "preferred_genres": parse_json_list(pref.preferred_genres),
+                    "preferred_artists": parse_json_list(pref.preferred_artists),
+                    "preferred_moods": parse_json_list(pref.preferred_moods),
+                    "preferred_languages": parse_json_list(pref.preferred_languages),
+                }
+        except Exception:
+            pass
+        finally:
+            db.close()
+
+        return {
+            "discovery_mode": "balanced",
+            "energy_preference": "balanced",
+            "tempo_preference": "moderate",
+            "vocal_preference": "mixed",
+            "explicit_content_mode": "filter",
+            "preferred_genres": [],
+            "preferred_artists": [],
+            "preferred_moods": [],
+            "preferred_languages": [],
+        }
 
     @staticmethod
     def extract_features(song: dict[str, Any]) -> dict[str, float]:
@@ -166,6 +212,7 @@ class RecommendationService:
         min_score: float | None = None,
         genre_filter: str | None = None,
         preferred_languages: list[str] | None = None,
+        user_id: str = "default_user",
     ) -> tuple[str, list[dict[str, Any]]]:
         normalized = cls.normalize_emotion(emotion)
 
@@ -173,7 +220,21 @@ class RecommendationService:
             return normalized, []
 
         candidates = cls.get_database_songs()
+        user_prefs = cls.get_user_preferences_from_db(user_id)
+
+        # Apply Explicit Content Mode server-side filtering
+        explicit_mode = user_prefs.get("explicit_content_mode", "filter")
+        if explicit_mode == "hide" or explicit_mode == "filter":
+            candidates = [c for c in candidates if not c.get("explicit", False)] or candidates
+
         target_profile = EMOTION_TARGETS.get(normalized, EMOTION_TARGETS["neutral"]).copy()
+
+        # Adjust target energy based on energy preference
+        energy_pref = user_prefs.get("energy_preference")
+        if energy_pref == "high":
+            target_profile["energy"] = min(1.0, target_profile["energy"] + 0.15)
+        elif energy_pref == "low":
+            target_profile["energy"] = max(0.0, target_profile["energy"] - 0.15)
 
         # Genre filtering
         effective_genre = genre_filter if genre_filter is not None else user_genre
@@ -186,24 +247,48 @@ class RecommendationService:
                 candidates = matching + [c for c in candidates if c not in matching]
 
         # Language filtering
-        if preferred_languages:
-            norm_langs = [l.lower() for l in preferred_languages]
-            candidates = [c for c in candidates if str(c.get("language", "")).lower() in norm_langs] or candidates
+        active_langs = preferred_languages or user_prefs.get("preferred_languages")
+        if active_langs:
+            norm_langs = [l.lower() for l in active_langs]
+            filtered_langs = [c for c in candidates if str(c.get("language", "")).lower() in norm_langs]
+            if filtered_langs:
+                candidates = filtered_langs
 
-        # Score candidates
+        # Score candidates with user explicit preferences affinity
+        pref_genres = user_prefs.get("preferred_genres", [])
+        pref_artists = user_prefs.get("preferred_artists", [])
+        pref_moods = user_prefs.get("preferred_moods", [])
+
         scored_candidates = []
         for song in candidates:
             features = cls.extract_features(song)
-            match_score = cls.compute_euclidean(features, target_profile)
+            base_score = cls.compute_euclidean(features, target_profile)
 
-            if min_score is not None and match_score < min_score:
+            # Affinity boosts
+            affinity_boost = 0.0
+            song_genre = str(song.get("genre", "")).lower()
+            song_artist = str(song.get("artist", "")).lower()
+            song_mood = str(song.get("mood", "")).lower()
+
+            if any(pg in song_genre for pg in pref_genres):
+                affinity_boost += 0.15
+            if any(pa in song_artist for pa in pref_artists):
+                affinity_boost += 0.20
+            if song_mood in pref_moods:
+                affinity_boost += 0.10
+
+            final_score = min(1.0, round(base_score + affinity_boost, 4))
+
+            if min_score is not None and final_score < min_score:
                 continue
 
             song_copy = song.copy()
-            song_copy["match_score"] = match_score
-            song_copy["recommendation_score"] = match_score
+            song_copy["match_score"] = final_score
+            song_copy["recommendation_score"] = final_score
             song_copy["audio_features"] = features
-            song_copy["recommendation_reason"] = f"Acoustic vector match {int(match_score * 100)}% for {normalized} mood"
+            song_copy["recommendation_reason"] = (
+                f"Personalized match {int(final_score * 100)}% ({normalized} mood + taste preferences)"
+            )
             scored_candidates.append(song_copy)
 
         scored_candidates.sort(key=lambda x: x["match_score"], reverse=True)

@@ -139,3 +139,24 @@ class SongSource(Base):
     __table_args__ = (
         UniqueConstraint("source_type", "source_id", name="uix_source_type_id"),
     )
+
+
+class UserMusicPreference(Base):
+    __tablename__ = "user_music_preferences"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(255), nullable=False, unique=True, index=True, default="default_user")
+
+    discovery_mode = Column(String(50), nullable=False, default="balanced") # 'more_familiar', 'balanced', 'more_exploratory'
+    energy_preference = Column(String(50), nullable=False, default="balanced") # 'low', 'balanced', 'high'
+    tempo_preference = Column(String(50), nullable=False, default="moderate") # 'slow', 'moderate', 'fast'
+    vocal_preference = Column(String(50), nullable=False, default="mixed") # 'vocal', 'mixed', 'instrumental'
+    explicit_content_mode = Column(String(50), nullable=False, default="filter") # 'allow', 'filter', 'hide'
+
+    preferred_genres = Column(Text, nullable=True) # JSON array e.g. ["Telugu Pop", "Indie Pop"]
+    preferred_artists = Column(Text, nullable=True) # JSON array of artist names e.g. ["Sid Sriram", "Anirudh Ravichander"]
+    preferred_moods = Column(Text, nullable=True) # JSON array e.g. ["happy", "romantic"]
+    preferred_languages = Column(Text, nullable=True) # JSON array e.g. ["Telugu", "Tamil", "English"]
+
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
