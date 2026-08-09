@@ -38,7 +38,7 @@ export const useAppStore = create<AppState>()(
             setActiveMood: (activeMood) => set({ activeMood }),
             songsQueue: [],
             setSongsQueue: (songsQueue) => set({ songsQueue }),
-            playerMode: 'youtube',
+            playerMode: 'jamendo',
             setPlayerMode: (playerMode) => set({ playerMode }),
             favs: [],
             toggleFav: (song) => set((state) => {

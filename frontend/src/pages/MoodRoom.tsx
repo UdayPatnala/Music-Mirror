@@ -34,27 +34,28 @@ const MOOD_LABEL: Record<string, string> = {
 };
 
 /* ─── Source-specific catalog data ────────────────────────── */
+/* ─── Source-specific catalog data ────────────────────────── */
 const PROVIDER_CATALOGS: Record<string, Song[]> = {
   youtube: [
-    { name: "Buttabomma",       artist: "Armaan Malik",    genre: "Telugu Pop",  language: "Telugu",  source_provider: "YouTube", youtubeId: "A6BJ-PgNWXA" },
-    { name: "Samajavaragamana", artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "YouTube", youtubeId: "E3BnMDc9ATE" },
-    { name: "Blinding Lights",  artist: "The Weeknd",      genre: "Synthpop",    language: "English", source_provider: "YouTube", youtubeId: "4NRXx6U8ABQ" },
-    { name: "Ramuloo Ramulaa",  artist: "Anurag Kulkarni", genre: "Telugu Folk", language: "Telugu",  source_provider: "YouTube", youtubeId: "A6BJ-PgNWXA" },
-    { name: "Ennenno Janmala",  artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "YouTube", youtubeId: "_dXwkfq5YG8" },
-    { name: "Kannazhaga",       artist: "Mohit Chauhan",   genre: "Tamil Soul",  language: "Tamil",   source_provider: "YouTube", youtubeId: "9oNvxVFsm5U" },
-    { name: "Levitating",       artist: "Dua Lipa",        genre: "Pop",         language: "English", source_provider: "YouTube", youtubeId: "TUVcZfQe-Kw" },
+    { name: "Buttabomma",       artist: "Armaan Malik",    genre: "Telugu Pop",  language: "Telugu",  source_provider: "YouTube", youtubeId: "A6BJ-PgNWXA", preview_url: "https://prod-1.storage.jamendo.com/download/track/1820491/mp32/" },
+    { name: "Samajavaragamana", artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "YouTube", youtubeId: "E3BnMDc9ATE", preview_url: "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/" },
+    { name: "Blinding Lights",  artist: "The Weeknd",      genre: "Synthpop",    language: "English", source_provider: "YouTube", youtubeId: "4NRXx6U8ABQ", preview_url: "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/" },
+    { name: "Ramuloo Ramulaa",  artist: "Anurag Kulkarni", genre: "Telugu Folk", language: "Telugu",  source_provider: "YouTube", youtubeId: "A6BJ-PgNWXA", preview_url: "https://prod-1.storage.jamendo.com/download/track/1532771/mp32/" },
+    { name: "Ennenno Janmala",  artist: "Sid Sriram",      genre: "Telugu Soul", language: "Telugu",  source_provider: "YouTube", youtubeId: "_dXwkfq5YG8", preview_url: "https://prod-1.storage.jamendo.com/download/track/1849102/mp32/" },
+    { name: "Kannazhaga",       artist: "Mohit Chauhan",   genre: "Tamil Soul",  language: "Tamil",   source_provider: "YouTube", youtubeId: "9oNvxVFsm5U", preview_url: "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/" },
+    { name: "Levitating",       artist: "Dua Lipa",        genre: "Pop",         language: "English", source_provider: "YouTube", youtubeId: "TUVcZfQe-Kw", preview_url: "https://prod-1.storage.jamendo.com/download/track/1689240/mp32/" },
   ],
   jamendo: [
     { name: "Midnight Synth Drive",  artist: "Solaris",      genre: "Synthwave",   language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/" },
     { name: "Lofi Chill Ambient",   artist: "Acoustica",    genre: "Lo-Fi",       language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/" },
-    { name: "Acoustic Sunrise",     artist: "Elysium Duo",  genre: "Acoustic",    language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/1254924/mp32/" },
-    { name: "Neon Horizons",        artist: "Synth Explorer",genre: "Chillstep",  language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/" },
-    { name: "Deep Focus Drift",     artist: "Zenith Studio",genre: "Ambient",     language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/" },
+    { name: "Acoustic Sunrise",     artist: "Elysium Duo",  genre: "Acoustic",    language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/" },
+    { name: "Neon Horizons",        artist: "Synth Explorer",genre: "Chillstep",  language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/1789421/mp32/" },
+    { name: "Deep Focus Drift",     artist: "Zenith Studio",genre: "Ambient",     language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/18000124/mp32/" },
   ],
   local: [
-    { name: "Local Disk Track 01", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local" },
-    { name: "Local Disk Track 02", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local" },
-    { name: "Local Disk Track 03", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local" },
+    { name: "Local Disk Track 01", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/" },
+    { name: "Local Disk Track 02", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/" },
+    { name: "Local Disk Track 03", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/" },
   ]
 };
 
@@ -145,6 +146,50 @@ export default function MoodRoom() {
     return () => clearInterval(t);
   }, [isPlaying]);
 
+  /* ── HTML5 Audio Element Integration ───────────────────────── */
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+    const audio = audioRef.current;
+    audio.volume = isMuted ? 0 : volume / 100;
+    
+    const handleEnded = () => {
+      handleSkipNext();
+    };
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = isMuted ? 0 : volume / 100;
+  }, [volume, isMuted]);
+
+  const activeSong = currentSong || songsQueue[0] || PROVIDER_CATALOGS.jamendo[0];
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !activeSong) return;
+    const streamUrl = activeSong.preview_url || (activeSong as any).playbackRef || "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/";
+
+    if (audio.src !== streamUrl) {
+      audio.src = streamUrl;
+      if (isPlaying) {
+        audio.play().catch(() => {
+          setIsPlaying(false);
+        });
+      }
+    }
+  }, [activeSong]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleDetect = (d: DetectionResult) => {
     if (!d || d.source === "manual" || !d.emotion) return;
     const norm = d.emotion.toLowerCase();
@@ -154,8 +199,28 @@ export default function MoodRoom() {
   };
 
   const handleTogglePlay = () => {
+    const audio = audioRef.current;
     sessionOrchestrator.togglePlayPause();
-    setIsPlaying(!isPlaying);
+    
+    if (isPlaying) {
+      if (audio) audio.pause();
+      setIsPlaying(false);
+    } else {
+      if (audio) {
+        if (!audio.src) {
+          const streamUrl = activeSong?.preview_url || (activeSong as any)?.playbackRef || "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/";
+          audio.src = streamUrl;
+        }
+        audio.play().then(() => {
+          setIsPlaying(true);
+        }).catch((err) => {
+          console.warn("Audio play blocked:", err);
+          setIsPlaying(false);
+        });
+      } else {
+        setIsPlaying(true);
+      }
+    }
   };
 
   const handleSkipNext = () => {
@@ -172,8 +237,6 @@ export default function MoodRoom() {
     const prevIdx = (curIdx - 1 + songsQueue.length) % songsQueue.length;
     setCurrentSong(songsQueue[prevIdx]);
   };
-
-  const activeSong = currentSong || songsQueue[0] || PROVIDER_CATALOGS.youtube[0];
   const songTitle = activeSong?.title || activeSong?.name || "Music Mirror Audio";
   const songArtist = activeSong?.artist || "AI Recommended";
   const songLang = activeSong?.language || "English";
