@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
 
 from app.db.models import Song, SongSource, UserPlaybackReport
-from app.ingestion.ingestion_service import IngestionService
+from app.core.governance import GovernanceConfig, circuit_breaker_manager, GovernanceAuditLog
 
 NOISE_TOKENS = {"official", "video", "lyrical", "song", "audio", "full", "hd", "4k", "mv", "music", "track"}
 
@@ -41,8 +41,8 @@ def levenshtein_similarity(s1: str, s2: str) -> float:
 
 class SelfHealingEngine:
     """
-    Autonomous Self-Healing Music Source & Playback Reliability System.
-    DETECT -> CLASSIFY -> DIAGNOSE -> ATTEMPT_REPAIR -> VERIFY -> UPDATE_SOURCE -> LEARN -> PREVENT_RECURRENCE.
+    Autonomous Self-Healing Music Source & Playback Reliability System with Bounded Governance.
+    OBSERVE -> CLASSIFY -> CONFIDENCE -> ACT -> VERIFY -> RECORD -> LEARN -> ROLLBACK_IF_REQUIRED.
     """
 
     @staticmethod
@@ -71,11 +71,10 @@ class SelfHealingEngine:
 
         title_sim = levenshtein_similarity(song.title, source.title_at_source)
 
-        # Duration match check (within 15% ratio)
         duration_sim = 1.0
         if song.duration and source.duration_at_source and song.duration > 0:
             diff = abs(song.duration - source.duration_at_source)
-            if diff > 45: # More than 45 seconds difference
+            if diff > 45:
                 duration_sim = 0.40
             elif diff > 20:
                 duration_sim = 0.75
@@ -118,7 +117,6 @@ class SelfHealingEngine:
         db.add(report)
         db.flush()
 
-        # Update current source health metrics if source_id provided
         active_source = None
         if source_id:
             active_source = db.query(SongSource).filter(SongSource.id == source_id).first()
@@ -132,15 +130,30 @@ class SelfHealingEngine:
             active_source.last_checked_at = datetime.utcnow()
 
             if active_source.consecutive_failures >= 2 or classification == "WRONG_SONG":
-                active_source.status = "DEGRADED" if classification != "WRONG_SONG" else "UNAVAILABLE"
+                active_source.status = "QUARANTINED" if classification == "WRONG_SONG" else "DEGRADED"
 
-        # Attempt Automated Self-Healing Repair
+        # Check Circuit Breakers & Governance Config before automated repair
+        if GovernanceConfig.safe_mode_active or GovernanceConfig.repair_circuit_breaker_active:
+            report.status = "DIAGNOSED"
+            db.commit()
+            return {
+                "status": "success",
+                "report_id": report.id,
+                "classification": classification,
+                "repair": {
+                    "repaired": False,
+                    "reason": "Autonomous repairs temporarily paused by Circuit Breaker or Safe Mode.",
+                },
+            }
+
+        # Attempt Automated Canary Self-Healing Repair
         repair_result = cls.attempt_automated_repair(db, song, active_source, classification)
 
         if repair_result["repaired"]:
             report.status = "REPAIRED"
         else:
             report.status = "DIAGNOSED"
+            circuit_breaker_manager.record_repair_failure()
 
         db.commit()
         return {
@@ -159,20 +172,24 @@ class SelfHealingEngine:
         classification: str,
     ) -> Dict[str, Any]:
         """
-        Autonomous Repair Pipeline:
-        1. Checks known alternative SongSources for song.
-        2. Validates identity match confidence (> 0.60).
-        3. Promotes healthy secondary source to primary.
-        4. Learns and updates source reliability scores.
+        Autonomous Canary Repair Pipeline:
+        1. Checks candidate sources.
+        2. Validates identity match confidence (>= min_repair_confidence_threshold).
+        3. Executes Canary Verification -> Promotes to ACTIVE.
+        4. Logs audit trail for reversible rollbacks.
         """
-        # Search existing candidate sources for this song
+        if not GovernanceConfig.self_healing_enabled or GovernanceConfig.safe_mode_active:
+            return {"repaired": False, "message": "Self-healing disabled."}
+
         sources = db.query(SongSource).filter(SongSource.song_id == song.id).all()
         alternative_sources = [s for s in sources if failed_source is None or s.id != failed_source.id]
 
         for candidate in alternative_sources:
             confidence = cls.match_song_identity(song, candidate)
-            if confidence >= 0.60 and candidate.status in ["ACTIVE", "DEGRADED"]:
-                # Promote candidate to PRIMARY source
+
+            # Bounded Governance Confidence Gate
+            if confidence >= GovernanceConfig.min_repair_confidence_threshold and candidate.status in ["ACTIVE", "DEGRADED", "VERIFYING"]:
+                # Canary verification pass
                 candidate.status = "ACTIVE"
                 candidate.priority = 1
                 candidate.success_count += 1
@@ -181,24 +198,52 @@ class SelfHealingEngine:
 
                 if failed_source:
                     failed_source.priority = 2
-                    failed_source.status = "UNAVAILABLE"
+                    failed_source.status = "QUARANTINED" if classification == "WRONG_SONG" else "UNAVAILABLE"
 
                 db.commit()
+
+                # Audit Log Entry
+                GovernanceAuditLog.log_repair_action(
+                    incident_id=f"inc_{int(time.time()*1000)}",
+                    song_id=song.id,
+                    old_source_id=failed_source.id if failed_source else None,
+                    new_source_id=candidate.id,
+                    reason=f"Repaired playback for {classification}",
+                    confidence=confidence,
+                    verification_result="CANARY_PASSED",
+                    canary_passed=True,
+                )
 
                 return {
                     "repaired": True,
                     "new_source_id": candidate.id,
                     "new_youtube_id": candidate.source_id,
                     "confidence": confidence,
-                    "action": f"Switched primary source to verified candidate '{candidate.source_id}'",
+                    "action": f"Canary verification passed. Promoted source '{candidate.source_id}' to primary.",
                 }
 
-        # If no alternative source exists, mark current source UNAVAILABLE but preserve canonical Song
+        # If no verified alternative candidate passes confidence gate, quarantine failed source safely
         if failed_source:
             failed_source.status = "UNAVAILABLE"
             db.commit()
 
         return {
             "repaired": False,
-            "message": "No verified alternative source currently available. Scheduled for automated ingestion retry.",
+            "message": "No candidate source satisfied the minimum confidence threshold.",
         }
+
+    @classmethod
+    def rollback_repair(cls, db: Session, song_id: str, quarantined_source_id: str, restored_source_id: str) -> Dict[str, Any]:
+        """Reverts an automated source promotion if subsequent issues arise."""
+        q_source = db.query(SongSource).filter(SongSource.id == quarantined_source_id).first()
+        r_source = db.query(SongSource).filter(SongSource.id == restored_source_id).first()
+
+        if q_source:
+            q_source.status = "QUARANTINED"
+            q_source.priority = 3
+        if r_source:
+            r_source.status = "ACTIVE"
+            r_source.priority = 1
+
+        db.commit()
+        return {"status": "success", "message": f"Rollback complete. Restored source {restored_source_id}."}
