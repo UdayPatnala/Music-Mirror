@@ -973,11 +973,10 @@ export default function LandingPage() {
               <Wordmark size="md" showBadge />
             </div>
             <div className="lp2-nav-links">
-              <a href="#how" className="lp2-nav-link">How It Works</a>
-              <Link to="/summary" className="lp2-nav-link">About</Link>
-
-              <Link to="/dashboard" className="lp2-nav-link">Docs</Link>
-              <Link to="/profile" className="lp2-nav-link lp2-nav-link-accent">Login</Link>
+              <Link to="/room" className="lp2-nav-link">Studio Room</Link>
+              <Link to="/dashboard" className="lp2-nav-link">AI Lab</Link>
+              <Link to="/summary" className="lp2-nav-link">Blueprint</Link>
+              <Link to="/profile" className="lp2-nav-link lp2-nav-link-accent">Profile</Link>
             </div>
           </div>
         </nav>

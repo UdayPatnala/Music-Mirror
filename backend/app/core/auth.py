@@ -11,7 +11,9 @@ class AuthenticatedUser(BaseModel):
     name: str
 
 
-SECRET_KEY = "music-mirror-production-security-secret-key"
+import os
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "development-unsafe-secret-key")
 
 
 def get_current_user(

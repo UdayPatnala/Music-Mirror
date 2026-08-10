@@ -235,11 +235,23 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen pb-24 text-[var(--text-primary)] font-sans antialiased" style={{ background: "var(--app-bg)" }}>
       {/* ── Top Header ── */}
-      <header className="pr-header" style={{ backdropFilter: "blur(20px)", background: "rgba(255,255,255,0.7)" }}>
-        <Wordmark size="sm" />
-        <span className="pr-header-tag" style={{ border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
-          <ShieldCheck size={11} style={{ color: "#22D3EE" }} /> Master System v2.0
-        </span>
+      <header className="pr-header" style={{ backdropFilter: "blur(24px)", background: "rgba(255,255,255,0.88)", borderBottom: "1px solid #E2E8F0", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 40px", position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link to="/">
+            <Wordmark size="md" showBadge={true} />
+          </Link>
+          <span className="pr-header-tag" style={{ border: "1px solid #C7D2FE", color: "#4F46E5", background: "#EEF2FF", padding: "2px 10px", borderRadius: "999px", fontSize: "0.7rem", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+            <ShieldCheck size={11} style={{ color: "#4F46E5" }} /> Profile & Preferences
+          </span>
+        </div>
+
+        {/* Center Nav Links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 auto" }}>
+          <Link to="/room" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Studio</Link>
+          <Link to="/dashboard" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>AI Lab</Link>
+          <Link to="/summary" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Blueprint</Link>
+          <Link to="/profile" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE" }}>Profile</Link>
+        </div>
       </header>
 
       <main className="pr-main">

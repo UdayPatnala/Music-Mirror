@@ -3,10 +3,10 @@ import time
 from typing import Any, Dict
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, func
 
 from app.db.database import get_db, DB_PATH
-from app.db.models import Song, Artist, Album, SongSource, UserMusicPreference
+from app.db.models import Song, Artist, Album, SongSource, UserMusicPreference, UserInteraction, UserAffinity, RepairIncident
 from app.core.governance import GovernanceConfig, GovernanceAuditLog, circuit_breaker_manager
 from app.services.catalog_reconciliation import CatalogReconciler
 from app.services.ml_model_ecosystem import ModelRegistry
@@ -49,6 +49,9 @@ def database_capacity_health(db: Session = Depends(get_db)):
             "albums": db.query(Album).count(),
             "song_sources": db.query(SongSource).count(),
             "user_preferences": db.query(UserMusicPreference).count(),
+            "user_interactions": db.query(UserInteraction).count(),
+            "user_affinities": db.query(UserAffinity).count(),
+            "repair_incidents": db.query(RepairIncident).count(),
         },
     }
 
@@ -89,4 +92,83 @@ def mlops_lifecycle_health():
         "sample_dataset_tracking": sample_dataset,
         "drift_monitoring": drift,
         "fallback_status": "READY",
+    }
+
+
+@router.get("/playback", status_code=200)
+def playback_quality_health(db: Session = Depends(get_db)):
+    """
+    Playback and interaction quality observability (Block 14).
+    Returns interaction counts by type, source health aggregates, and repair statistics.
+    """
+    # Interaction breakdown
+    interaction_counts: Dict[str, int] = {}
+    try:
+        rows = (
+            db.query(UserInteraction.interaction_type, func.count(UserInteraction.id))
+            .group_by(UserInteraction.interaction_type)
+            .all()
+        )
+        interaction_counts = {row[0]: row[1] for row in rows}
+    except Exception:
+        pass
+
+    total_interactions = sum(interaction_counts.values())
+    likes = interaction_counts.get("LIKE", 0)
+    dislikes = interaction_counts.get("DISLIKE", 0)
+    skips = interaction_counts.get("SKIP", 0)
+    completes = interaction_counts.get("COMPLETE", 0)
+
+    completion_rate = round(completes / max(total_interactions, 1), 4)
+    like_rate = round(likes / max(total_interactions, 1), 4)
+
+    # Source health aggregates
+    source_health: Dict[str, Any] = {}
+    try:
+        total_sources = db.query(SongSource).count()
+        active_sources = db.query(SongSource).filter(SongSource.status == "active").count()
+        quarantined_sources = db.query(SongSource).filter(SongSource.status == "quarantined").count()
+        unavailable_sources = db.query(SongSource).filter(SongSource.status == "unavailable").count()
+        source_health = {
+            "total": total_sources,
+            "active": active_sources,
+            "quarantined": quarantined_sources,
+            "unavailable": unavailable_sources,
+            "active_pct": round(active_sources / max(total_sources, 1) * 100, 1),
+        }
+    except Exception:
+        pass
+
+    # Repair incident summary
+    repair_summary: Dict[str, Any] = {}
+    try:
+        total_repairs = db.query(RepairIncident).count()
+        successful_repairs = db.query(RepairIncident).filter(RepairIncident.canary_passed.is_(True)).count()
+        rolled_back = db.query(RepairIncident).filter(RepairIncident.rolled_back.is_(True)).count()
+        repair_summary = {
+            "total_incidents": total_repairs,
+            "successful_repairs": successful_repairs,
+            "rollbacks": rolled_back,
+            "success_rate": round(successful_repairs / max(total_repairs, 1), 4),
+        }
+    except Exception:
+        pass
+
+    return {
+        "status": "ok",
+        "interactions": {
+            "total": total_interactions,
+            "by_type": interaction_counts,
+            "completion_rate": completion_rate,
+            "like_rate": like_rate,
+            "skip_count": skips,
+            "dislike_count": dislikes,
+        },
+        "source_health": source_health,
+        "repair_incidents": repair_summary,
+        "circuit_breaker": {
+            "repair_active": GovernanceConfig.repair_circuit_breaker_active,
+            "provider_active": GovernanceConfig.provider_circuit_breaker_active,
+        },
+        "safe_mode": GovernanceConfig.safe_mode_active,
     }

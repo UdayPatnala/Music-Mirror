@@ -229,10 +229,20 @@ export default function DashboardPage() {
         padding: "0 40px", height: 64, gap: 16,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Wordmark size="md" showBadge={true} />
+          <Link to="/">
+            <Wordmark size="md" showBadge={true} />
+          </Link>
           <span style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "#7C3AED", background: "#EDE9FE", padding: "2px 10px", borderRadius: "999px", border: "1px solid #DDD6FE", letterSpacing: "0.08em" }}>
             BIOMETRIC TELEMETRY LAB
           </span>
+        </div>
+
+        {/* Center Nav Links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 auto" }}>
+          <Link to="/room" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Studio</Link>
+          <Link to="/dashboard" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE" }}>AI Lab</Link>
+          <Link to="/summary" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Blueprint</Link>
+          <Link to="/profile" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Profile</Link>
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>

@@ -267,18 +267,28 @@ export default function MoodRoom() {
         background: "rgba(255, 255, 255, 0.88)",
         backdropFilter: "blur(24px)",
         position: "sticky", top: 0, zIndex: 50,
-        display: "flex", alignItems: "center",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "0 40px", height: 64,
       }}>
-        <div className="room-brand">
-          <Disc size={18} style={{ color: "#4F46E5" }} />
-          <span className="room-brand-name font-brand" style={{ color: "#172033" }}>Music Mirror</span>
-          <span className="room-brand-v2" style={{ marginLeft: 6, fontSize: "0.7rem", fontWeight: 600, color: "#4F46E5", background: "#EEF2FF", padding: "2px 8px", borderRadius: "999px", border: "1px solid #C7D2FE" }}>
+        <div className="room-brand" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link to="/">
+            <Disc size={22} style={{ color: "#4F46E5" }} />
+          </Link>
+          <span className="room-brand-name font-brand" style={{ color: "#172033", fontSize: "1.1rem", fontWeight: 800 }}>Music Mirror</span>
+          <span className="room-brand-v2" style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", padding: "2px 8px", borderRadius: "999px", border: "1px solid #C7D2FE" }}>
             v2.0
           </span>
         </div>
 
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
+        {/* Center Nav Links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 auto" }}>
+          <Link to="/room" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE" }}>Studio</Link>
+          <Link to="/dashboard" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>AI Lab</Link>
+          <Link to="/summary" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Blueprint</Link>
+          <Link to="/profile" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Profile</Link>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#FFFFFF", padding: "4px 12px", borderRadius: "999px", border: "1px solid #E2E8F0" }}>
             <Sparkles size={14} style={{ color: "#7C3AED" }} />
             <span style={{ fontSize: "0.76rem", color: "#475569", fontWeight: 600 }}>Mode:</span>

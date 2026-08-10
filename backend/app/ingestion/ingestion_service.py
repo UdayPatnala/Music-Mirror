@@ -52,8 +52,8 @@ class IngestionService:
         Returns tuple of (Song, created_boolean).
         """
         title = song_data.get("title", "").strip()
-        artist_name = song_data.get("artist", "Unknown Artist").strip()
-        album_name = song_data.get("album") or f"{title} - Single"
+        artist_name = (song_data.get("artist") or song_data.get("artist_name") or "Unknown Artist").strip()
+        album_name = song_data.get("album") or song_data.get("album_title") or f"{title} - Single"
         youtube_id = song_data.get("youtube_id") or song_data.get("source_id")
 
         if not title:
@@ -88,15 +88,22 @@ class IngestionService:
                 duration=song_data.get("duration", 180),
                 release_date=str(song_data.get("release_date", "2024")),
                 genre=song_data.get("genre", "Pop"),
+                sub_genre=song_data.get("sub_genre"),
                 language=song_data.get("language", "English"),
-                cover_image_url=song_data.get("cover_image_url") or f"https://img.youtube.com/vi/{youtube_id}/hqdefault.jpg" if youtube_id else None,
+                explicit=song_data.get("explicit", False),
+                cover_image_url=song_data.get("cover_image_url") or (f"https://img.youtube.com/vi/{youtube_id}/hqdefault.jpg" if youtube_id else None),
                 audio_url=song_data.get("audio_url") or song_data.get("preview_url"),
                 preview_url=song_data.get("preview_url") or song_data.get("audio_url"),
                 popularity=song_data.get("popularity", 85),
                 energy=float(song_data.get("energy", 0.7)),
+                danceability=float(song_data.get("danceability", 0.5)),
                 valence=float(song_data.get("valence", 0.7)),
+                acousticness=float(song_data.get("acousticness", 0.5)),
+                instrumentalness=float(song_data.get("instrumentalness", 0.0)),
                 tempo=float(song_data.get("tempo", 120.0)),
-                mood=song_data.get("mood", "neutral").lower(),
+                mood=str(song_data.get("mood", "neutral")).lower(),
+                tags=song_data.get("tags"),
+                description=song_data.get("description"),
                 youtube_id=youtube_id,
                 is_estimated_ai_metrics=song_data.get("is_estimated_ai_metrics", True),
             )
@@ -107,6 +114,8 @@ class IngestionService:
             # Update missing attributes if higher quality data provided
             if youtube_id and not existing_song.youtube_id:
                 existing_song.youtube_id = youtube_id
+            if song_data.get("tags") and not existing_song.tags:
+                existing_song.tags = song_data.get("tags")
 
         # Upsert SongSource (Deduplication Level 1)
         if youtube_id:
