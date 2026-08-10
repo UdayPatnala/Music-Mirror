@@ -126,9 +126,9 @@ def playback_quality_health(db: Session = Depends(get_db)):
     source_health: Dict[str, Any] = {}
     try:
         total_sources = db.query(SongSource).count()
-        active_sources = db.query(SongSource).filter(SongSource.status == "active").count()
-        quarantined_sources = db.query(SongSource).filter(SongSource.status == "quarantined").count()
-        unavailable_sources = db.query(SongSource).filter(SongSource.status == "unavailable").count()
+        active_sources = db.query(SongSource).filter(SongSource.status == "ACTIVE").count()
+        quarantined_sources = db.query(SongSource).filter(SongSource.status == "QUARANTINED").count()
+        unavailable_sources = db.query(SongSource).filter(SongSource.status == "UNAVAILABLE").count()
         source_health = {
             "total": total_sources,
             "active": active_sources,

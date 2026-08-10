@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.routes import recommendations, health, telemetry, local_explorer, songs, user_preferences, reports
 from app.db.database import engine, Base, SessionLocal
+from app.db.models import Song as SongModel
 from app.ingestion.ingestion_service import IngestionService
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -15,7 +16,7 @@ Base.metadata.create_all(bind=engine)
 # Auto-seed database if empty on startup
 try:
     db = SessionLocal()
-    song_count = db.query(songs.Song).count()
+    song_count = db.query(SongModel).count()
     if song_count == 0:
         logger.info("Database is empty. Running initial idempotent seed dataset...")
         res = IngestionService.seed_database(db)
@@ -28,10 +29,10 @@ app = FastAPI(title=settings.PROJECT_NAME, version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Request-ID"],
 )
 
 app.include_router(health.router, prefix="/health", tags=["Health & Observability"])

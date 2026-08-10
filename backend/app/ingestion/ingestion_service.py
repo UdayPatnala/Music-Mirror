@@ -59,13 +59,13 @@ class IngestionService:
         if not title:
             raise ValueError("Song title is required")
 
-        artist = cls.get_or_create_artist(db, artist_name, genre=song_data.get("genre", "Pop"))
+        artist = cls.get_or_create_artist(db, artist_name, genre=song_data.get("genre", "Unknown"))
         album = cls.get_or_create_album(
             db,
             artist.id,
             album_name,
             cover_url=song_data.get("cover_image_url"),
-            release_date=str(song_data.get("release_date", "2024")),
+            release_date=song_data.get("release_date") if song_data.get("release_date") else None,
         )
 
         norm_title = normalize_string(title)
@@ -85,23 +85,23 @@ class IngestionService:
                 artist_id=artist.id,
                 album_id=album.id,
                 album_title=album.title,
-                duration=song_data.get("duration", 180),
-                release_date=str(song_data.get("release_date", "2024")),
-                genre=song_data.get("genre", "Pop"),
+                duration=song_data.get("duration") or 0,
+                release_date=song_data.get("release_date"),
+                genre=song_data.get("genre", "Unknown"),
                 sub_genre=song_data.get("sub_genre"),
-                language=song_data.get("language", "English"),
+                language=song_data.get("language", "Unknown"),
                 explicit=song_data.get("explicit", False),
                 cover_image_url=song_data.get("cover_image_url") or (f"https://img.youtube.com/vi/{youtube_id}/hqdefault.jpg" if youtube_id else None),
                 audio_url=song_data.get("audio_url") or song_data.get("preview_url"),
                 preview_url=song_data.get("preview_url") or song_data.get("audio_url"),
-                popularity=song_data.get("popularity", 85),
-                energy=float(song_data.get("energy", 0.7)),
-                danceability=float(song_data.get("danceability", 0.5)),
-                valence=float(song_data.get("valence", 0.7)),
-                acousticness=float(song_data.get("acousticness", 0.5)),
-                instrumentalness=float(song_data.get("instrumentalness", 0.0)),
-                tempo=float(song_data.get("tempo", 120.0)),
-                mood=str(song_data.get("mood", "neutral")).lower(),
+                popularity=song_data.get("popularity") or 0,
+                energy=float(song_data.get("energy")) if song_data.get("energy") is not None else 0.0,
+                danceability=float(song_data.get("danceability")) if song_data.get("danceability") is not None else 0.0,
+                valence=float(song_data.get("valence")) if song_data.get("valence") is not None else 0.0,
+                acousticness=float(song_data.get("acousticness")) if song_data.get("acousticness") is not None else 0.0,
+                instrumentalness=float(song_data.get("instrumentalness")) if song_data.get("instrumentalness") is not None else 0.0,
+                tempo=float(song_data.get("tempo")) if song_data.get("tempo") is not None else 0.0,
+                mood=str(song_data.get("mood", "unknown")).lower(),
                 tags=song_data.get("tags"),
                 description=song_data.get("description"),
                 youtube_id=youtube_id,

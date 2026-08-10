@@ -5,17 +5,27 @@ from typing import Dict, Tuple
 class RateLimiter:
     """
     [40_RATE_LIMITING]
-    In-memory rate limiter for Predeployment Release demo.
-    In production, this would be backed by Redis.
+    In-memory rate limiter for demo/development.
+    In production, this should be backed by Redis with TTL.
+    Evicts stale entries per check to prevent unbounded dict growth.
     """
     def __init__(self, requests_per_minute: int = 60):
         self.requests_per_minute = requests_per_minute
         self.clients: Dict[str, Tuple[int, float]] = {}
+        self._eviction_counter = 0
+
+    def _evict_stale(self, now: float) -> None:
+        """Remove entries older than 2 minutes to bound memory usage."""
+        self._eviction_counter += 1
+        if self._eviction_counter % 100 == 0:  # prune every 100 requests
+            cutoff = now - 120
+            self.clients = {ip: v for ip, v in self.clients.items() if v[1] > cutoff}
 
     def check(self, request: Request):
         client_ip = request.client.host if request.client else "unknown"
         now = time.time()
-        
+        self._evict_stale(now)
+
         if client_ip in self.clients:
             count, start_time = self.clients[client_ip]
             if now - start_time > 60:
@@ -30,3 +40,4 @@ class RateLimiter:
 # Create instances for different scopes
 search_limiter = RateLimiter(requests_per_minute=30)
 action_limiter = RateLimiter(requests_per_minute=100)
+

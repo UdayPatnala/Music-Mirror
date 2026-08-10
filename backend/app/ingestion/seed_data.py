@@ -18,7 +18,6 @@ SEED_SONGS = [
         "popularity": 98,
         "release_date": "2024",
         "youtube_id": "9oNvxVFsm5U",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Fear Song",
@@ -33,7 +32,6 @@ SEED_SONGS = [
         "popularity": 97,
         "release_date": "2024",
         "youtube_id": "HUJfPpESSWg",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Kurchi Madathapetti",
@@ -48,7 +46,6 @@ SEED_SONGS = [
         "popularity": 99,
         "release_date": "2024",
         "youtube_id": "VRbSiUuSqBA",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Sooseki (The Couple Song)",
@@ -63,7 +60,6 @@ SEED_SONGS = [
         "popularity": 98,
         "release_date": "2024",
         "youtube_id": "HA-Sjb5BCMA",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Naatu Naatu",
@@ -78,7 +74,6 @@ SEED_SONGS = [
         "popularity": 100,
         "release_date": "2022",
         "youtube_id": "qfSRDoxzKGA",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Buttabomma",
@@ -93,7 +88,6 @@ SEED_SONGS = [
         "popularity": 96,
         "release_date": "2020",
         "youtube_id": "A6BJ-PgNWXA",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1820491/mp32/",
     },
     {
         "title": "Samajavaragamana",
@@ -108,7 +102,6 @@ SEED_SONGS = [
         "popularity": 95,
         "release_date": "2020",
         "youtube_id": "E3BnMDc9ATE",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
     {
         "title": "Srivalli",
@@ -123,7 +116,6 @@ SEED_SONGS = [
         "popularity": 97,
         "release_date": "2021",
         "youtube_id": "RACf1mY9bJI",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/",
     },
     {
         "title": "Oo Antava Mava",
@@ -138,7 +130,6 @@ SEED_SONGS = [
         "popularity": 96,
         "release_date": "2021",
         "youtube_id": "FHe9nf1azts",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Inkem Inkem Inkem Kaavale",
@@ -153,7 +144,6 @@ SEED_SONGS = [
         "popularity": 94,
         "release_date": "2018",
         "youtube_id": "HA-Sjb5BCMA",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
 
     # ── TELUGU TIMELESS CLASSICS ──────────────────────────────────────────────
@@ -170,7 +160,6 @@ SEED_SONGS = [
         "popularity": 90,
         "release_date": "1992",
         "youtube_id": "WNcsUNKlAKw",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/",
     },
     {
         "title": "Sankurathri Kodi",
@@ -185,7 +174,6 @@ SEED_SONGS = [
         "popularity": 88,
         "release_date": "1986",
         "youtube_id": "cxZe-Jxm5WY",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
     {
         "title": "Priya Priyathama",
@@ -200,7 +188,6 @@ SEED_SONGS = [
         "popularity": 89,
         "release_date": "1992",
         "youtube_id": "_dXwkfq5YG8",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
     {
         "title": "Suvvi Suvvi Suvvalamma",
@@ -215,7 +202,6 @@ SEED_SONGS = [
         "popularity": 87,
         "release_date": "1986",
         "youtube_id": "2XjJxVLqSgE",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/",
     },
 
     # ── TAMIL LATEST HITS & CLASSICS ──────────────────────────────────────────
@@ -232,7 +218,6 @@ SEED_SONGS = [
         "popularity": 99,
         "release_date": "2024",
         "youtube_id": "VK2L7FyXN2Q",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Hukum - Thalaivar Alappara",
@@ -247,7 +232,6 @@ SEED_SONGS = [
         "popularity": 98,
         "release_date": "2023",
         "youtube_id": "VK2L7FyXN2Q",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Arabic Kuthu",
@@ -262,7 +246,6 @@ SEED_SONGS = [
         "popularity": 95,
         "release_date": "2022",
         "youtube_id": "KSELOf81Ecg",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Rowdy Baby",
@@ -277,7 +260,6 @@ SEED_SONGS = [
         "popularity": 94,
         "release_date": "2018",
         "youtube_id": "0vGcBCBBGGQ",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Vaathi Coming",
@@ -292,7 +274,6 @@ SEED_SONGS = [
         "popularity": 92,
         "release_date": "2020",
         "youtube_id": "VK2L7FyXN2Q",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Chinna Chinna Aasai",
@@ -307,7 +288,6 @@ SEED_SONGS = [
         "popularity": 93,
         "release_date": "1992",
         "youtube_id": "Roa1lJiZZD4",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
 
     # ── HINDI LATEST HITS & CLASSICS ──────────────────────────────────────────
@@ -324,7 +304,6 @@ SEED_SONGS = [
         "popularity": 98,
         "release_date": "2022",
         "youtube_id": "BddP6PYo2gs",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
     {
         "title": "Tere Vaaste",
@@ -339,7 +318,6 @@ SEED_SONGS = [
         "popularity": 95,
         "release_date": "2023",
         "youtube_id": "Umqb9KENgmk",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Raataan Lambiyan",
@@ -354,7 +332,6 @@ SEED_SONGS = [
         "popularity": 96,
         "release_date": "2021",
         "youtube_id": "hVV2T_H2vHc",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
     {
         "title": "Kal Ho Naa Ho",
@@ -369,7 +346,6 @@ SEED_SONGS = [
         "popularity": 97,
         "release_date": "2003",
         "youtube_id": "K7yJoM_XUTQ",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/",
     },
     {
         "title": "Tujhe Dekha To",
@@ -384,7 +360,6 @@ SEED_SONGS = [
         "popularity": 98,
         "release_date": "1995",
         "youtube_id": "E_xhyGtFWCA",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
     {
         "title": "Chaiyya Chaiyya",
@@ -399,7 +374,6 @@ SEED_SONGS = [
         "popularity": 96,
         "release_date": "1998",
         "youtube_id": "E_xhyGtFWCA",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
 
     # ── INTERNATIONAL LATEST HITS & CLASSICS ─────────────────────────────────
@@ -416,7 +390,6 @@ SEED_SONGS = [
         "popularity": 99,
         "release_date": "2022",
         "youtube_id": "H5v3kku4y6Q",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Flowers",
@@ -431,7 +404,6 @@ SEED_SONGS = [
         "popularity": 99,
         "release_date": "2023",
         "youtube_id": "G7KNmW9a75Y",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Blinding Lights",
@@ -446,7 +418,6 @@ SEED_SONGS = [
         "popularity": 100,
         "release_date": "2020",
         "youtube_id": "4NRXx6U8ABQ",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Levitating",
@@ -461,7 +432,6 @@ SEED_SONGS = [
         "popularity": 97,
         "release_date": "2020",
         "youtube_id": "TUVcZfQe-Kw",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1689240/mp32/",
     },
     {
         "title": "Bohemian Rhapsody",
@@ -476,7 +446,6 @@ SEED_SONGS = [
         "popularity": 100,
         "release_date": "1975",
         "youtube_id": "fJ9rUzIMcZQ",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/",
     },
     {
         "title": "Billie Jean",
@@ -491,7 +460,6 @@ SEED_SONGS = [
         "popularity": 100,
         "release_date": "1982",
         "youtube_id": "Zi_XLOBDo_Y",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
     },
     {
         "title": "Hotel California",
@@ -506,7 +474,6 @@ SEED_SONGS = [
         "popularity": 99,
         "release_date": "1976",
         "youtube_id": "09R8_2nJtjg",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/",
     },
     {
         "title": "Deep Focus Chill",
@@ -521,7 +488,6 @@ SEED_SONGS = [
         "popularity": 85,
         "release_date": "2023",
         "youtube_id": "8GW6sLrK40k",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/",
     },
     {
         "title": "Moonlight Sonata (Adagio Sostenuto)",
@@ -536,6 +502,5 @@ SEED_SONGS = [
         "popularity": 95,
         "release_date": "1801",
         "youtube_id": "450p7goxZqg",
-        "preview_url": "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/",
     }
 ]

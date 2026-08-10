@@ -118,10 +118,10 @@ class RecommendationService:
                         "tempo": s.tempo,
                         "popularity": s.popularity,
                         "mood": s.mood,
-                        "youtubeId": s.youtube_id or "A6BJ-PgNWXA",
-                        "youtube_id": s.youtube_id or "A6BJ-PgNWXA",
-                        "preview_url": s.preview_url or s.audio_url or "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/",
-                        "cover_image_url": s.cover_image_url or f"https://img.youtube.com/vi/{s.youtube_id}/hqdefault.jpg" if s.youtube_id else None,
+                        "youtubeId": s.youtube_id,
+                        "youtube_id": s.youtube_id,
+                        "preview_url": s.preview_url or s.audio_url or None,
+                        "cover_image_url": s.cover_image_url or (f"https://img.youtube.com/vi/{s.youtube_id}/hqdefault.jpg" if s.youtube_id else None),
                     })
                 return candidates
         except Exception:

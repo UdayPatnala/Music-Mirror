@@ -8,6 +8,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 DB_PATH = DATA_DIR / "music_mirror.db"
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DB_PATH}")
+DATABASE_URL = SQLALCHEMY_DATABASE_URL  # exported alias for Alembic
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
