@@ -199,6 +199,26 @@ export default function LandingPage() {
                   <Link to="/dashboard" className="lp2-cta-ghost">Docs</Link>
                 </div>
               </div>
+
+              {/* Hero Feature Pill Highlights */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 16,
+                marginTop: 48,
+                flexWrap: "wrap"
+              }}>
+                <span style={{ fontSize: "0.82rem", color: "#5F636D", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, background: "#FFFFFF", padding: "8px 18px", borderRadius: "999px", border: "1px solid #E5E7EC", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                  ⚡ Real-Time Emotion Match
+                </span>
+                <span style={{ fontSize: "0.82rem", color: "#5F636D", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, background: "#FFFFFF", padding: "8px 18px", borderRadius: "999px", border: "1px solid #E5E7EC", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                  🎵 200+ Real Catalog Songs
+                </span>
+                <span style={{ fontSize: "0.82rem", color: "#5F636D", fontWeight: 600, display: "flex", alignItems: "center", gap: 6, background: "#FFFFFF", padding: "8px 18px", borderRadius: "999px", border: "1px solid #E5E7EC", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                  🔒 100% On-Device Privacy
+                </span>
+              </div>
             </div>
 
           </div>

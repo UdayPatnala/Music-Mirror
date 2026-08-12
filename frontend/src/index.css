@@ -1081,26 +1081,32 @@ img { max-width: 100%; display: block; }
 }
 
 .lp2-hero-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  max-width: 1200px;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.lp2-text { display: flex; flex-direction: column; }
+.lp2-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 
 .lp2-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #635BFF;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .lp2-eyebrow-line {
@@ -1110,12 +1116,13 @@ img { max-width: 100%; display: block; }
 }
 
 .lp2-headline {
-  font-size: clamp(2.8rem, 5vw, 5rem);
+  font-size: clamp(3rem, 5.5vw, 5.2rem);
   font-weight: 900;
-  line-height: 1.02;
-  letter-spacing: -0.05em;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
   color: #17181C;
   margin: 0 0 24px;
+  text-align: center;
 }
 
 .lp2-headline em {
@@ -1127,16 +1134,23 @@ img { max-width: 100%; display: block; }
 }
 
 .lp2-subline {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   color: #5F636D;
   line-height: 1.7;
   font-weight: 400;
-  max-width: 400px;
-  margin-bottom: 48px;
+  max-width: 580px;
+  margin: 0 auto 40px;
+  text-align: center;
 }
 
 /* CTA */
-.lp2-cta-wrap { display: flex; flex-direction: column; gap: 20px; }
+.lp2-cta-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
 
 .lp2-cta-primary {
   display: inline-flex;
