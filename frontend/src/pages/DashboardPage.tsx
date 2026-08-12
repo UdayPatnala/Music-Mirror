@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Camera from "../components/Camera";
 import type { DetectionResult } from "../components/Camera";
-import { Wordmark } from "../components/Brand";
+import Navbar from "../components/Navbar";
 import { Activity, ShieldAlert, Database, Zap, Eye, Brain, Sliders } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -219,59 +219,8 @@ export default function DashboardPage() {
   return (
     <div className="pr-root" style={{ background: "var(--bg-primary)", minHeight: "100vh" }}>
 
-      {/* ── NAV ── */}
-      <header style={{
-        borderBottom: "1px solid #E2E8F0",
-        background: "rgba(255, 255, 255, 0.88)",
-        backdropFilter: "blur(24px)",
-        position: "sticky", top: 0, zIndex: 50,
-        display: "flex", alignItems: "center",
-        padding: "0 40px", height: 64, gap: 16,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link to="/">
-            <Wordmark size="md" showBadge={true} />
-          </Link>
-          <span style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "#7C3AED", background: "#EDE9FE", padding: "2px 10px", borderRadius: "999px", border: "1px solid #DDD6FE", letterSpacing: "0.08em" }}>
-            BIOMETRIC TELEMETRY LAB
-          </span>
-        </div>
-
-        {/* Center Nav Links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 auto" }}>
-          <Link to="/room" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Studio</Link>
-          <Link to="/dashboard" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE" }}>AI Lab</Link>
-          <Link to="/summary" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Blueprint</Link>
-          <Link to="/profile" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Profile</Link>
-        </div>
-
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 7,
-            fontSize: "0.78rem", color: facePresent ? "#059669" : "#7A8699",
-            background: facePresent ? "#D1FAE5" : "#F1F5F9",
-            border: `1px solid ${facePresent ? "#A7F3D0" : "#CBD5E1"}`,
-            padding: "6px 14px", borderRadius: "999px",
-            transition: "all 0.4s ease",
-          }}>
-            <span style={{
-              width: 7, height: 7, borderRadius: "50%",
-              background: facePresent ? "#059669" : "#A8B1BF",
-              boxShadow: facePresent ? "0 0 8px #059669" : "none",
-              animation: facePresent ? "pulse 2s ease-in-out infinite" : "none",
-            }} />
-            {facePresent ? `Face Tracked · 68 Landmarks` : "Searching for Face..."}
-          </div>
-
-          <Link to="/room" style={{
-            fontSize: "0.82rem", fontWeight: 700, color: "#FFFFFF",
-            background: "#4F46E5", padding: "8px 20px",
-            borderRadius: "999px", border: "none", boxShadow: "0 4px 12px rgba(79, 70, 229, 0.25)"
-          }}>
-            Enter Studio Room
-          </Link>
-        </div>
-      </header>
+      {/* Standardized Header Navbar */}
+      <Navbar modeLabel="AI Analytics Lab" />
 
       <main className="pr-main" style={{ maxWidth: 1400, padding: "32px 32px 120px", margin: "0 auto" }}>
 

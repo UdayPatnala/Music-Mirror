@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { Wordmark } from "../components/Brand";
+import Navbar from "../components/Navbar";
 
 export default function SummaryPage() {
   const navigate = useNavigate();
@@ -18,29 +18,8 @@ export default function SummaryPage() {
 
   return (
     <div className="pr-root">
-      {/* ── NAV ──────────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid #E2E8F0", background: "rgba(255,255,255,0.88)", backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 40px", height: 64 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link to="/">
-            <Wordmark size="md" showBadge={true} />
-          </Link>
-          <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#4F46E5", background: "#EEF2FF", padding: "2px 10px", borderRadius: "999px", border: "1px solid #C7D2FE" }}>Architecture Blueprint</span>
-        </div>
-
-        {/* Center Nav Links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 auto" }}>
-          <Link to="/room" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Studio</Link>
-          <Link to="/dashboard" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>AI Lab</Link>
-          <Link to="/summary" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE" }}>Blueprint</Link>
-          <Link to="/profile" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Profile</Link>
-        </div>
-
-        <div style={{ marginLeft: "auto" }}>
-          <Link to="/room" style={{ fontSize: "0.82rem", fontWeight: 700, color: "#FFFFFF", background: "#4F46E5", padding: "8px 22px", borderRadius: "999px", transition: "all 0.2s ease" }}>
-            Enter Studio
-          </Link>
-        </div>
-      </header>
+      {/* Standardized Header Navbar */}
+      <Navbar modeLabel="Architecture Blueprint" />
 
       {/* ── HERO ──────────────────────────────────────────────── */}
       <section style={{ padding: "80px 56px 40px", textAlign: "center", maxWidth: 1000, margin: "0 auto" }}>

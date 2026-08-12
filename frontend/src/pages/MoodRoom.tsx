@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Camera from "../components/Camera";
 import type { DetectionResult } from "../components/Camera";
+import Navbar from "../components/Navbar";
 import { useAppStore } from "../store/useAppStore";
 import type { Song } from "../types";
 import { JamendoProviderAdapter } from "../architecture/layers/ProviderAdapterLayer/JamendoProviderAdapter";
@@ -66,7 +67,6 @@ export default function MoodRoom() {
   const songsQueue = useAppStore(s => s.songsQueue);
   const setSongsQueue = useAppStore(s => s.setSongsQueue);
   const playerMode = useAppStore(s => s.playerMode);
-  const setPlayerMode = useAppStore(s => s.setPlayerMode);
   const toggleFav = useAppStore(s => s.toggleFav);
   const favs = useAppStore(s => s.favs);
 
@@ -261,66 +261,7 @@ export default function MoodRoom() {
     <div className="pr-root" style={{ background: "var(--bg-primary)", minHeight: "100vh", position: "relative" }}>
 
       {/* ── Top Header Bar ── */}
-      <header className="room-nav" style={{
-        borderBottom: "1px solid #E2E8F0",
-        background: "rgba(255, 255, 255, 0.88)",
-        backdropFilter: "blur(24px)",
-        position: "sticky", top: 0, zIndex: 50,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 40px", height: 64,
-      }}>
-        <div className="room-brand" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link to="/">
-            <Music size={22} style={{ color: "#4F46E5" }} />
-          </Link>
-          <span className="room-brand-name font-brand" style={{ color: "#172033", fontSize: "1.1rem", fontWeight: 800 }}>Music Mirror</span>
-          <span className="room-brand-v2" style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", padding: "2px 8px", borderRadius: "999px", border: "1px solid #C7D2FE" }}>
-            v2.0
-          </span>
-        </div>
-
-        {/* Center Nav Links */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 auto" }}>
-          <Link to="/room" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE" }}>Studio</Link>
-          <Link to="/dashboard" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>AI Lab</Link>
-          <Link to="/summary" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Blueprint</Link>
-          <Link to="/profile" style={{ padding: "6px 14px", borderRadius: "999px", fontSize: "0.82rem", fontWeight: 600, color: "#475569" }}>Profile</Link>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#FFFFFF", padding: "4px 12px", borderRadius: "999px", border: "1px solid #E2E8F0" }}>
-            <Sparkles size={14} style={{ color: "#7C3AED" }} />
-            <span style={{ fontSize: "0.76rem", color: "#475569", fontWeight: 600 }}>Mode:</span>
-            <span style={{ fontSize: "0.76rem", color: "#7C3AED", fontWeight: 700 }}>AI Personalization</span>
-          </div>
-
-          <select
-            value={playerMode}
-            onChange={e => setPlayerMode(e.target.value as any)}
-            style={{
-              background: "#FFFFFF",
-              border: "1px solid #CBD5E1",
-              color: "#4F46E5",
-              fontSize: "0.78rem",
-              fontWeight: 700,
-              borderRadius: "999px",
-              padding: "4px 26px 4px 12px",
-              outline: "none",
-              cursor: "pointer",
-              appearance: "none",
-              WebkitAppearance: "none",
-              MozAppearance: "none",
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 9px center",
-            }}
-          >
-            <option value="youtube" style={{ background: "#FFFFFF", color: "#172033" }}>YouTube Engine</option>
-            <option value="jamendo" style={{ background: "#FFFFFF", color: "#172033" }}>Jamendo CC (Royalty-Free)</option>
-            <option value="local" style={{ background: "#FFFFFF", color: "#172033" }}>Local Audio Disk</option>
-          </select>
-        </div>
-      </header>
+      <Navbar modeLabel="Studio Player" />
 
       {/* ── 3-Column Studio Viewport Layout ── */}
       <div className="studio-layout">

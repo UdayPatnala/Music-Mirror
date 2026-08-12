@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ThemeBackground, Wordmark } from "../components/Brand";
+import { ThemeBackground } from "../components/Brand";
+import Navbar from "../components/Navbar";
 
 
 /* ─────────────────────────────────────────────────────────────────
@@ -137,20 +138,8 @@ export default function LandingPage() {
           <div className="lp2-player-label">Entering Music Room...</div>
         </div>
 
-        {/* ── Floating Navbar ── */}
-        <nav className="lp2-nav" aria-label="Main navigation">
-          <div className={`lp2-nav-inner${isTransitioning ? " hidden" : ""}`}>
-            <div className="lp2-nav-brand">
-              <Wordmark size="md" showBadge />
-            </div>
-            <div className="lp2-nav-links">
-              <Link to="/room" className="lp2-nav-link">Studio Room</Link>
-              <Link to="/dashboard" className="lp2-nav-link">AI Lab</Link>
-              <Link to="/summary" className="lp2-nav-link">Blueprint</Link>
-              <Link to="/profile" className="lp2-nav-link lp2-nav-link-accent">Profile</Link>
-            </div>
-          </div>
-        </nav>
+        {/* Standardized Global Navbar */}
+        <Navbar modeLabel="Emotion-First AI Player" />
 
         {/* ── Hero ── */}
         <section
