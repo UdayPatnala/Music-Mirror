@@ -85,7 +85,7 @@ class IngestionService:
                 artist_id=artist.id,
                 album_id=album.id,
                 album_title=album.title,
-                duration=song_data.get("duration") or 0,
+                duration=song_data.get("duration") or 180,
                 release_date=song_data.get("release_date"),
                 genre=song_data.get("genre", "Unknown"),
                 sub_genre=song_data.get("sub_genre"),
@@ -94,13 +94,13 @@ class IngestionService:
                 cover_image_url=song_data.get("cover_image_url") or (f"https://img.youtube.com/vi/{youtube_id}/hqdefault.jpg" if youtube_id else None),
                 audio_url=song_data.get("audio_url") or song_data.get("preview_url"),
                 preview_url=song_data.get("preview_url") or song_data.get("audio_url"),
-                popularity=song_data.get("popularity") or 0,
-                energy=float(song_data.get("energy")) if song_data.get("energy") is not None else 0.0,
-                danceability=float(song_data.get("danceability")) if song_data.get("danceability") is not None else 0.0,
-                valence=float(song_data.get("valence")) if song_data.get("valence") is not None else 0.0,
-                acousticness=float(song_data.get("acousticness")) if song_data.get("acousticness") is not None else 0.0,
+                popularity=song_data.get("popularity") or 80,
+                energy=float(song_data.get("energy")) if song_data.get("energy") is not None else 0.5,
+                danceability=float(song_data.get("danceability")) if song_data.get("danceability") is not None else 0.5,
+                valence=float(song_data.get("valence")) if song_data.get("valence") is not None else 0.5,
+                acousticness=float(song_data.get("acousticness")) if song_data.get("acousticness") is not None else 0.5,
                 instrumentalness=float(song_data.get("instrumentalness")) if song_data.get("instrumentalness") is not None else 0.0,
-                tempo=float(song_data.get("tempo")) if song_data.get("tempo") is not None else 0.0,
+                tempo=float(song_data.get("tempo")) if song_data.get("tempo") is not None else 120.0,
                 mood=str(song_data.get("mood", "unknown")).lower(),
                 tags=song_data.get("tags"),
                 description=song_data.get("description"),
@@ -116,6 +116,14 @@ class IngestionService:
                 existing_song.youtube_id = youtube_id
             if song_data.get("tags") and not existing_song.tags:
                 existing_song.tags = song_data.get("tags")
+            if song_data.get("valence") is not None and (existing_song.valence == 0.0 or existing_song.valence is None):
+                existing_song.valence = float(song_data.get("valence"))
+            if song_data.get("energy") is not None and (existing_song.energy == 0.0 or existing_song.energy is None):
+                existing_song.energy = float(song_data.get("energy"))
+            if song_data.get("tempo") is not None and (existing_song.tempo == 0.0 or existing_song.tempo is None):
+                existing_song.tempo = float(song_data.get("tempo"))
+            if song_data.get("duration") and (existing_song.duration == 0 or existing_song.duration is None):
+                existing_song.duration = int(song_data.get("duration"))
 
         # Upsert SongSource (Deduplication Level 1)
         if youtube_id:
