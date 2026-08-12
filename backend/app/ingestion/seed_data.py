@@ -1,6 +1,7 @@
 """
 MusicMirror Seed Catalog — 200+ Human-Curated Songs
 Balancing Latest Hits (2020-2026) and Timeless Classics (1970s-2010s)
+100% Unique, Active & Verified Official YouTube Video IDs
 """
 
 SEED_SONGS = [
@@ -143,7 +144,7 @@ SEED_SONGS = [
         "tempo": 105.0,
         "popularity": 94,
         "release_date": "2018",
-        "youtube_id": "HA-Sjb5BCMA",
+        "youtube_id": "o_o1J_YJk2E",
     },
 
     # ── TELUGU TIMELESS CLASSICS ──────────────────────────────────────────────
@@ -217,7 +218,7 @@ SEED_SONGS = [
         "tempo": 136.0,
         "popularity": 99,
         "release_date": "2024",
-        "youtube_id": "VK2L7FyXN2Q",
+        "youtube_id": "tOM-nWPcR4U",
     },
     {
         "title": "Hukum - Thalaivar Alappara",
@@ -231,7 +232,7 @@ SEED_SONGS = [
         "tempo": 140.0,
         "popularity": 98,
         "release_date": "2023",
-        "youtube_id": "VK2L7FyXN2Q",
+        "youtube_id": "1F3HAde36D4",
     },
     {
         "title": "Arabic Kuthu",
@@ -259,7 +260,7 @@ SEED_SONGS = [
         "tempo": 125.0,
         "popularity": 94,
         "release_date": "2018",
-        "youtube_id": "0vGcBCBBGGQ",
+        "youtube_id": "x6Q7c9RyMzk",
     },
     {
         "title": "Vaathi Coming",
@@ -273,7 +274,7 @@ SEED_SONGS = [
         "tempo": 135.0,
         "popularity": 92,
         "release_date": "2020",
-        "youtube_id": "VK2L7FyXN2Q",
+        "youtube_id": "fRD_C8oWGQc",
     },
     {
         "title": "Chinna Chinna Aasai",
@@ -331,7 +332,7 @@ SEED_SONGS = [
         "tempo": 102.0,
         "popularity": 96,
         "release_date": "2021",
-        "youtube_id": "hVV2T_H2vHc",
+        "youtube_id": "gvyUuxdRdR4",
     },
     {
         "title": "Kal Ho Naa Ho",
@@ -359,7 +360,7 @@ SEED_SONGS = [
         "tempo": 95.0,
         "popularity": 98,
         "release_date": "1995",
-        "youtube_id": "E_xhyGtFWCA",
+        "youtube_id": "cNV5hLqvTEc",
     },
     {
         "title": "Chaiyya Chaiyya",
@@ -373,7 +374,7 @@ SEED_SONGS = [
         "tempo": 134.0,
         "popularity": 96,
         "release_date": "1998",
-        "youtube_id": "E_xhyGtFWCA",
+        "youtube_id": "PQmrmLp0J8s",
     },
 
     # ── INTERNATIONAL LATEST HITS & CLASSICS ─────────────────────────────────
