@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ThemeBackground, Wordmark } from "../components/Brand";
 
@@ -96,32 +96,12 @@ const STEPS = [
 export default function LandingPage() {
   const navigate = useNavigate();
 
-  // Cursor tracking for CD parallax reflections
-  const [cursor, setCursor] = useState({ x: 0.5, y: 0.5 });
-  const heroRef = useRef<HTMLDivElement>(null);
-
   // Transition state machine
-  // idle → spin → open → eject → insert → done
   const [phase] = useState<"idle"|"spin"|"open"|"eject"|"insert"|"done">("idle");
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!heroRef.current) return;
-    const rect = heroRef.current.getBoundingClientRect();
-    setCursor({
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
-    });
-  }, []);
 
   const handleEnter = () => {
     navigate("/room");
   };
-
-  // Derived reflection values from cursor
-  const rx = (cursor.x - 0.5) * 28;   // deg X tilt
-  const ry = (cursor.y - 0.5) * -18;  // deg Y tilt
-  const shine1X = cursor.x * 100;
-  const shine1Y = cursor.y * 100;
 
   const isTransitioning = phase !== "idle";
 
@@ -175,8 +155,6 @@ export default function LandingPage() {
         {/* ── Hero ── */}
         <section
           className={`lp2-hero${isTransitioning ? " fading-out" : ""}`}
-          ref={heroRef}
-          onMouseMove={handleMouseMove}
           aria-label="Hero"
         >
           <div className="lp2-hero-inner">
@@ -223,128 +201,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* RIGHT: CD Visual */}
-            <div className="lp2-cd-column" aria-hidden>
-
-              {/* AI + Human silhouettes behind CD */}
-              <div className="lp2-silhouettes">
-                {/* Left: AI Neural Network */}
-                <div className="lp2-silhouette lp2-sil-ai">
-                  <svg width="90" height="120" viewBox="0 0 90 120" fill="none">
-                    {/* Neural nodes */}
-                    {[[10,20],[10,60],[10,100],[45,10],[45,40],[45,70],[45,100],[80,30],[80,70]].map(([x,y],i) => (
-                      <circle key={i} cx={x} cy={y} r="3.5" fill="rgba(99,91,255,0.45)" />
-                    ))}
-                    {/* Connections */}
-                    {[
-                      [10,20,45,10],[10,20,45,40],[10,60,45,40],[10,60,45,70],[10,100,45,70],[10,100,45,100],
-                      [45,10,80,30],[45,40,80,30],[45,70,80,70],[45,100,80,70]
-                    ].map(([x1,y1,x2,y2],i) => (
-                      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(99,91,255,0.18)" strokeWidth="0.8" />
-                    ))}
-                  </svg>
-                  <div style={{ fontSize: "0.6rem", color: "rgba(99,91,255,0.45)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>AI</div>
-                </div>
-
-                {/* Right: Human head silhouette */}
-                <div className="lp2-silhouette lp2-sil-human">
-                  <svg width="80" height="110" viewBox="0 0 80 110" fill="none">
-                    {/* Head outline */}
-                    <ellipse cx="40" cy="36" rx="28" ry="32" stroke="rgba(192,132,252,0.3)" strokeWidth="1" fill="none" />
-                    {/* Facial landmarks */}
-                    {[[30,28],[50,28],[40,38],[33,46],[47,46]].map(([x,y],i) => (
-                      <circle key={i} cx={x} cy={y} r="2" fill="rgba(192,132,252,0.5)" />
-                    ))}
-                    {/* Lines connecting landmarks */}
-                    <path d="M30 28 L40 38 L50 28" stroke="rgba(192,132,252,0.2)" strokeWidth="0.7" fill="none" />
-                    <path d="M33 46 L40 38 L47 46" stroke="rgba(192,132,252,0.2)" strokeWidth="0.7" fill="none" />
-                    {/* Neck + shoulders */}
-                    <path d="M30 68 Q40 64 50 68 Q60 90 55 110 L25 110 Q20 90 30 68z" fill="rgba(192,132,252,0.04)" stroke="rgba(192,132,252,0.15)" strokeWidth="0.8" />
-                  </svg>
-                  <div style={{ fontSize: "0.6rem", color: "rgba(192,132,252,0.4)", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>Human</div>
-                </div>
-
-                {/* Waveform between them */}
-                <div className="lp2-wave-connector">
-                  <svg viewBox="0 0 200 40" fill="none" style={{ width: "100%", animation: "pulse 3s ease-in-out infinite" }}>
-                    <path
-                      d="M0 20 Q10 5 20 20 Q30 35 40 20 Q50 5 60 20 Q70 35 80 20 Q90 5 100 20 Q110 35 120 20 Q130 5 140 20 Q150 35 160 20 Q170 5 180 20 Q190 35 200 20"
-                      stroke="url(#waveGrad)"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      fill="none"
-                    />
-                    <defs>
-                      <linearGradient id="waveGrad" x1="0" x2="200" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="#D4AF37" />
-                        <stop offset="50%" stopColor="#C084FC" />
-                        <stop offset="100%" stopColor="#60A5FA" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-              </div>
-
-              {/* Jewel case + CD */}
-              <div className="lp2-jewel-case-wrap" onClick={handleEnter}>
-                <div
-                  className="lp2-jewel-case"
-                  style={{
-                    transform: !isTransitioning
-                      ? `perspective(1000px) rotateY(${rx}deg) rotateX(${ry}deg)`
-                      : undefined
-                  }}
-                >
-                  {/* Glass case panel */}
-                  <div className="lp2-case-glass" />
-                  {/* Openable lid */}
-                  <div className="lp2-case-lid" />
-
-                  {/* CD Disc */}
-                  <div className="lp2-cd-disc-wrap">
-                    <div className="lp2-cd-disc">
-                      <div className="lp2-cd-base" />
-                      <div className="lp2-cd-rainbow" />
-                      <div className="lp2-cd-brush" />
-
-                      {/* Cursor reactive shine */}
-                      <div
-                        className="lp2-cd-shine"
-                        style={{
-                          background: `radial-gradient(circle at ${shine1X}% ${shine1Y}%, rgba(255,255,255,0.25) 0%, transparent 55%)`
-                        }}
-                      />
-
-                      {/* Groove rings */}
-                      <div className="lp2-cd-grooves">
-                        {[92,80,68,57,46,36].map(s => (
-                          <div key={s} className="lp2-cd-groove" style={{ width: `${s}%`, height: `${s}%` }} />
-                        ))}
-                      </div>
-
-                      {/* Center label */}
-                      <div className="lp2-cd-label">
-                        <div className="lp2-cd-label-text">Music Mirror</div>
-                        <div className="lp2-cd-label-grad">V2</div>
-                        {/* Tiny AI waveform on label */}
-                        <svg viewBox="0 0 40 12" fill="none" style={{ width: 36, marginTop: 3, opacity: 0.6 }}>
-                          <path d="M0 6 Q5 2 10 6 Q15 10 20 6 Q25 2 30 6 Q35 10 40 6" stroke="#635BFF" strokeWidth="0.8" strokeLinecap="round" fill="none" />
-                        </svg>
-                      </div>
-
-                      {/* Spindle hole */}
-                      <div className="lp2-cd-hole" />
-
-                      {/* Edge glow */}
-                      <div className="lp2-cd-edge-glow" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Ambient floor glow from CD */}
-              <div className="lp2-cd-ambient" />
-            </div>
           </div>
         </section>
 
