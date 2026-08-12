@@ -21,6 +21,7 @@ export interface Song {
   language?: string;
   source_provider?: string;
   album_art?: string;
+  cover_image_url?: string;
   preview_url?: string;
   spotify_url?: string;
   youtubeId?: string;

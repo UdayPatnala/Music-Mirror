@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Camera from "../components/Camera";
 import type { DetectionResult } from "../components/Camera";
-import { CDDisc } from "../components/Brand";
 import { useAppStore } from "../store/useAppStore";
 import type { Song } from "../types";
 import { JamendoProviderAdapter } from "../architecture/layers/ProviderAdapterLayer/JamendoProviderAdapter";
-import { Disc, Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Music, Heart } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Music, Heart } from "lucide-react";
 
 /* ─── Emotion configuration ──────────────────────────────── */
 const MOODS = ["calm", "happy", "sad", "energetic", "focused", "romantic", "neutral"];
@@ -272,7 +271,7 @@ export default function MoodRoom() {
       }}>
         <div className="room-brand" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Link to="/">
-            <Disc size={22} style={{ color: "#4F46E5" }} />
+            <Music size={22} style={{ color: "#4F46E5" }} />
           </Link>
           <span className="room-brand-name font-brand" style={{ color: "#172033", fontSize: "1.1rem", fontWeight: 800 }}>Music Mirror</span>
           <span className="room-brand-v2" style={{ marginLeft: 4, fontSize: "0.68rem", fontWeight: 700, color: "#4F46E5", background: "#EEF2FF", padding: "2px 8px", borderRadius: "999px", border: "1px solid #C7D2FE" }}>
@@ -439,19 +438,35 @@ export default function MoodRoom() {
               </span>
             </div>
 
-            {/* Center Spinning CD Visualizer */}
-            <div style={{ position: "relative", margin: "10px 0 28px", zIndex: 2 }}>
-              <CDDisc size={200} spinning={isPlaying} moodColor={moodColor} />
-              
-              {/* Animated Live Equalizer Overlay when playing */}
-              {isPlaying && (
-                <div style={{ position: "absolute", bottom: -12, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4, background: "rgba(255,255,255,0.92)", padding: "6px 14px", borderRadius: "999px", border: "1px solid #E2E8F0", backdropFilter: "blur(12px)", boxShadow: "0 4px 12px rgba(15,23,42,0.06)" }}>
-                  {[0.4, 0.7, 1.0, 0.6, 0.8].map((delay, idx) => (
-                    <span key={idx} style={{
-                      width: 3, height: 16, borderRadius: 2, background: moodColor,
-                      animation: `bg-bar ${0.6 + delay * 0.3}s ease-in-out infinite alternate`,
-                    }} />
-                  ))}
+            {/* Clean Album Artwork Card */}
+            <div style={{ position: "relative", margin: "10px 0 24px", zIndex: 2 }}>
+              {activeSong?.cover_image_url || activeSong?.youtubeId ? (
+                <img
+                  src={activeSong.cover_image_url || `https://img.youtube.com/vi/${activeSong.youtubeId}/hqdefault.jpg`}
+                  alt={songTitle}
+                  style={{
+                    width: 160,
+                    height: 160,
+                    borderRadius: 20,
+                    objectFit: "cover",
+                    boxShadow: "0 10px 24px rgba(15,23,42,0.12)",
+                    border: "1px solid #E2E8F0",
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: 160,
+                  height: 160,
+                  borderRadius: 20,
+                  background: `linear-gradient(135deg, ${moodColor}22, ${moodColor}55)`,
+                  border: "1px solid #E2E8F0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: moodColor,
+                  boxShadow: "0 10px 24px rgba(15,23,42,0.08)",
+                }}>
+                  <Music size={56} />
                 </div>
               )}
             </div>
