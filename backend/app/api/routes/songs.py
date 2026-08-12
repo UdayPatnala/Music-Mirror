@@ -265,6 +265,29 @@ def get_tags(db: Session = Depends(get_db)):
     return sorted(list(unique_tags))
 
 
+@router.get("/auto-discover", response_model=List[SongDTO], summary="Autonomous Dynamic Song Discovery & Auto-Ingestion")
+def auto_discover_songs(
+    q: str = Query(..., min_length=2, description="Search query or title/artist/mood keyword"),
+    mood: Optional[str] = Query(None, description="Optional target emotion"),
+    language: Optional[str] = Query(None, description="Optional target language"),
+    limit: int = Query(10, ge=1, le=25),
+    db: Session = Depends(get_db)
+):
+    """
+    Dynamically searches global music APIs in real time, auto-extracts acoustic features,
+    auto-saves newly discovered songs into SQLite database, and returns the newly ingested tracks!
+    """
+    from app.services.auto_discovery_service import AutoDiscoveryService
+    discovered = AutoDiscoveryService.search_and_ingest(query=q, mood=mood, language=language, db=db, limit=limit)
+    
+    song_ids = [d["id"] for d in discovered if "id" in d]
+    if not song_ids:
+        return []
+    
+    songs = db.query(Song).filter(Song.id.in_(song_ids)).all()
+    return [build_song_dto(s) for s in songs]
+
+
 @router.get("/{song_id}", response_model=SongDTO)
 def get_song_by_id(song_id: str, db: Session = Depends(get_db)):
     song = db.query(Song).filter(Song.id == song_id).first()
