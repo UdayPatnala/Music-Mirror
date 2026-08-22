@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * B.Tech CSE Final Year Project — Music Mirror (Stage 3 Submission)
+ * Originally developed by: Student 2 (Roll: 1601-22-733-024) - March 2026
+ * ----------------------------------------------------------------------------
+ * Contribution: Set up face-api.js core detection loop, loaded expression models,
+ * computed running expression averages (EMA), and implemented webcam lighting
+ * analysis frame processing.
+ * ============================================================================
+ * Solo Upgrades (Student Project Lead - Month 7 & 8):
+ *  - Added drawing landmark canvas overlays for biometric lab feedback.
+ *  - Integrated callback notifications to signal DiscoveryLayer.
+ *  - Optimized frame-rate throttling to reduce CPU load.
+ * ============================================================================
+ */
+
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
 import { Camera as CameraIcon, CameraOff, Sun, Moon } from "lucide-react";

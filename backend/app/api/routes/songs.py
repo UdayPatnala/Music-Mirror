@@ -1,17 +1,29 @@
+import asyncio
 import math
 from typing import Optional, List
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
+from pydantic import BaseModel
 
 from app.db.database import get_db
 from app.db.models import Song, Artist, Album, SongSource
 from app.schemas.song import SongDTO, SongCreateDTO, PaginatedSongsResponse, ArtistDTO, AlbumDTO
+from app.schemas.songs import (
+    ScoreBreakdownDTO,
+    YouTubeCandidateDTO,
+    YouTubeSearchResponseDTO,
+    YouTubeSearchResultDTO,
+)
 from app.schemas.taxonomy import GenreDTO, MoodDTO, TagDTO, TaxonomySummaryDTO, SongSourceDTO
 from app.ingestion.normalizer import normalize_string
 from app.ingestion.ingestion_service import IngestionService
+from app.ingestion.youtube_provider import YouTubeMetadataProvider
+from app.services.ranking_service import RankingService
+from app.services.cache_service import discovery_cache
 
 router = APIRouter()
+
 
 
 def format_duration(seconds: int) -> str:
@@ -263,6 +275,86 @@ def get_tags(db: Session = Depends(get_db)):
                 if t_clean:
                     unique_tags.add(t_clean)
     return sorted(list(unique_tags))
+
+
+@router.get(
+    "/youtube-search",
+    response_model=YouTubeSearchResponseDTO,
+    summary="Multi-Candidate YouTube Discovery & Relevance Scoring",
+)
+async def search_youtube_videos(
+    query: Optional[str] = Query(None, description="Search query string"),
+    q: Optional[str] = Query(None, description="Search query alias"),
+    limit: int = Query(10, ge=1, le=25, description="Number of candidates to retrieve (1-25)"),
+    expected_duration_ms: Optional[int] = Query(None, description="Expected duration in milliseconds for duration scoring"),
+    target_artist: Optional[str] = Query(None, description="Target artist name for authority scoring"),
+):
+    """
+    Retrieves a multi-candidate pool (K=10..25) from YouTube, scores and ranks them using multi-criteria
+    weighted scoring (similarity, channel authority, duration, popularity, recency, and penalties),
+    and caches responses using L1 Query Cache with SingleFlight concurrency deduplication.
+    """
+    raw_query = (query if query is not None else q) or ""
+    raw_query = raw_query.strip()
+    if not raw_query:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Query parameter 'query' or 'q' is required and must not be empty",
+        )
+
+    norm_query = normalize_string(raw_query)
+    expected_duration_sec = (expected_duration_ms // 1000) if expected_duration_ms else None
+    target_art_norm = normalize_string(target_artist or "")
+
+    # L1 Query Cache Check
+    cache_key = f"{norm_query}:{limit}:{expected_duration_sec}:{target_art_norm}"
+    cached_response = await discovery_cache.get_query_cache(cache_key)
+    if cached_response is not None:
+        return YouTubeSearchResponseDTO(
+            query=cached_response.query,
+            normalized_query=cached_response.normalized_query,
+            cached=True,
+            candidates=cached_response.candidates,
+            total_candidates=cached_response.total_candidates,
+        )
+
+    # In-Flight SingleFlight deduplication
+    async def fetch_and_score() -> YouTubeSearchResponseDTO:
+        # Check cache once more inside lock
+        cached_inner = await discovery_cache.get_query_cache(cache_key)
+        if cached_inner is not None:
+            return cached_inner
+
+        provider = YouTubeMetadataProvider()
+        raw_candidates = await asyncio.to_thread(provider.search_metadata, raw_query, limit)
+
+        # Store candidate metadata in L2 cache
+        for c in raw_candidates:
+            v_id = c.get("video_id") or c.get("source_id")
+            if v_id:
+                await discovery_cache.set_video_metadata(v_id, c)
+
+        ranked = RankingService.rank_candidates(
+            query=raw_query,
+            candidates=raw_candidates,
+            expected_duration_seconds=expected_duration_sec,
+            target_artist=target_artist,
+        )
+
+        response_dto = YouTubeSearchResponseDTO(
+            query=raw_query,
+            normalized_query=norm_query,
+            cached=False,
+            candidates=ranked,
+            total_candidates=len(ranked),
+        )
+
+        await discovery_cache.set_query_cache(cache_key, response_dto)
+        return response_dto
+
+    result = await discovery_cache.single_flight.execute(cache_key, fetch_and_score)
+    return result
+
 
 
 @router.get("/auto-discover", response_model=List[SongDTO], summary="Autonomous Dynamic Song Discovery & Auto-Ingestion")

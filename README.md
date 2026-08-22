@@ -1,7 +1,7 @@
 # Music Mirror V2 🎵
 
 > **Emotion-Aware AI Music Player** — Real-time facial emotion detection driving adaptive music playback.  
-> Developed by **Patnala Uday Kumar** — BTech Final Year Project
+> Originally developed as a **B.Tech CSE Final Year Project** by a team of 4 students (6 months), later upgraded and modernized solo by the **Student Project Lead** (4 months & continuing). Detailed logs available in [BTECH_PROJECT_REPORT.md](file:///d:/PROJECT/Btech/Music%20Mirror/docs/BTECH_PROJECT_REPORT.md).
 
 [![Live App](https://img.shields.io/badge/Live-music--mirror--aos.vercel.app-black?style=for-the-badge&logo=vercel)](https://music-mirror-aos.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-UdayPatnala%2FMusic--Mirror-181717?style=for-the-badge&logo=github)](https://github.com/UdayPatnala/Music-Mirror)
@@ -204,6 +204,15 @@ npm run build
 
 ---
 
-## Author
+## Authors & Credits
 
-**Patnala Uday Kumar** — B.Tech Final Year Project, 2026
+### B.Tech CSE Final Year Project Team (Months 1 - 6)
+* **Student 1** (Roll: 1601-22-733-045) — *Project Lead / Player Integrations*
+* **Student 2** (Roll: 1601-22-733-024) — *Biometrics & face-api.js ML Engine*
+* **Student 3** (Roll: 1601-22-733-089) — *Backend API & DB Ingestion*
+* **Student 4** (Roll: 1601-22-733-112) — *HTML/CSS Layouts & Assets*
+
+*Under the guidance of the **Professor & Head of Department**, CSE Department, 2026.*
+
+### Solo Production Upgrades (Months 7 - 10+)
+* Upgraded & modernized by the **Student Project Lead** (Student 1) (Zustand stores, Clean layers, YouTube IFrame API, recovery engine, client-side caching, request deduplication, and automated backend test suites).

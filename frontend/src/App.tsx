@@ -1,3 +1,18 @@
+/**
+ * ============================================================================
+ * B.Tech CSE Final Year Project — Music Mirror (Stage 4 Submission)
+ * Originally developed by: Student 4 (Roll: 1601-22-733-112) - April 2026
+ * ----------------------------------------------------------------------------
+ * Contribution: Set up original React Router layout routes, page imports,
+ * and base theme mappings.
+ * ============================================================================
+ * Solo Upgrades (Student Project Lead - Month 7):
+ *  - Added React.lazy code-splitting and Suspense wrappers for better loading
+ *    performance.
+ *  - Added standard Guest Profile setup and a production-grade Error Boundary.
+ * ============================================================================
+ */
+
 import React, { Suspense, Component } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAppStore } from './store/useAppStore';

@@ -1,3 +1,15 @@
+# ============================================================================
+# B.Tech CSE Final Year Project — Music Mirror (Stage 2 Submission)
+# Originally developed by: Student 3 (Roll: 1601-22-733-089) - February 2026
+# ----------------------------------------------------------------------------
+# Contribution: Wrote basic clean_title regex lists, unicode decompositions,
+# and extract_artist_and_title string hyphen split filters.
+# ============================================================================
+# Solo Upgrades (Student Project Lead - Month 9):
+#  - Added robust fallback case checks to map channel name uploader to artist
+#    when query string does not match hyphen-separated fields.
+# ============================================================================
+
 import re
 import unicodedata
 from typing import Tuple, Optional

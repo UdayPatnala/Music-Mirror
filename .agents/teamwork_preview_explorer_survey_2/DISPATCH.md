@@ -1,16 +1,19 @@
-## 2026-08-10T18:02:32Z
-You are Explorer 2 for Music Mirror Survey Phase.
-Your working directory is: d:\PROJECT\Music Mirror\.agents\teamwork_preview_explorer_survey_2
-Original User Request is at: d:\PROJECT\Music Mirror\.agents\ORIGINAL_REQUEST.md
+## 2026-08-21T07:52:19Z
 
-Task:
-1. Read d:\PROJECT\Music Mirror\.agents\ORIGINAL_REQUEST.md.
-2. Investigate the codebase at d:\PROJECT\Music Mirror (read files only, do NOT modify code or run commands).
-3. Focus specifically on API architecture and router structure: existing FastAPI/framework routers, routes, `api/v1`, `api/v2`, existing schemas/contracts, error handlers, and endpoint patterns.
-4. Document existing endpoints and exact requirements for building `GET /api/v2/songs`, filtering by taxonomy (genre, mood, etc.), metadata ingestion, and non-500 handling (R2).
-5. Write your detailed findings and handoff report to d:\PROJECT\Music Mirror\.agents\teamwork_preview_explorer_survey_2\handoff.md following the Handoff Protocol. Include file paths, signatures, endpoints, and route configurations.
+You are Explorer 2 (Discovery & Optimization Spec Miner) for the Music Mirror upgrade project.
+Working directory: d:\PROJECT\Btech\Music Mirror\.agents\teamwork_preview_explorer_survey_2
+Original Request: d:\PROJECT\Btech\Music Mirror\.agents\ORIGINAL_REQUEST.md
+Codebase Root: d:\PROJECT\Btech\Music Mirror
 
-## 2026-08-10T12:33:45Z
-**Context**: Orchestrator checking survey status.
-**Content**: Explorer 1 and Explorer 3 have completed their handoffs. Please report your status on the API Architecture survey and handoff.md creation.
-**Action**: Finish writing handoff report to d:\PROJECT\Music Mirror\.agents\teamwork_preview_explorer_survey_2\handoff.md and report completion.
+Your Mission:
+Analyze requirements R1, R2, R5, and R6 in detail and formulate concrete technical strategies:
+1. R1: Query Intelligence & Candidate Discovery — query normalization, keyword extraction, expansion heuristics, multi-candidate YouTube search fetching strategies.
+2. R2: Weighted Scoring & Relevance Ranking — formula, criteria weights (title string similarity/Levenshtein/token match, channel authority/official badges/Vevo, duration matching to expected song length, view count / recency), configurable threshold tuning.
+3. R5: Optimization — dual caching layer (Query cache + Video metadata cache with TTL), request deduplication (in-flight single-promise/task deduplication for concurrent identical queries), background pre-fetching / preparation of next candidates.
+4. R6: Observability & Performance Monitoring — metric collectors (resolution latencies, candidate counts, load times, recovery rates, failure reasons breakdown), structured logging/diagnostics without exposing raw metrics to standard UI users.
+
+Constraints:
+- You are read-only: do NOT modify any source code files.
+- Write your findings to `analysis.md` and a structured `handoff.md` inside your working directory (`d:\PROJECT\Btech\Music Mirror\.agents\teamwork_preview_explorer_survey_2`).
+- Maintain `progress.md` in your working directory with timestamps.
+- When finished, send a completion message with the path to your handoff report to your parent orchestrator.

@@ -30,6 +30,13 @@ from app.schemas.emotion import (
     TransitionResponse,
 )
 
+from app.schemas.songs import (
+    ScoreBreakdownDTO,
+    YouTubeCandidateDTO,
+    YouTubeSearchResponseDTO,
+    YouTubeSearchResultDTO,
+)
+
 __all__ = [
     # Taxonomy & Source DTOs
     "GenreDTO",
@@ -54,3 +61,5 @@ __all__ = [
     "TransitionRequest",
     "TransitionResponse",
 ]
+
+

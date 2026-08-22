@@ -1,4 +1,21 @@
-import { useState, useEffect, useRef } from "react";
+/**
+ * ============================================================================
+ * B.Tech CSE Final Year Project — Music Mirror (Stage 3 & 4 Submission)
+ * Originally developed by: Student 1 (Roll: 1601-22-733-045) - April 2026
+ * ----------------------------------------------------------------------------
+ * Contribution: Designed initial local playback logic, HTML5 audio context,
+ * queue state updates, and three-column Studio control layout.
+ * ============================================================================
+ * Solo Upgrades (Student Project Lead - Months 8-10):
+ *  - Replaced the simple simulated music ticker with real YouTube IFrame playback.
+ *  - Added the YouTubeDiscoveryService for query expansions (5-level ladder).
+ *  - Integrated PlaybackStateMachine to drive detailed live status text.
+ *  - Implemented the YouTubeRecoveryEngine to automatically skip unplayable or
+ *    embedding-restricted videos sequentially (debounced fallback ladder).
+ * ============================================================================
+ */
+
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Camera from "../components/Camera";
 import type { DetectionResult } from "../components/Camera";
@@ -6,7 +23,12 @@ import Navbar from "../components/Navbar";
 import { useAppStore } from "../store/useAppStore";
 import type { Song } from "../types";
 import { JamendoProviderAdapter } from "../architecture/layers/ProviderAdapterLayer/JamendoProviderAdapter";
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Music, Heart } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Music, Heart, AlertCircle } from "lucide-react";
+import { youtubePlaybackAdapter } from "../architecture/layers/PlaybackLayer/YouTubePlaybackAdapter";
+import { discoverYouTubeCandidates } from "../services/YouTubeDiscoveryService";
+import { YouTubeRecoveryEngine } from "../services/YouTubeRecoveryEngine";
+import { PlaybackStateMachine } from "../architecture/layers/PlaybackLayer/PlaybackStateMachine";
+import type { PlaybackMachineState } from "../architecture/layers/PlaybackLayer/PlaybackStateMachine";
 
 /* ─── Emotion configuration ──────────────────────────────── */
 const MOODS = ["calm", "happy", "sad", "energetic", "focused", "romantic", "neutral"];
@@ -84,6 +106,32 @@ export default function MoodRoom() {
   const [progress, setProgress] = useState(38); // percentage
   const [currentTimeStr, setCurrentTimeStr] = useState("1:24");
   const [durationStr, setDurationStr] = useState("3:40");
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchError, setSearchError] = useState("");
+
+  // ── YouTube Discovery State Machine ─────────────────────────────────────
+  const [ytMachineState, setYtMachineState] = useState<PlaybackMachineState>("IDLE");
+  const [ytStatusMsg, setYtStatusMsg] = useState("");
+  const [ytTopScore, setYtTopScore] = useState<number | null>(null);
+
+  // Singleton state machine and recovery engine (stable refs)
+  const stateMachineRef = useRef<PlaybackStateMachine>(new PlaybackStateMachine());
+  const recoveryEngineRef = useRef<YouTubeRecoveryEngine | null>(null);
+
+  // Mirror state machine transitions into React state for rendering
+  useEffect(() => {
+    const machine = stateMachineRef.current;
+    const unsub = machine.subscribe((state, msg) => {
+      setYtMachineState(state);
+      setYtStatusMsg(msg);
+    });
+    return unsub;
+  }, []);
+
+  const isSearching = ytMachineState === "SEARCHING" || ytMachineState === "RANKING" ||
+    ytMachineState === "VALIDATING" || ytMachineState === "PLAYER_LOADING" ||
+    ytMachineState === "RECOVERING";
 
   /* Subscribe to session orchestrator playback state has been removed;
      MoodRoom owns its own audioRef element and manages playback directly */
@@ -173,70 +221,266 @@ export default function MoodRoom() {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    // volume state is 0-1 range
-    audio.volume = isMuted ? 0 : volume;
-  }, [volume, isMuted]);
+  const stopRecovery = useCallback(() => {
+    if (recoveryEngineRef.current) {
+      recoveryEngineRef.current.stop();
+      recoveryEngineRef.current = null;
+    }
+    stateMachineRef.current.reset();
+  }, []);
 
   const activeSong = currentSong || songsQueue[0] || PROVIDER_CATALOGS.jamendo[0];
+  const isYouTubePlaying = playerMode === 'youtube' || activeSong?.source_provider === 'YouTube' || !!activeSong?.youtubeId;
+
+  const triggerFallback = () => {
+    if (recoveryEngineRef.current) {
+      console.log("YouTube recovery engine reportFailure triggered");
+      recoveryEngineRef.current.reportFailure();
+      return;
+    }
+    const queue = songsQueueRef.current;
+    const cur = currentSongRef.current;
+    if (!queue.length || !cur) return;
+    const curIdx = queue.findIndex(s => key(s) === key(cur));
+    if (curIdx !== -1 && curIdx < queue.length - 1) {
+      console.log(`Fallback skip: skipping from unplayable video to next: ${queue[curIdx + 1].title}`);
+      setCurrentSong(queue[curIdx + 1]);
+    } else {
+      setSearchError("Selected video is unplayable (embedding disabled or restricted).");
+    }
+  };
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !activeSong) return;
-    const streamUrl = activeSong.preview_url || (activeSong as any).playbackRef || "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/";
+    youtubePlaybackAdapter.initialize();
+    
+    const unsubscribe = youtubePlaybackAdapter.subscribe((event) => {
+      if (!isYouTubePlaying) return;
+      if (event.type === 'ended') {
+        handleSkipNext();
+      } else if (event.type === 'start') {
+        stateMachineRef.current.transition('PLAYING');
+        recoveryEngineRef.current?.reportSuccess();
+      } else if (event.type === 'timeupdate') {
+        const pos = youtubePlaybackAdapter.getPosition();
+        const dur = youtubePlaybackAdapter.getDuration();
+        if (dur > 0) {
+          setProgress((pos / dur) * 100);
+          const curSec = Math.floor(pos);
+          const mins = Math.floor(curSec / 60);
+          const secs = curSec % 60;
+          setCurrentTimeStr(`${mins}:${secs < 10 ? '0' : ''}${secs}`);
 
-    // Sync duration immediately from metadata if available
-    if ((activeSong as any).duration_str) {
-      setDurationStr((activeSong as any).duration_str);
-    } else if ((activeSong as any).duration && typeof (activeSong as any).duration === 'number') {
-      const sec = (activeSong as any).duration;
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      setDurationStr(`${m}:${s < 10 ? '0' : ''}${s}`);
-    }
+          const durSec = Math.floor(dur);
+          const durMins = Math.floor(durSec / 60);
+          const durSecs = durSec % 60;
+          setDurationStr(`${durMins}:${durSecs < 10 ? '0' : ''}${durSecs}`);
+        }
+      } else if (event.type === 'error') {
+        triggerFallback();
+      }
+    });
+    return () => unsubscribe();
+  }, [isYouTubePlaying, songsQueue, currentSong]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (audio.src !== streamUrl) {
-      audio.src = streamUrl;
-      if (isPlaying) {
-        audio.play().catch(() => {
-          setIsPlaying(false);
+  useEffect(() => {
+    if (isYouTubePlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (activeSong) {
+        const candidate: any = {
+          id: (activeSong as any).id || `yt_${activeSong.youtubeId || 'A6BJ-PgNWXA'}`,
+          providerId: "youtube",
+          providerTrackId: activeSong.youtubeId || "A6BJ-PgNWXA",
+          title: activeSong.title || activeSong.name || "YouTube Video",
+          artists: [activeSong.artist],
+          artist: activeSong.artist,
+          album: "YouTube",
+          artworkUrl: activeSong.cover_image_url || `https://img.youtube.com/vi/${activeSong.youtubeId || 'A6BJ-PgNWXA'}/hqdefault.jpg`,
+          albumArtUrl: activeSong.cover_image_url || `https://img.youtube.com/vi/${activeSong.youtubeId || 'A6BJ-PgNWXA'}/hqdefault.jpg`,
+          duration: (activeSong as any).duration || 180,
+          releaseInfo: "2026",
+          canonicalGenres: ["YouTube"],
+          genre: "YouTube",
+          language: activeSong.language || "English",
+          musicAttributes: { valence: 0.5, energy: 0.5, bpm: 120 },
+          audioFeatures: { valence: 0.5, energy: 0.5, bpm: 120 },
+          providerUrl: activeSong.preview_url || `https://www.youtube.com/watch?v=${activeSong.youtubeId || 'A6BJ-PgNWXA'}`,
+          playbackRef: activeSong.youtubeId || "A6BJ-PgNWXA",
+          playbackCapability: "officialEmbed",
+          explicitContent: false,
+          status: "available",
+          relevanceScore: 1.0,
+          recommendationScore: 1.0,
+          recommendationReason: "Search Result",
+          sourceMetadata: { source: "youtube_search" },
+          retrievalTimestamp: Date.now(),
+          attributionText: "YouTube IFrame",
+        };
+        
+        youtubePlaybackAdapter.load(candidate).then(() => {
+          youtubePlaybackAdapter.bindElement('youtube-player-element');
+          if (isPlaying) {
+            youtubePlaybackAdapter.play();
+          }
         });
       }
+    } else {
+      youtubePlaybackAdapter.stop();
+      
+      const audio = audioRef.current;
+      if (!audio || !activeSong) return;
+      const streamUrl = activeSong.preview_url || (activeSong as any).playbackRef || "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/";
+
+      if ((activeSong as any).duration_str) {
+         setDurationStr((activeSong as any).duration_str);
+      } else if ((activeSong as any).duration && typeof (activeSong as any).duration === 'number') {
+         const sec = (activeSong as any).duration;
+         const m = Math.floor(sec / 60);
+         const s = sec % 60;
+         setDurationStr(`${m}:${s < 10 ? '0' : ''}${s}`);
+      }
+
+      if (audio.src !== streamUrl) {
+        audio.src = streamUrl;
+        if (isPlaying) {
+          audio.play().catch(() => {
+            setIsPlaying(false);
+          });
+        }
+      }
     }
-  }, [activeSong]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeSong, isYouTubePlaying]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isYouTubePlaying) {
+      youtubePlaybackAdapter.setVolume(volume * 100);
+      youtubePlaybackAdapter.setMute(isMuted);
+    }
+  }, [volume, isMuted, isYouTubePlaying]);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    const machine = stateMachineRef.current;
+    machine.transition("SEARCHING");
+    setSearchError("");
+    setYtTopScore(null);
+    
+    try {
+      const result = await discoverYouTubeCandidates(searchQuery, 15, (level, query) => {
+        console.log(`Trying query expansion level ${level}: ${query}`);
+      });
+      
+      if (!result.candidates || result.candidates.length === 0) {
+        machine.transition("NO_RESULTS");
+        setSearchError("No playable candidates found after attempting all search strategies.");
+        return;
+      }
+      
+      if (result.candidates[0]) {
+        setYtTopScore(result.candidates[0].score);
+      }
+      
+      const mappedSongs: Song[] = result.candidates.map((candidate) => ({
+        id: `yt_${candidate.video_id}`,
+        name: candidate.title,
+        title: candidate.title,
+        artist: candidate.channel_name,
+        genre: "YouTube",
+        language: "English",
+        source_provider: "YouTube",
+        youtubeId: candidate.video_id,
+        preview_url: candidate.watch_url,
+        duration: candidate.duration_seconds,
+        cover_image_url: candidate.thumbnail_url,
+        relevanceScore: candidate.score,
+      } as any));
+      
+      useAppStore.getState().setSongsQueue(mappedSongs);
+      
+      const recEngine = new YouTubeRecoveryEngine(result.candidates, {
+        onCandidateSelected: (candidate, _attempt) => {
+          machine.transition("PLAYER_LOADING");
+          const song: Song = {
+            id: `yt_${candidate.video_id}`,
+            name: candidate.title,
+            title: candidate.title,
+            artist: candidate.channel_name,
+            genre: "YouTube",
+            language: "English",
+            source_provider: "YouTube",
+            youtubeId: candidate.video_id,
+            preview_url: candidate.watch_url,
+            duration: candidate.duration_seconds,
+            cover_image_url: candidate.thumbnail_url,
+            relevanceScore: candidate.score,
+          } as any;
+          useAppStore.getState().setCurrentSong(song);
+          useAppStore.getState().setPlayerMode('youtube');
+          setIsPlaying(true);
+        },
+        onExhausted: () => {
+          machine.transition("FAILED");
+          setSearchError("All video candidates failed to play (embedding restricted or unavailable).");
+        },
+        onRecovering: (_attemptIndex, _remainingCount) => {
+          machine.transition("RECOVERING");
+        }
+      });
+      
+      recoveryEngineRef.current = recEngine;
+      recEngine.start();
+      
+    } catch (err: any) {
+      machine.transition("FAILED");
+      setSearchError(`Search failed: ${err.message}`);
+    }
+  };
 
   const handleDetect = (d: DetectionResult) => {
     if (!d || d.source === "manual" || !d.emotion) return;
     const norm = d.emotion.toLowerCase();
     if (MOODS.includes(norm) && norm !== activeMood) {
+      stopRecovery();
       setActiveMood(norm);
     }
   };
 
   const handleTogglePlay = () => {
-    const audio = audioRef.current;
-    if (isPlaying) {
-      if (audio) audio.pause();
-      setIsPlaying(false);
+    stopRecovery();
+    if (isYouTubePlaying) {
+      if (isPlaying) {
+        youtubePlaybackAdapter.pause();
+        setIsPlaying(false);
+      } else {
+        youtubePlaybackAdapter.resume();
+        setIsPlaying(true);
+      }
     } else {
-      if (audio) {
-        if (!audio.src) {
-          const streamUrl = activeSong?.preview_url || (activeSong as any)?.playbackRef || "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/";
-          audio.src = streamUrl;
+      const audio = audioRef.current;
+      if (isPlaying) {
+        if (audio) audio.pause();
+        setIsPlaying(false);
+      } else {
+        if (audio) {
+          if (!audio.src) {
+            const streamUrl = activeSong?.preview_url || (activeSong as any)?.playbackRef || "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/";
+            audio.src = streamUrl;
+          }
+          audio.play().then(() => {
+            setIsPlaying(true);
+          }).catch((err) => {
+            console.warn("Audio play blocked:", err);
+            setIsPlaying(false);
+          });
         }
-        audio.play().then(() => {
-          setIsPlaying(true);
-        }).catch((err) => {
-          console.warn("Audio play blocked:", err);
-          setIsPlaying(false);
-        });
       }
     }
   };
 
   const handleSkipNext = () => {
+    stopRecovery();
     if (!songsQueue.length) return;
     const curIdx = songsQueue.findIndex(s => key(s) === key(currentSong || songsQueue[0]));
     const nextIdx = (curIdx + 1) % songsQueue.length;
@@ -244,13 +488,18 @@ export default function MoodRoom() {
   };
 
   const handleSkipPrev = () => {
+    stopRecovery();
     if (!songsQueue.length) return;
     const curIdx = songsQueue.findIndex(s => key(s) === key(currentSong || songsQueue[0]));
     const prevIdx = (curIdx - 1 + songsQueue.length) % songsQueue.length;
     setCurrentSong(songsQueue[prevIdx]);
-    // Restart from beginning of prev track
-    const audio = audioRef.current;
-    if (audio) { audio.currentTime = 0; }
+    
+    if (isYouTubePlaying) {
+      youtubePlaybackAdapter.seek(0);
+    } else {
+      const audio = audioRef.current;
+      if (audio) { audio.currentTime = 0; }
+    }
   };
   const songTitle = activeSong?.title || activeSong?.name || "Music Mirror Audio";
   const songArtist = activeSong?.artist || "AI Recommended";
@@ -320,7 +569,10 @@ export default function MoodRoom() {
                   {MOODS.map(m => (
                     <button
                       key={m}
-                      onClick={() => setActiveMood(m)}
+                      onClick={() => {
+                        stopRecovery();
+                        setActiveMood(m);
+                      }}
                       style={{
                         display: "flex", justifyContent: "space-between", alignItems: "center",
                         padding: "8px 12px", borderRadius: "var(--r-12)",
@@ -371,6 +623,80 @@ export default function MoodRoom() {
               pointerEvents: "none", filter: "blur(40px)"
             }} />
 
+            {/* Search Input Bar */}
+            <div style={{ width: "100%", marginBottom: 18, zIndex: 2, display: "flex", gap: 8 }}>
+              <input
+                type="text"
+                placeholder="Search topic or video (e.g. Java inheritance)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                style={{
+                  flex: 1,
+                  padding: "10px 16px",
+                  borderRadius: "999px",
+                  border: "1.5px solid #E2E8F0",
+                  fontSize: "0.85rem",
+                  outline: "none",
+                  boxShadow: "inset 0 1px 2px rgba(0,0,0,0.02)",
+                  transition: "all 0.2s ease"
+                }}
+              />
+              <button
+                onClick={handleSearch}
+                disabled={isSearching}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: "999px",
+                  background: "linear-gradient(135deg, #4F46E5, #635BFF)",
+                  color: "#FFF",
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 12px rgba(79, 70, 229, 0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                {isSearching ? (ytStatusMsg || "Searching...") : "Search"}
+              </button>
+            </div>
+
+            {searchError && (
+              <div style={{ fontSize: "0.75rem", color: "#EF4444", fontWeight: 600, marginBottom: 12, zIndex: 2, display: "flex", alignItems: "center", gap: 6 }}>
+                <AlertCircle size={14} />
+                <span>{searchError}</span>
+              </div>
+            )}
+
+            {ytMachineState !== "IDLE" && (
+              <div style={{
+                width: "100%",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                background: ytMachineState === "FAILED" || ytMachineState === "NO_RESULTS" ? "#FEE2E2" : "#F0FDF4",
+                border: `1px solid ${ytMachineState === "FAILED" || ytMachineState === "NO_RESULTS" ? "#FCA5A5" : "#BBF7D0"}`,
+                color: ytMachineState === "FAILED" || ytMachineState === "NO_RESULTS" ? "#991B1B" : "#166534",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                marginBottom: 12,
+                zIndex: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 6
+              }}>
+                <Sparkles size={12} className={isSearching ? "animate-spin" : ""} />
+                <span>{ytStatusMsg}</span>
+                {ytTopScore !== null && (
+                  <span style={{ marginLeft: "auto", background: "rgba(255,255,255,0.6)", padding: "2px 6px", borderRadius: "4px", fontSize: "0.7rem", color: "#374151" }}>
+                    Match: {(ytTopScore * 100).toFixed(0)}%
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Top Match Badge */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24, zIndex: 2 }}>
               <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#4F46E5", background: "#EEF2FF", border: "1px solid #C7D2FE", padding: "4px 14px", borderRadius: "999px", display: "flex", alignItems: "center", gap: 6 }}>
@@ -379,9 +705,13 @@ export default function MoodRoom() {
               </span>
             </div>
 
-            {/* Clean Album Artwork Card */}
+            {/* Playback Stage Container */}
             <div style={{ position: "relative", margin: "10px 0 24px", zIndex: 2 }}>
-              {activeSong?.cover_image_url || activeSong?.youtubeId ? (
+              {isYouTubePlaying ? (
+                <div style={{ width: 280, height: 158, borderRadius: 20, overflow: "hidden", background: "#000", border: "1px solid #E2E8F0", boxShadow: "0 10px 24px rgba(15,23,42,0.12)" }}>
+                  <div id="youtube-player-element" style={{ width: "100%", height: "100%" }}></div>
+                </div>
+              ) : activeSong?.cover_image_url || activeSong?.youtubeId ? (
                 <img
                   src={activeSong.cover_image_url || `https://img.youtube.com/vi/${activeSong.youtubeId}/hqdefault.jpg`}
                   alt={songTitle}
@@ -423,6 +753,14 @@ export default function MoodRoom() {
                 <span style={{ fontSize: "0.72rem", color: "#4F46E5", border: "1px solid #CBD5E1", padding: "1px 8px", borderRadius: "999px", background: "#EEF2FF" }}>
                   {songLang}
                 </span>
+                {isYouTubePlaying && activeSong && (activeSong as any).relevanceScore !== undefined && (
+                  <>
+                    <span style={{ color: "#A8B1BF" }}>•</span>
+                    <span style={{ fontSize: "0.72rem", color: "#10B981", border: "1px solid #A7F3D0", padding: "1px 8px", borderRadius: "999px", background: "#ECFDF5" }}>
+                      Score: {((activeSong as any).relevanceScore * 100).toFixed(0)}%
+                    </span>
+                  </>
+                )}
                 {/* Favorite toggle */}
                 <button
                   onClick={() => activeSong && toggleFav(activeSong)}
@@ -442,12 +780,17 @@ export default function MoodRoom() {
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                  const audio = audioRef.current;
-                  if (audio && audio.duration && !isNaN(audio.duration)) {
-                    audio.currentTime = fraction * audio.duration;
-                    setProgress(fraction * 100);
+                  if (isYouTubePlaying) {
+                    const dur = youtubePlaybackAdapter.getDuration();
+                    youtubePlaybackAdapter.seek(fraction * dur);
                   } else {
-                    setProgress(fraction * 100);
+                    const audio = audioRef.current;
+                    if (audio && audio.duration && !isNaN(audio.duration)) {
+                      audio.currentTime = fraction * audio.duration;
+                      setProgress(fraction * 100);
+                    } else {
+                      setProgress(fraction * 100);
+                    }
                   }
                 }}
                 style={{ width: "100%", height: 6, background: "#E2E8F0", borderRadius: 3, cursor: "pointer", position: "relative", overflow: "hidden" }}
@@ -565,7 +908,10 @@ export default function MoodRoom() {
               return (
                 <div
                   key={i}
-                  onClick={() => setCurrentSong(song)}
+                  onClick={() => {
+                    stopRecovery();
+                    setCurrentSong(song);
+                  }}
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "10px 14px", borderRadius: "var(--r-16)",

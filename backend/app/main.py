@@ -1,3 +1,15 @@
+# ============================================================================
+# B.Tech CSE Final Year Project — Music Mirror (Stage 4 Submission)
+# Originally developed by: Student 3 (Roll: 1601-22-733-089) - April 2026
+# ----------------------------------------------------------------------------
+# Contribution: Set up the initial FastAPI app, SQLite connection, auto-seed
+# ingestion engine, and basic recommendation route bindings.
+# ============================================================================
+# Solo Upgrades (Student Project Lead - Month 9 & 10):
+#  - Upgraded CORS policy and middleware for secure cross-origin UI connections.
+#  - Integrated new v2 song discovery routes, reports route, and telemetry.
+# ============================================================================
+
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

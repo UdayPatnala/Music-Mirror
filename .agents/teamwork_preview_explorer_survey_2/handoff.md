@@ -1,117 +1,76 @@
-# Handoff Report — Explorer 2 (API Architecture & Router Structure Survey)
+# Handoff Report — Explorer 2 (Discovery & Optimization Spec Miner)
+
+**Milestone**: Explorer Survey / Specification Mining (R1, R2, R5, R6)  
+**Timestamp**: 2026-08-21T07:56:00Z  
+**Author**: Explorer 2 (Discovery & Optimization Spec Miner)  
+**Target Recipient**: Parent Orchestrator (`3a4be52a-a0be-4f72-8d4c-df06edfeee5b`) & Implementation Team  
+
+---
 
 ## 1. Observation
-- **Repository Location:** `d:\PROJECT\Music Mirror`
-- **Main FastAPI Entrypoint:** `backend/app/main.py` (imported by `backend/main.py`)
-  - Lines 27-43 of `backend/app/main.py`:
-    ```python
-    app = FastAPI(title=settings.PROJECT_NAME, version="2.0.0")
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+Directly observed codebase evidence and file inspections:
 
-    app.include_router(health.router, prefix="/health", tags=["Health & Observability"])
-    app.include_router(songs.router, prefix="/api/v2/songs", tags=["Songs Catalog & Metadata"])
-    app.include_router(user_preferences.router, prefix="/api/v2/user/preferences", tags=["User Music Preferences"])
-    app.include_router(reports.router, prefix="/api/v2/reports", tags=["Playback Self-Healing & Reports"])
-    app.include_router(recommendations.router, prefix="/recommend", tags=["Recommendations"])
-    app.include_router(telemetry.router, prefix="/telemetry", tags=["Telemetry"])
-    app.include_router(local_explorer.router, prefix="/local-explorer", tags=["Local Explorer"])
-    ```
-- **Registered Route Namespaces (`backend/app/main.py`):**
-  1. `/api/v2/songs` — Catalog & Metadata management (`backend/app/api/routes/songs.py`)
-  2. `/api/v2/user/preferences` — User Music Preferences (`backend/app/api/routes/user_preferences.py`)
-  3. `/api/v2/reports` — Playback problem reporting & self-healing (`backend/app/api/routes/reports.py`)
-  4. `/recommend` — Emotion recommendation engine & transitions (`backend/app/api/routes/recommendations.py`)
-  5. `/health` — Observability, database metrics, governance, MLOps, playback health (`backend/app/api/routes/health.py`)
-  6. `/telemetry` — Cognitive telemetry tracking & evolution (`backend/app/api/routes/telemetry.py`)
-  7. `/local-explorer` — Local filesystem directory browsing & audio streaming (`backend/app/api/routes/local_explorer.py`)
+1. **YouTube Provider Ingestion & Metadata Extraction**:
+   - In `backend/app/ingestion/youtube_provider.py` (lines 18-59), `YouTubeMetadataProvider.search_metadata` extracts YouTube items using `yt_dlp` with `extract_flat: "in_playlist"` and returns candidate dictionaries with `source_id`, `raw_title`, `channel_name`, `duration`, `thumbnail_url`, `published_at`, and `view_count`.
+   - In `backend/app/api/routes/songs.py` (lines 280-313), `/api/v2/songs/youtube-search` executes a naive token overlap matching (`score = overlap / len(query_words)`) and sorts candidates strictly by this single metric.
+   - In `frontend/src/architecture/layers/ProviderAdapterLayer/YouTubeProviderAdapter.ts` (lines 11-51, 103-179), YouTube search is currently bound to a hardcoded dictionary (`TRACK_YOUTUBE_IDS`) and mock candidates list rather than dynamic multi-candidate scoring.
 
-- **Unmounted / Unlinked Routers:**
-  - `backend/app/api/routes/admin.py`: Defines `/safe-mode`, `/user/{target_user_id}`, `/repair-incidents` (not currently mounted in `app/main.py`).
-  - `backend/app/api/routes/interactions.py`: Defines `POST /`, `GET /`, `GET /affinity` (not currently mounted in `app/main.py`).
+2. **Relevance Ranking & Scoring Architecture**:
+   - In `frontend/src/architecture/layers/PersonalizationLayer/PersonalizationScorer.ts` (lines 84-135), scoring computes intent distance (`vDiff + eDiff`), genre/artist preference weights, and repetition penalty, but lacks YouTube-specific channel authority recognition, token Levenshtein matching, duration deviation penalty, and negative clickbait/reaction filtering.
+   - In `backend/app/services/source_discovery.py` (lines 50-72), `SourceDiscoveryService._verify_source` checks duration (`abs(can_dur - src_dur) > 5000ms`) and substring matching, providing a baseline for source verification.
 
-- **Version 1 (`api/v1`) Status:**
-  - Search across `backend/` confirmed **no `api/v1` routes exist**. All catalog and preference APIs are standardized under `/api/v2/`.
+3. **Caching & Deduplication Layers**:
+   - In `frontend/src/architecture/layers/DiscoveryLayer.ts` (lines 35-37, 121-135), a single-level intent cache (`cache: Map<string, CacheEntry>`) exists with 15-minute TTL and max size 100, but lacks a dedicated L2 Video Metadata Cache and does not implement in-flight Promise deduplication (SingleFlight pattern), meaning concurrent identical searches trigger redundant queries.
+   - In `frontend/src/architecture/layers/DiscoveryLayer.ts` (lines 112-117, 151-153), generation tokens and `AbortController` cancellation exist, which cleanly abort superseded requests.
 
-- **Existing Songs API Router (`backend/app/api/routes/songs.py`):**
-  - `GET /api/v2/songs`: Lines 62-102
-    ```python
-    @router.get("", response_model=PaginatedSongsResponse)
-    def get_songs(
-        page: int = Query(1, ge=1),
-        limit: int = Query(20, ge=1, le=100),
-        genre: Optional[str] = None,
-        mood: Optional[str] = None,
-        language: Optional[str] = None,
-        search: Optional[str] = None,
-        db: Session = Depends(get_db),
-    ):
-    ```
-    - Filtering implementation:
-      - `genre`: `func.lower(Song.genre).contains(genre.lower())`
-      - `mood`: `func.lower(Song.mood) == mood.lower()`
-      - `language`: `func.lower(Song.language) == language.lower()`
-      - `search`: checks `Song.normalized_title`, `Artist.normalized_name`, `Song.genre`
-    - Pagination: `total_pages = math.ceil(total / limit) if total > 0 else 1`.
-    - Non-500 handling: Returns empty list `items: []` with `total: 0` when query returns no records.
-  - `GET /api/v2/songs/search`: Lines 105-126 — Quick title/artist/genre search returning `List[SongDTO]`.
-  - `GET /api/v2/songs/{song_id}`: Lines 129-135 — Song details by ID, raises `HTTPException(status_code=404, detail="Song not found")`.
-  - `GET /api/v2/songs/meta/genres`: Lines 137-140 — Distinct sorted list of genres in DB.
-  - `GET /api/v2/songs/meta/moods`: Lines 143-146 — Distinct sorted list of moods in DB.
-  - `GET /api/v2/songs/{song_id}/source`: Lines 149-208 — Resolves active, highest-health `SongSource` for player. Returns structured `"status": "unavailable"` object instead of 500 when source threshold not met.
-
-- **Contracts & Pydantic Schemas (`backend/app/schemas/song.py`):**
-  - `SongDTO`: Maps to `Song` model (`from_attributes=True`). Contains `id`, `title`, `normalized_title`, `artist_id`, `artist_name`, `album_id`, `album_title`, `duration`, `duration_str` (M:SS), `release_date`, `genre`, `sub_genre`, `language`, `explicit`, `track_number`, `cover_image_url`, `audio_url`, `preview_url`, `popularity`, AI feature attributes (`energy`, `danceability`, `valence`, `acousticness`, `instrumentalness`, `tempo`), `mood`, `tags`, `description`, `youtube_id`, and nested `artist` (`ArtistDTO`) and `album` (`AlbumDTO`).
-  - `PaginatedSongsResponse`: `items: List[SongDTO]`, `total: int`, `page: int`, `limit: int`, `total_pages: int`.
-
-- **Metadata Ingestion Pipeline (`backend/app/ingestion/`):**
-  - `IngestionService.ingest_song_record(db, song_data, source_type)` (`backend/app/ingestion/ingestion_service.py:49-128`): Upserts `Artist`, `Album`, `Song`, and `SongSource` with normalization and deduplication.
-  - `IngestionService.seed_database(db)` (`ingestion_service.py:130-145`): Populates database with 200+ curated items from `SEED_SONGS` (`seed_data.py`).
-  - CLI runner: `backend/app/ingestion/cli.py` (`--seed`, `--query`, `--limit`, `--dry-run`).
-
-- **Error Handling & Middleware:**
-  - `HTTPException` used across routers for 400 (Bad Request), 401 (Unauthorized), 404 (Not Found), 429 (Rate Limit Exceeded).
-  - Auth guard (`backend/app/core/auth.py`): `get_current_user` enforces Bearer token / `X-Auth-Token` validation, raising 401 if unauthenticated.
-  - Rate limiter (`backend/app/core/rate_limiter.py`): `MemoryRateLimiter` enforces 300 requests/min per client, raising 429.
-
-- **Test Suite Verification (`backend/tests/test_database_and_ingestion.py`):**
-  - `test_get_songs_api(client, db_session)` (lines 90-101): Verifies `GET /api/v2/songs` status code 200, paginated structure, and `duration_str` format.
-  - `test_search_songs_api(client, db_session)` (lines 103-110): Verifies `/api/v2/songs/search?q=Buttabomma`.
+4. **Observability & Diagnostics**:
+   - In `frontend/src/architecture/layers/ObservabilityLayer.ts` (lines 3-47, 49-112), `LoggerService` and `SessionTraceLogger` track performance markers (`startPerfMarker`, `endPerfMarker`) and a 100-item event buffer, but lack structured failure reason taxonomy codes (e.g. `ERR_YT_EMBED_RESTRICTED_150`) and candidate pool score distributions.
+   - In `backend/app/api/routes/health.py` (lines 98-174), `/api/v2/health/playback` provides database interaction counts and circuit breaker health, establishing the precedent for backend diagnostic telemetry without user PII.
 
 ---
 
 ## 2. Logic Chain
-1. **Observation 1:** `backend/app/main.py` mounts `songs.router` at `/api/v2/songs` and no `api/v1` routes exist in the project.
-   **Deduction:** `/api/v2/songs` is the canonical version 2 endpoint for catalog queries and taxonomy filtering.
-2. **Observation 2:** `backend/app/api/routes/songs.py` implements `@router.get("")` supporting `page`, `limit`, `genre`, `mood`, `language`, and `search` query parameters.
-   **Deduction:** The base framework for `GET /api/v2/songs` with taxonomy filtering already exists and maps to SQLAlchemy `Song` and `Artist` models via `PaginatedSongsResponse` and `SongDTO`.
-3. **Observation 3:** `get_songs()` uses `func.lower(Song.genre).contains(...)` and `func.lower(Song.mood) == ...`, returning empty `items: []` with `total_pages = 1` when no records match.
-   **Deduction:** Non-500 handling for missing data / zero-match queries is already active in `songs.py`.
-4. **Observation 4:** Metadata ingestion logic is fully realized in `IngestionService.ingest_song_record` and `IngestionService.seed_database` in `backend/app/ingestion/ingestion_service.py`, but has no direct HTTP REST endpoint in `songs.py` (currently run via CLI or startup auto-seed).
-   **Deduction:** Implementing requirement R2 in full involves ensuring `GET /api/v2/songs` filtering meets all taxonomy schema contracts (R1) and optionally exposing a REST ingestion endpoint if required by the API suite.
+
+1. **From Observation 1**: The current YouTube discovery implementation in `frontend/src/architecture/layers/ProviderAdapterLayer/YouTubeProviderAdapter.ts` uses static fallback lists, and `backend/app/api/routes/songs.py` uses naive token overlap. To satisfy **R1 (Query Intelligence & Candidate Discovery)**, we must integrate the multi-pass normalization pipeline (Unicode NFKD, noise token stripping, artist-title decomposition) and the 5-tier query expansion ladder (Tier 0 to Tier 4) with $K=10..25$ candidate pool retrieval.
+2. **From Observation 2**: Current scoring in `PersonalizationScorer.ts` only scores emotion fit and learned genre weights. To satisfy **R2 (Weighted Scoring & Relevance Ranking)**, we need a multi-criteria formula combining string similarity ($0.35$), channel authority / VEVO / `- Topic` ($0.25$), duration proximity ($0.20$), popularity ($0.10$), and recency ($0.10$), with negative deductions for reaction, 1-hour loops, covers, and live recordings.
+3. **From Observation 3**: The existing cache in `DiscoveryLayer.ts` is only a single-level intent map. To satisfy **R5 (Optimization)**, we must introduce a **Dual Caching Layer** (L1 Query Cache with 30m TTL + L2 Video Metadata Cache with 24h TTL) and an in-flight **SingleFlight deduplication registry** so that concurrent identical searches make exactly 1 external network call.
+4. **From Observation 4**: Observability currently tracks basic timings in `ObservabilityLayer.ts` without categorization of player failure codes. To satisfy **R6 (Observability & Performance Monitoring)**, we must establish a structured error code taxonomy (`ERR_YT_EMBED_RESTRICTED_150`, `ERR_YT_NOT_FOUND_100`, etc.), latency breakdown collector, candidate pool metrics, and a 200-event circular buffer strictly isolating internal diagnostics from normal end-user UI.
 
 ---
 
 ## 3. Caveats
-- `backend/app/api/routes/admin.py` and `backend/app/api/routes/interactions.py` are present in the router directory but are NOT included in `app.main.py`. The Implementer agent should check if `interactions.py` should be mounted under `/api/v2/user/interactions`.
-- Read-only constraint: No changes were made to source code or tests during this survey phase.
+
+- **No Code Modified**: In strict adherence to read-only explorer constraints, no source files were changed during this survey.
+- **YouTube IFrame Embedding Restrictions**: YouTube video owners can dynamically restrict 3rd-party domain embedding at any time (Error 150/101). The discovery engine must treat all candidates as potentially restricted and rely on the background preparation and automated fallback ladder to maintain uninterrupted playback.
+- **yt-dlp Backend vs Direct YouTube Data API v3**: `yt-dlp` flat playlist extraction provides zero-cost metadata without API key quotas, but has higher latency ($200\text{ms}$) than direct memory caches. L1/L2 caching is critical to keep overall response times $<5\text{ms}$ on repeat queries.
 
 ---
 
 ## 4. Conclusion
-The API architecture is built on FastAPI 2.0.0 with a clean router module structure under `backend/app/api/routes/`. The catalog endpoint `GET /api/v2/songs` already exists, supports pagination (`page`, `limit`), taxonomy filtering (`genre`, `mood`, `language`), and text search (`search`), returning Pydantic DTOs (`PaginatedSongsResponse` / `SongDTO`). Ingestion logic is handled via `IngestionService`. All missing-data conditions return 200 OK with clean empty payloads or 404 HTTPExceptions, completely preventing 500 internal server errors.
+
+A comprehensive technical blueprint and complete feature/edge case inventory have been documented in `analysis.md`. The design fulfills all acceptance criteria:
+1. **R1**: Robust multi-pass normalization, semantic artist-title extraction, 5-tier expansion ladder, and $K=10..25$ candidate pool fetching.
+2. **R2**: Multi-criteria weighted scoring algorithm ($w_{\text{sim}}=0.35, w_{\text{auth}}=0.25, w_{\text{dur}}=0.20, w_{\text{pop}}=0.10, w_{\text{rec}}=0.10$), channel authority classification, duration bounding, and negative token penalties.
+3. **R5**: Dual L1/L2 caching layer (30m / 24h TTLs), in-flight SingleFlight deduplication, generation token cancellation, and background next-candidate preparation.
+4. **R6**: Fine-grained latency breakdown, failure reason taxonomy, 200-event circular diagnostic buffer, and strict zero-PII privacy guarantees.
 
 ---
 
 ## 5. Verification Method
-- **Pytest Suite Verification:** Run `python -m pytest backend/tests`
-- **Inspect Router Configuration:** Check `backend/app/main.py` lines 27-44.
-- **Inspect Songs Router:** Check `backend/app/api/routes/songs.py` lines 62-102.
-- **Inspect Schemas:** Check `backend/app/schemas/song.py` lines 29-76.
-- **Invalidation Condition:** Any direct database query error that throws an unhandled exception or returns a HTTP 500 status code on valid or empty queries.
+
+To independently verify the findings and specifications:
+
+1. **Codebase Inspection**:
+   - Inspect `frontend/src/architecture/layers/DiscoveryLayer.ts` to review current caching and provider querying.
+   - Inspect `frontend/src/architecture/layers/PersonalizationLayer/PersonalizationScorer.ts` to verify scoring logic.
+   - Inspect `backend/app/ingestion/youtube_provider.py` to review `yt_dlp` metadata extraction fields.
+   - Inspect `backend/app/api/routes/songs.py` lines 280–313 to observe the naive YouTube search endpoint.
+
+2. **Existing Test Suite Verification**:
+   - Run Vitest tests: `npm test --prefix frontend` (or `npx vitest run --dir frontend`)
+   - Run Pytest tests: `python -m pytest backend/tests`
+   - All existing tests pass, confirming baseline integrity.
+
+3. **Artifact Review**:
+   - Read `d:\PROJECT\Btech\Music Mirror\.agents\teamwork_preview_explorer_survey_2\analysis.md` for complete mathematical formulas, data schemas, and edge case matrices.

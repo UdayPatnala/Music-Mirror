@@ -180,3 +180,13 @@ class PaginatedSongsResponse(BaseModel):
     page: int
     limit: int
     total_pages: int
+
+
+# Re-export YouTube DTOs for schema consistency
+from app.schemas.songs import (
+    ScoreBreakdownDTO,
+    YouTubeCandidateDTO,
+    YouTubeSearchResponseDTO,
+    YouTubeSearchResultDTO,
+)
+

@@ -1,157 +1,96 @@
-# Handoff Report — Explorer 3: Test Suite, Build Config & Dependencies Survey
+# Handoff Report: Playback, Fallback Engine & E2E Test Strategy (R3, R4 & Tiers 1-4)
+
+**Agent:** Explorer 3 (`teamwork_preview_explorer_survey_3`)  
+**Role:** Playback, Fallback Engine & E2E Test Strategist  
+**Handoff Type:** Hard (Task Complete)  
+**Date:** 2026-08-21  
+
+---
 
 ## 1. Observation
 
-### Requirements Context
-- **R1 (Shared Contracts & Taxonomy)**: Implement shared API contracts (Pydantic schemas) and baseline taxonomy logic (genres, moods, tags) for the Music Catalog, linking them to existing SQLAlchemy models.
-- **R2 (Develop Music Catalog Endpoints)**: Build out the `songs` API router to allow for catalog querying, filtering by taxonomy (genre, mood, etc.), and metadata ingestion, ensuring strict adherence to `Song` and `Artist` models.
+1. **Existing Frontend Playback Infrastructure**:
+   - `frontend/src/architecture/layers/PlaybackLayer/PlaybackProvider.ts:8-31` defines the core contract `PlaybackProvider` with methods `initialize()`, `load()`, `prepare()`, `play()`, `pause()`, `resume()`, `seek()`, `setVolume()`, `setMute()`, `stop()`, `getCurrentTrack()`, `getPosition()`, `getDuration()`, `getPlaybackState()`, `subscribe()`, `dispose()`.
+   - `frontend/src/architecture/layers/PlaybackLayer/YouTubePlaybackAdapter.ts:72-122` initializes `YT.Player` with `playerVars: { autoplay: 1, controls: 0, rel: 0, modestbranding: 1, origin: window.location.origin }` and binds event listeners `onReady`, `onStateChange`, and `onError`.
+   - `frontend/src/architecture/layers/PlaybackLayer/YouTubePlaybackAdapter.ts:106-110` logs YouTube error events with `logger.warn('YouTubePlaybackAdapter', 'YouTube Player error: ' + errorCode)` and emits `error` event.
+   - `frontend/src/pages/MoodRoom.tsx:185-196` handles video failure via `triggerFallback()`, skipping from unplayable video to the next in the queue.
+   - `frontend/src/pages/MoodRoom.tsx:581-584` mounts the player inside a container with DOM ID `youtube-player-element`.
 
-### Build Configuration & Dependencies
-- **Root Configuration**:
-  - `d:\PROJECT\Music Mirror\requirements.txt`:
-    ```
-    fastapi
-    uvicorn
-    ```
-- **Backend Configuration**:
-  - `d:\PROJECT\Music Mirror\backend\requirements.txt`:
-    ```
-    fastapi>=0.100.0
-    uvicorn>=0.20.0
-    sqlalchemy>=2.0.0
-    pydantic>=2.0.0
-    httpx>=0.24.0
-    yt-dlp>=2023.7.6
-    pytest>=7.0.0
-    pytest-asyncio>=0.21.0
-    ```
-- **Build / Packaging Tooling**:
-  - No `pyproject.toml`, `setup.cfg`, or `pytest.ini` currently exists in the workspace.
-  - Python imports resolution relies on `sys.path.insert(0, str(backend_path))` in `main.py` and `backend/main.py`.
+2. **Existing Recovery & Discovery State Machine**:
+   - `frontend/src/architecture/orchestrator/SessionOrchestrator.ts:433-457` implements `executePlaybackRecovery()` with single retry step, marking candidate `restricted` and advancing to the next queue candidate or falling back to offline catalog `NO_PLAYABLE_MUSIC`.
+   - `frontend/src/architecture/orchestrator/SessionOrchestrator.ts:462-484` implements `discoverCandidatesForLevel()` spanning 5 levels (Level 0: Intent, Level 1: Relaxed genres/languages, Level 2: Broadened specificity, Level 3: Neutral baseline, Level 4: Royalty-free fallback).
+   - `frontend/src/architecture/layers/DiscoveryLayer.ts:121-135` implements candidate caching (`cacheTtlMs = 15 min`) and request cancellation via `AbortController`.
 
-### Test Suite Directory Structure & Inventory
-- **Location**: `d:\PROJECT\Music Mirror\backend\tests\`
-- **Test Files**:
-  1. `backend/tests/test_database_and_ingestion.py` (3,795 bytes) — String normalizer, idempotent DB seeding, `/health`, `/api/v2/songs`, `/api/v2/songs/search`
-  2. `backend/tests/test_user_preferences.py` (2,844 bytes) — User preferences CRUD, auth header handling, preference reset
-  3. `backend/tests/test_recommender.py` (3,672 bytes) — Emotion normalization, feature similarity, `/recommend` endpoint
-  4. `backend/tests/test_autonomous_governance.py` (5,731 bytes) — Canary verification, repair circuit breaker, safe mode, catalog reconciliation
-  5. `backend/tests/test_database_capacity_and_recovery.py` (4,538 bytes)
-  6. `backend/tests/test_ml_model_ecosystem.py` (4,023 bytes)
-  7. `backend/tests/test_mlops_pipeline.py` (3,363 bytes)
-  8. `backend/tests/test_personalization_engine.py` (4,829 bytes)
-  9. `backend/tests/test_production_governance.py` (3,291 bytes)
-  10. `backend/tests/test_security_and_isolation.py` (3,368 bytes)
-  11. `backend/tests/test_self_healing_engine.py` (5,598 bytes)
-  12. `backend/tests/stress_test_recommender.py` (7,967 bytes)
+3. **Existing Backend APIs & Discovery Endpoints**:
+   - `backend/app/api/routes/songs.py:280-313` implements `GET /api/v2/songs/youtube-search` querying `YouTubeMetadataProvider` and computing word-overlap relevance scoring.
+   - `backend/app/api/routes/songs.py:316-337` implements `GET /api/v2/songs/auto-discover` dynamically querying external music APIs (iTunes, Jamendo) and persisting records into SQLite.
+   - `backend/app/ingestion/youtube_provider.py:18-59` extracts YouTube video metadata via `yt_dlp` without downloading media.
 
-### Existing Test Database & Fixture Architecture
-In `backend/tests/test_database_and_ingestion.py` and `backend/tests/test_user_preferences.py`:
-```python
-TEST_DATABASE_URL = "sqlite:///:memory:"
-engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-@pytest.fixture(scope="function")
-def db_session():
-    Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-        Base.metadata.drop_all(bind=engine)
-
-@pytest.fixture(scope="function")
-def client(db_session):
-    def override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
-
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
-    app.dependency_overrides.clear()
-```
-
-### Current Schemas & Endpoints Status
-- **Schemas (`d:\PROJECT\Music Mirror\backend\app\schemas\`)**:
-  - `song.py`: `ArtistDTO`, `AlbumDTO`, `SongDTO`, `PaginatedSongsResponse` (uses `ConfigDict(from_attributes=True)`).
-  - `user_preference.py`: `UserMusicPreferenceDTO`, `UpdateUserMusicPreferencePayload`.
-  - `emotion.py`: `EmotionRequest`, `SongResponse`, `RecommendationResponse`, `TransitionRequest`, `TransitionResponse`.
-  - *Gap*: Dedicated Taxonomy Pydantic schemas (e.g. `TaxonomyDTO`, `GenreDTO`, `MoodDTO`, `TagDTO`) are absent.
-- **Routes (`d:\PROJECT\Music Mirror\backend\app\api\routes\songs.py`)**:
-  - `GET /api/v2/songs`: Filtering supported for `genre`, `mood`, `language`, `search`, with pagination (`page`, `limit`).
-  - `GET /api/v2/songs/search`: Query search by title/artist/genre.
-  - `GET /api/v2/songs/{song_id}`: ID lookup.
-  - `GET /api/v2/songs/meta/genres`: Returns list of distinct genres.
-  - `GET /api/v2/songs/meta/moods`: Returns list of distinct moods.
+4. **Test Suite Baseline & Execution**:
+   - Frontend unit test command `npm test -- --run` in `frontend/` completed with exit code 0 (`68 passed across 9 test files`).
+   - Backend test command `python -m pytest` in `backend/` completed with exit code 0 (`116 passed in 36.22s`).
 
 ---
 
 ## 2. Logic Chain
 
-1. **Execution Mechanism**:
-   - Pytest execution uses Python's standard `pytest` framework (v7+ specified in `backend/requirements.txt`).
-   - Running `pytest backend/tests` from repository root or `pytest` within `backend/` runs all test files.
-   - For proper module resolution (`from app.db.database import ...`), `backend` needs to be in Python path (handled when executing from `backend/` or setting `PYTHONPATH=backend`).
+1. **Analysis of R3 Requirements**:
+   - The user requires in-app official playback via official APIs with lifecycle events and rich controls.
+   - Observations in `YouTubePlaybackAdapter.ts` show that while basic IFrame instantiation exists, the error handling is currently generic and lacks explicit error code mapping for `101`, `150`, `100`, `2`, `5`.
+   - Adding explicit mapping for YouTube error codes directly to recovery actions ensures sub-3-second failover.
+   - The UI in `MoodRoom.tsx` contains play/pause, seek, volume, and mute controls, but needs visual loading/buffering indicators and contextual recovery banners when fallback occurs.
 
-2. **Fixture & Test Data Seeding**:
-   - SQLite in-memory (`sqlite:///:memory:`) creates clean DB schemas per test function.
-   - `IngestionService.seed_database(db_session)` seeds 10 realistic song items with genres ("Telugu Pop", "Classic Rock", "Indie Pop", "Hip Hop", "EDM"), moods ("happy", "energetic", "sad", "chill"), languages, artists, and albums.
+2. **Analysis of R4 Requirements**:
+   - The user requires pre-playback validation, a sequential fallback ladder with sub-3s transition time, query expansion retry upon pool exhaustion, and a graceful terminal error state.
+   - Observations in `SessionOrchestrator.ts` and `DiscoveryLayer.ts` show that candidate pooling and 5-level broadening exist.
+   - However, pre-validation currently relies only on URL string sanitization rather than checking 11-char Video ID formats or probing oEmbed endpoints.
+   - The fallback ladder needs explicit transition timing guarantees ($< 3.0\text{s}$) where candidate $N$ is marked restricted and candidate $N+1$ is loaded immediately without user disruption.
+   - When the candidate pool is exhausted, YouTube queries must be augmented with search tokens (e.g. `+ "official audio"`, `+ "lyric video"`) before entering terminal state `NO_PLAYABLE_MUSIC`.
 
-3. **Required Assertions for R1 Acceptance Criteria**:
-   - **Criterion**: Pydantic schemas exist for all catalog and taxonomy models and correctly map to database models.
-   - **Assertions Needed**:
-     - `test_artist_dto_mapping`: Instantiates `Artist` ORM model -> validates `ArtistDTO.model_validate(artist)` matches all attributes (`id`, `name`, `normalized_name`, `genres`, `country`, `image_url`, `bio`).
-     - `test_album_dto_mapping`: Instantiates `Album` ORM model -> validates `AlbumDTO.model_validate(album)` matches `id`, `title`, `normalized_title`, `artist_id`, `release_date`, `total_tracks`.
-     - `test_song_dto_mapping`: Instantiates `Song` ORM model with nested `Artist` and `Album` -> validates `SongDTO.model_validate(song)` populates `duration_str`, audio features (`energy`, `valence`, `tempo`), `mood`, `tags`, nested `artist` and `album` DTOs without loss.
-     - `test_taxonomy_schemas`: Validates newly created `TaxonomyDTO` / `GenreDTO` / `MoodDTO` schemas map from distinct database fields and taxonomy lists.
-
-4. **Required Assertions for R2 Acceptance Criteria**:
-   - **Criterion**: `GET /api/v2/songs` supports filtering by genre & mood, handles missing data gracefully without 500 errors, verified by pytest.
-   - **Assertions Needed**:
-     - `test_get_songs_filtered_by_genre`: Seed DB -> GET `/api/v2/songs?genre=Telugu Pop` -> assert `status_code == 200`, `total >= 1`, all `item["genre"] == "Telugu Pop"`.
-     - `test_get_songs_filtered_by_mood`: Seed DB -> GET `/api/v2/songs?mood=happy` -> assert `status_code == 200`, `total >= 1`, all `item["mood"] == "happy"`.
-     - `test_get_songs_filtered_by_genre_and_mood`: Seed DB -> GET `/api/v2/songs?genre=Telugu Pop&mood=happy` -> assert `status_code == 200`, all items match both criteria.
-     - `test_get_songs_non_matching_filter`: GET `/api/v2/songs?genre=NonExistentGenre` -> assert `status_code == 200`, `total == 0`, `items == []` (verifies no 500 Internal Server Error).
-     - `test_get_songs_null_optional_fields`: Seed song with `album_id=None`, `cover_image_url=None`, `tags=None` -> GET `/api/v2/songs` -> assert `status_code == 200`, payload validates cleanly with default fallback strings/nulls.
+3. **Design of the 4-Tier E2E Testing Strategy**:
+   - To prevent rate limiting and network flakiness, external API calls must be isolated in test environments using a deterministic `MockYouTubePlayer` and simulated discovery providers.
+   - **Tier 1 (Feature Coverage, $\ge 5$ tests/feature)**: Probes nominal operations for all R3 and R4 sub-features (script loading, state transitions, controls, pre-validation, error handling, query expansion, terminal state).
+   - **Tier 2 (Boundary & Corner Cases, $\ge 5$ tests/feature)**: Validates limits (seek beyond duration, rapid spamming, token race conditions, autoplay blocks, corrupt local storage).
+   - **Tier 3 (Cross-Feature Combinations)**: Validates inter-layer interactions (emotion shift during fallback, cache hit with restricted video, multi-provider cascade).
+   - **Tier 4 (Real-World Workload Scenarios)**: Validates endurance (continuous 60s emotion stream, 100-track endurance run, background tab throttling).
 
 ---
 
 ## 3. Caveats
 
-- **No `pyproject.toml` / `pytest.ini`**: The repository currently lacks a explicit `pytest.ini` or `pyproject.toml`. Pytest runs using default conventions. Adding a root `pytest.ini` setting `pythonpath = backend` would improve developer UX.
-- **Read-Only Mode**: In accordance with Explorer guidelines, no source code or test files were created or modified during this survey.
-- **Database Engine Differences**: In-memory SQLite is used for tests, which handles `func.lower()` and string contains natively, but doesn't test PostgreSQL-specific features if added later.
+1. **Browser Autoplay Policies**: Modern browsers (Chrome, Safari, Edge) strictly enforce user gesture requirements before unmuted audio playback can begin. The engine design accommodates this via `autoplayBlocked` state and a 1-tap gesture prompt (`enablePlayback()`).
+2. **YouTube Embedding Restrictions**: Error codes 101 and 150 are server-enforced by YouTube when content owners restrict iframe embeds. The fallback ladder is specifically designed to handle this automatically within $< 3.0\text{s}$.
+3. **No Code Modifications**: As a read-only explorer, no source code was altered; all findings and test designs are documented in `analysis.md` and `handoff.md`.
 
 ---
 
 ## 4. Conclusion
 
-- The backend has a well-structured test setup using `pytest`, `TestClient`, and function-scoped SQLite in-memory fixture isolation (`db_session` and `client`).
-- R1 requires adding formal Taxonomy schemas in `backend/app/schemas/taxonomy.py` and expanding unit tests to verify full ORM-to-Pydantic schema mapping.
-- R2 requires adding comprehensive endpoint filtering unit tests in `backend/tests/test_database_and_ingestion.py` (or a dedicated `backend/tests/test_catalog_endpoints.py`) to verify single/combined taxonomy filtering, non-matching filters, and graceful null handling.
+The Music Mirror playback and fallback architecture has strong foundational layers in place (`PlaybackProvider`, `YouTubePlaybackAdapter`, `SessionOrchestrator`, `DiscoveryLayer`). To satisfy the full requirements of R3, R4, and the acceptance criteria:
+1. Complete the YouTube error code mapping (`2, 5, 100, 101, 150`) with sub-3s transition SLA in `YouTubePlaybackAdapter` and `SessionOrchestrator`.
+2. Introduce pre-playback candidate validation (format check & fast oEmbed verification).
+3. Enhance query expansion with dynamic acoustic keyword modifiers (`+ "official audio"`, `+ "lyric video"`).
+4. Implement the comprehensive 4-Tier E2E test suite with the `MockYouTubePlayer` test fixture harness.
 
 ---
 
 ## 5. Verification Method
 
-To independently verify the test suite and assertions:
+To independently verify all claims and specifications:
 
-1. **Run Full Test Suite**:
+1. **Verify Frontend Test Execution**:
    ```bash
-   cd "d:\PROJECT\Music Mirror\backend"
-   pytest
+   cd "d:/PROJECT/Btech/Music Mirror/frontend"
+   npm test -- --run
    ```
-2. **Run Specific Ingestion & Catalog Tests**:
+   *Expected:* 68 passed tests across 9 test files.
+
+2. **Verify Backend Test Execution**:
    ```bash
-   cd "d:\PROJECT\Music Mirror\backend"
-   pytest tests/test_database_and_ingestion.py -v
+   cd "d:/PROJECT/Btech/Music Mirror/backend"
+   python -m pytest
    ```
-3. **Verification Invalidation Conditions**:
-   - Any test returning `500 Internal Server Error` on filter requests.
-   - Any Pydantic validation error when transforming `Song`, `Artist`, or `Album` ORM instances into DTOs.
-   - Any test failure when querying non-existent genres or moods.
+   *Expected:* 116 passed tests.
+
+3. **Inspect Detailed Specification Document**:
+   - View `d:\PROJECT\Btech\Music Mirror\.agents\teamwork_preview_explorer_survey_3\analysis.md` for complete feature discovery tables, lifecycle state diagrams, error code matrices, fallback ladder timing budgets, mock implementation code, and the 4-tier E2E test catalogue.
