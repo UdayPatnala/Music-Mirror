@@ -195,7 +195,7 @@ export default function DashboardPage() {
     };
   }, []);
 
-  const scores = detection?.scores ?? [];
+  const scores = useMemo(() => detection?.scores ?? [], [detection?.scores]);
   const topEmotion = scores[0]?.[0] ?? "neutral";
   const topConf = scores[0]?.[1] ?? 0.85;
   const topColor = EMOTION_COLOR[topEmotion] ?? "#D4AF37";

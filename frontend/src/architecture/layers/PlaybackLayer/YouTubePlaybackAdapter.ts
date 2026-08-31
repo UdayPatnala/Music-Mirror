@@ -228,7 +228,9 @@ export class YouTubePlaybackAdapter implements PlaybackProvider {
     if (this.player && this.isPlayerReady && typeof this.player.getCurrentTime === 'function') {
       try {
         this.positionSeconds = Math.round(this.player.getCurrentTime());
-      } catch (_) {}
+      } catch {
+        // Player state unavailable
+      }
     }
     return this.positionSeconds;
   }
@@ -238,7 +240,9 @@ export class YouTubePlaybackAdapter implements PlaybackProvider {
       try {
         const d = this.player.getDuration();
         if (d > 0) this.durationSec = d;
-      } catch (_) {}
+      } catch {
+        // Player state unavailable
+      }
     }
     return this.durationSec;
   }

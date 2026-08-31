@@ -98,7 +98,7 @@ export const useAppStore = create<AppState>()(
                 try {
                     const fetched = await UserPreferencesApi.fetchPreferences(currentUserId);
                     set({ userPreferences: fetched });
-                } catch (_) {
+                } catch {
                     // fallback to current local state
                 }
             },
@@ -126,7 +126,7 @@ export const useAppStore = create<AppState>()(
             resetStoreToDefault: () => set(RESET_STATE),
 
             purgeAllData: () => {
-                try { localStorage.removeItem(STORAGE_KEY); } catch (_) { /* ignore */ }
+                try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
                 set(RESET_STATE);
             },
         }),

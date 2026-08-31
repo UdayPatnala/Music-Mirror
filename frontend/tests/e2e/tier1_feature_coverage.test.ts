@@ -1,15 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  MockYouTubePlayer,
-  MockYTPlayerState,
   installMockYouTubeAPI,
   uninstallMockYouTubeAPI,
   getLatestMockPlayer,
 } from './fixtures/mockYouTubePlayer';
 import { YouTubePlaybackAdapter } from '../../src/architecture/layers/PlaybackLayer/YouTubePlaybackAdapter';
 import { DiscoveryEngine, discoveryEngine } from '../../src/architecture/layers/DiscoveryLayer';
-import { PersonalizationScorer, personalizationScorer } from '../../src/architecture/layers/PersonalizationLayer/PersonalizationScorer';
-import { SessionOrchestrator, sessionOrchestrator } from '../../src/architecture/orchestrator/SessionOrchestrator';
+import { personalizationScorer } from '../../src/architecture/layers/PersonalizationLayer/PersonalizationScorer';
+import { sessionOrchestrator } from '../../src/architecture/orchestrator/SessionOrchestrator';
 import { emotionInference } from '../../src/architecture/layers/EmotionLayer';
 import { intentMapper } from '../../src/architecture/layers/MusicIntentLayer';
 import { logger, sessionTrace } from '../../src/architecture/layers/ObservabilityLayer';

@@ -30,7 +30,10 @@ export class HTML5AudioPlaybackAdapter implements PlaybackProvider {
   }
 
   public async initialize(): Promise<void> {
-    if (typeof window !== 'undefined' && !this.audioElement) {
+    if (typeof window !== 'undefined' && typeof (window as unknown as { Audio?: typeof Audio }).Audio !== 'undefined' && !this.audioElement) {
+      this.audioElement = new window.Audio();
+      this.setupAudioListeners();
+    } else if (typeof Audio !== 'undefined' && !this.audioElement) {
       this.audioElement = new Audio();
       this.setupAudioListeners();
     }

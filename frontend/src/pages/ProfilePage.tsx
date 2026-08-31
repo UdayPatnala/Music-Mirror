@@ -165,7 +165,7 @@ export default function ProfilePage() {
       await updateUserPreferences({ preferred_genres: next });
       setPrefSuccess(true);
       setTimeout(() => setPrefSuccess(false), 2000);
-    } catch (_) {
+    } catch {
       // Handled via store rollback
     } finally {
       setPrefSyncing(false);
@@ -182,7 +182,7 @@ export default function ProfilePage() {
       await updateUserPreferences({ preferred_moods: next });
       setPrefSuccess(true);
       setTimeout(() => setPrefSuccess(false), 2000);
-    } catch (_) {
+    } catch {
       // Handled via store rollback
     } finally {
       setPrefSyncing(false);
@@ -199,7 +199,7 @@ export default function ProfilePage() {
       await updateUserPreferences({ preferred_languages: next });
       setPrefSuccess(true);
       setTimeout(() => setPrefSuccess(false), 2000);
-    } catch (_) {
+    } catch {
       // Handled via store rollback
     } finally {
       setPrefSyncing(false);
@@ -212,7 +212,7 @@ export default function ProfilePage() {
       await updateUserPreferences({ [field]: val });
       setPrefSuccess(true);
       setTimeout(() => setPrefSuccess(false), 2000);
-    } catch (_) {
+    } catch {
       // Handled via store rollback
     } finally {
       setPrefSyncing(false);
