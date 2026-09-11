@@ -25,5 +25,15 @@ An AI companion that understands a user's emotional state and automatically deli
 
 ## QUALITY & VALIDATION LOOP
 1. Verify functionality, responsiveness, accessibility, performance, and visual consistency.
-2. Ensure build exit code 0 (`tsc -b && vite build`) and zero runtime errors.
+2. Ensure build exit code 0 (`tsc -b && vite build`) and zero runtime/linter errors.
 3. Every feature must reduce user effort, improve emotional understanding, or deepen immersion.
+
+## MANDATORY ENGINEERING INVARIANTS & PROTOCOL
+1. **Audio Capability Guard**:
+   Always verify `typeof window !== 'undefined' && typeof window.Audio !== 'undefined'` before constructing `HTMLAudioElement` instances to prevent headless/test crashes.
+2. **Permanent Git & Execution History Protocol**:
+   Every session MUST consult `git log`, `docs/VERSION_HISTORY.md`, and `docs/EXECUTION_HISTORY.md` before execution, and update both files with findings upon completion.
+3. **Route & Theme Integrity**:
+   Root wrappers, error boundaries, and 404 routes must strictly inherit design system CSS custom properties (`var(--bg-primary)`, `var(--text-1)`). Never silently redirect unknown routes.
+4. **Zero-PII Telemetry**:
+   Never transmit or persist raw facial imagery, video frames, biometric tensors, or user IP addresses. All facial inference is strictly client-side.
