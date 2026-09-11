@@ -1,0 +1,25 @@
+﻿# Music Mirror (MM) — Emotion-Aware AI Music System
+
+> Music Mirror is a full-stack, real-time emotion intelligence and music discovery application that interprets facial expressions via on-device neural vision models and maps them to acoustic intent profiles for automatic, hands-free playback.
+
+## Canonical Architecture
+- Frontend: React 19, TypeScript, Vite, Zustand state management, Face-API.js (WebGL client-side biometrics), Framer Motion, Recharts analytics.
+- Backend: Python 3.14, FastAPI, SQLAlchemy 2.0, SQLite WAL mode, SingleFlight deduplication, and Agnostic Metadata Orchestrator.
+- Playback Layer: Dual-engine architecture supporting in-app embedded YouTube IFrame API playback with automated fallback ladders, Jamendo Creative Commons v3.0 direct HTML5 audio streaming, and local audio files.
+
+## Privacy & Security Invariants
+- 100% On-Device Facial Inference: Neural network models run entirely in the user's browser via WebGL/WebRTC. No facial image, video frame, or biometric vector is ever transmitted to backend servers or third parties.
+- Zero-PII Observability: Diagnostic and session telemetry strips all personally identifiable information.
+
+## Core Navigation & Public URLs
+- Home (Landing Experience): https://musicmirror.ai/
+- Studio Room (Interactive Emotion Player): https://musicmirror.ai/room
+- Living Blueprint (Architecture & Project Report): https://musicmirror.ai/summary
+- AI Analytics Lab (Real-time Biometrics & Acoustic Radar): https://musicmirror.ai/dashboard
+- User Profile & Privacy Hub (Local Preferences & Saved Tracks): https://musicmirror.ai/profile
+
+## Key Capabilities
+- Real-time 68-point facial landmark tracking and 7-emotion probabilistic classification (Happy, Neutral, Sad, Angry, Surprised, Fearful, Disgusted).
+- Dynamic acoustic intent mapping (Valence, Energy, Danceability, Acousticness, Target BPM).
+- Multi-tier search fallback: Official YouTube embed -> Jamendo Creative Commons direct stream -> Offline royalty-free audio pool.
+- 5-level query expansion strategy ensuring zero unhandled playback interruptions.

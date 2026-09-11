@@ -23,6 +23,7 @@ const MoodRoom      = React.lazy(() => import('./pages/MoodRoom'));
 const SummaryPage   = React.lazy(() => import('./pages/SummaryPage'));
 const ProfilePage   = React.lazy(() => import('./pages/ProfilePage'));
 const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const NotFoundPage  = React.lazy(() => import('./pages/NotFoundPage'));
 
 const DEFAULT_GUEST_PROFILE = {
     name: "Guest Listener",
@@ -47,22 +48,23 @@ class ErrorBoundary extends Component<EBProps, EBState> {
             return (
                 <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    minHeight: '100vh', background: '#F8FAFC', color: '#172033',
+                    minHeight: '100vh', background: 'var(--bg-primary, #0D0D0D)', color: 'var(--text-1, #FFFFFF)',
                     fontFamily: 'Outfit, sans-serif', padding: '24px', textAlign: 'center'
                 }}>
-                    <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#4F46E5' }}>🪞 Music Mirror</h2>
-                    <p style={{ color: '#475569', marginBottom: '20px', maxWidth: '400px' }}>
+                    <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', color: '#635BFF' }}>🪞 Music Mirror</h2>
+                    <p style={{ color: 'var(--text-2, #A6ACB8)', marginBottom: '20px', maxWidth: '400px' }}>
                         Something unexpected happened. Let's restart your session.
                     </p>
                     <button
                         onClick={() => { this.setState({ hasError: false, error: null }); window.location.href = '/'; }}
                         style={{
-                            padding: '12px 28px', background: '#4F46E5',
+                            padding: '12px 28px', background: 'linear-gradient(135deg, #4F46E5, #635BFF)',
                             border: 'none', borderRadius: '999px', color: '#fff',
-                            fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer'
+                            fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
+                            boxShadow: '0 4px 16px rgba(79, 70, 229, 0.3)'
                         }}
                     >
-                        Restart
+                        Restart Session
                     </button>
                 </div>
             );
@@ -86,8 +88,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const Loading = (
     <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        minHeight: '100vh', background: '#F8FAFC',
-        color: '#4F46E5', fontFamily: 'Outfit, sans-serif',
+        minHeight: '100vh', background: 'var(--bg-primary, #0D0D0D)',
+        color: 'var(--text-1, #FFFFFF)', fontFamily: 'Outfit, sans-serif',
         fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.01em'
     }}>
         Loading Music Mirror…
@@ -108,7 +110,7 @@ export default function App() {
                             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                             <Route path="/summary"   element={<ProtectedRoute><SummaryPage /></ProtectedRoute>} />
                             <Route path="/auth"      element={<Navigate to="/profile" replace />} />
-                            <Route path="*"          element={<Navigate to="/" replace />} />
+                            <Route path="*"          element={<NotFoundPage />} />
                         </Routes>
                     </Suspense>
                     <NetworkStatusIndicator />

@@ -73,9 +73,9 @@ const PROVIDER_CATALOGS: Record<string, Song[]> = {
     { name: "Deep Focus Drift",     artist: "Zenith Studio",genre: "Ambient",     language: "English", source_provider: "Jamendo", preview_url: "https://prod-1.storage.jamendo.com/download/track/18000124/mp32/" },
   ],
   local: [
-    { name: "Local Disk Track 01", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/" },
-    { name: "Local Disk Track 02", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/" },
-    { name: "Local Disk Track 03", artist: "Local Artist", genre: "Unsorted", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/" },
+    { name: "Ambient Focus Stream", artist: "Cosmic Glow", genre: "Ambient", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1880003/mp32/" },
+    { name: "Chillwave Resonance", artist: "Aura Sound", genre: "Lo-Fi", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1473953/mp32/" },
+    { name: "Deep Drift Session", artist: "Zenith Sound", genre: "Downtempo", language: "English", source_provider: "Local", preview_url: "https://prod-1.storage.jamendo.com/download/track/1158428/mp32/" },
   ]
 };
 
@@ -103,9 +103,9 @@ export default function MoodRoom() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(38); // percentage
-  const [currentTimeStr, setCurrentTimeStr] = useState("1:24");
-  const [durationStr, setDurationStr] = useState("3:40");
+  const [progress, setProgress] = useState(0); // percentage
+  const [currentTimeStr, setCurrentTimeStr] = useState("0:00");
+  const [durationStr, setDurationStr] = useState("0:00");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchError, setSearchError] = useState("");

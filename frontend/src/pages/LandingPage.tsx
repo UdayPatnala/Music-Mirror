@@ -185,7 +185,7 @@ export default function LandingPage() {
                   <span className="lp2-cta-dot" aria-hidden />
                   <Link to="/summary" className="lp2-cta-ghost">About</Link>
                   <span className="lp2-cta-dot" aria-hidden />
-                  <Link to="/dashboard" className="lp2-cta-ghost">Docs</Link>
+                  <Link to="/dashboard" className="lp2-cta-ghost">AI Lab</Link>
                 </div>
               </div>
 
@@ -268,9 +268,8 @@ export default function LandingPage() {
           <div className="lp2-footer-brand">© 2026 Music Mirror V2</div>
           <div className="lp2-footer-links">
             <Link to="/summary" className="lp2-footer-link">About</Link>
-
-            <Link to="/dashboard" className="lp2-footer-link">Docs</Link>
-            <Link to="/profile" className="lp2-footer-link">Privacy</Link>
+            <Link to="/dashboard" className="lp2-footer-link">AI Lab</Link>
+            <Link to="/profile" className="lp2-footer-link">Preferences & Privacy</Link>
           </div>
         </footer>
       </div>
