@@ -91,9 +91,16 @@ export default function MusicMirrorCorePage() {
 
     // Check system health on load
     apiClient.checkHealth().then(h => {
-      setHealth(h);
+      // Engine status reflects the JS core, which is always READY once initialized.
+      // Only backend connectivity is uncertain — keep engine READY regardless of API reachability.
+      setHealth({
+        ...h,
+        status: h.backendConnected ? h.status : 'READY',
+      });
       addLog(`Backend health verified: ${h.status} (version ${h.version})`, 'info');
     }).catch(err => {
+      // Backend unreachable — engine stays READY, API shows STANDALONE
+      setHealth(prev => ({ ...prev, backendConnected: false, activeProvider: 'fallback' }));
       addLog(`Backend health check offline: ${err.message}`, 'warn');
     });
 
