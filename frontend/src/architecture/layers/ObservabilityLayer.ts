@@ -14,22 +14,51 @@ export class LoggerService {
     return LoggerService.instance;
   }
 
-  public info(layer: string, message: string, meta?: Record<string, unknown>): void {
-    console.log(`[${layer}] INFO: ${message}`, meta ? meta : '');
+  public info(layerOrMessage: string, messageOrContext?: any, meta?: Record<string, unknown>): void {
+    if (typeof messageOrContext === 'string') {
+      console.log(`[${layerOrMessage}] INFO: ${messageOrContext}`, meta ? meta : '');
+    } else {
+      console.log(`[App] INFO: ${layerOrMessage}`, messageOrContext ? messageOrContext : '');
+    }
   }
 
   public warn(layer: string, message: string, meta?: Record<string, unknown>): void {
     console.warn(`[${layer}] WARN: ${message}`, meta ? meta : '');
   }
 
-  public error(err: ApplicationError): void {
-    console.error(`[${err.layer}] ERROR (${err.code}): ${err.message}`, err);
-    this.errorLog.push(err);
+  public error(
+    errOrMessage: ApplicationError | string,
+    layer?: string,
+    severity: 'fatal' | 'degraded' | 'warning' = 'degraded',
+    code: string = 'APP_ERROR',
+    context?: Record<string, unknown>
+  ): ApplicationError {
+    let appError: ApplicationError;
+    if (typeof errOrMessage === 'string') {
+      appError = {
+        code,
+        severity,
+        message: errOrMessage,
+        layer: (layer as any) || 'Application',
+        timestamp: Date.now(),
+        recoverable: severity !== 'fatal',
+        context,
+      };
+    } else {
+      appError = errOrMessage;
+    }
+    console.error(`[${appError.layer}] ERROR (${appError.code}): ${appError.message}`, appError);
+    this.errorLog.push(appError);
     if (this.errorLog.length > 50) this.errorLog.shift();
+    return appError;
   }
 
   public startPerfMarker(markerName: string): void {
     this.perfMarkers.set(markerName, performance.now());
+  }
+
+  public startPerformanceMark(markerName: string): void {
+    this.startPerfMarker(markerName);
   }
 
   public endPerfMarker(markerName: string): number {
@@ -39,6 +68,10 @@ export class LoggerService {
     this.perfMarkers.delete(markerName);
     this.info('PERFORMANCE', `Marker [${markerName}] took ${duration.toFixed(2)}ms`);
     return duration;
+  }
+
+  public endPerformanceMark(markerName: string): number {
+    return this.endPerfMarker(markerName);
   }
 
   public getRecentErrors(): ApplicationError[] {

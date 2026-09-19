@@ -255,13 +255,17 @@ export interface FeedbackEvent {
   timestamp: number;
 }
 
+export type ErrorSeverity = 'fatal' | 'degraded' | 'warning';
+
 export interface ApplicationError {
   code: string;
-  layer: 'Presentation' | 'Emotion' | 'Intent' | 'Discovery' | 'Provider' | 'Playback' | 'Persistence';
+  layer: 'Presentation' | 'Emotion' | 'Intent' | 'Discovery' | 'Provider' | 'Playback' | 'Persistence' | 'Orchestration' | 'Preference' | 'Observability' | 'Application';
   message: string;
   recoverable: boolean;
+  severity?: ErrorSeverity;
   fallbackStrategy?: string;
   details?: Record<string, unknown>;
+  context?: Record<string, unknown>;
   timestamp: number;
 }
 

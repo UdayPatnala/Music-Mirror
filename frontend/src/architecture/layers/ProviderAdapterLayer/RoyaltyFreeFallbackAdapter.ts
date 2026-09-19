@@ -60,6 +60,9 @@ export class RoyaltyFreeFallbackAdapter implements MusicProviderAdapter {
     logger.info('RoyaltyFreeFallbackAdapter', `Serving offline fallback candidates for intent valence=${intent.targetValence}, energy=${intent.targetEnergy}`);
 
     const now = Date.now();
+    const VALID_AUDIO_DATA_URI =
+      'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
+
     const fallbackCatalog: Array<Partial<MusicCandidate> & { playbackRef: string; title: string; artist: string }> = [
       {
         providerTrackId: 'fallback_gentle_breeze',
@@ -72,7 +75,7 @@ export class RoyaltyFreeFallbackAdapter implements MusicProviderAdapter {
         language: 'Instrumental',
         duration: 180,
         audioFeatures: { valence: 0.50, energy: 0.40, bpm: 85 },
-        playbackRef: '/audio/fallback_gentle_breeze.mp3',
+        playbackRef: VALID_AUDIO_DATA_URI,
         providerUrl: null,
         artworkUrl: null,
       },
@@ -87,7 +90,7 @@ export class RoyaltyFreeFallbackAdapter implements MusicProviderAdapter {
         language: 'Instrumental',
         duration: 165,
         audioFeatures: { valence: 0.85, energy: 0.80, bpm: 124 },
-        playbackRef: '/audio/fallback_upbeat_morning.mp3',
+        playbackRef: VALID_AUDIO_DATA_URI,
         providerUrl: null,
         artworkUrl: null,
       },

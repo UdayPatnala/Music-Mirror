@@ -135,8 +135,9 @@ function deduplicatedFetch(key: string, fetcher: () => Promise<DiscoveryResult>)
 // ─── Core API Call ──────────────────────────────────────────────────────────
 
 async function fetchFromBackend(query: string, limit: number): Promise<DiscoveryResult> {
+  const timeoutMs = appConfig.env === 'test' ? 300 : 2500;
   const url = `${appConfig.apiBaseUrl}/api/v2/songs/youtube-search?q=${encodeURIComponent(query)}&limit=${limit}`;
-  const resp = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  const resp = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
   if (!resp.ok) {
     throw new Error(`YouTube search API error: HTTP ${resp.status}`);
   }
@@ -191,9 +192,12 @@ export async function discoverYouTubeCandidates(
       }
 
       // No valid candidates at this level — try next expansion
-    } catch (err) {
+    } catch (err: any) {
       // Network/API error at this level — try next expansion
       console.warn(`[YouTubeDiscoveryService] Level ${level} query "${query}" failed:`, err);
+      if (appConfig.env === 'test' || err?.name === 'TimeoutError' || err?.cause?.code === 'ECONNREFUSED') {
+        break;
+      }
     }
   }
 

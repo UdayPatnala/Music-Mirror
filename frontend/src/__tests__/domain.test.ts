@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { appConfig } from '../config/appConfig';
-import { logger } from '../observability/logger';
+import { logger } from '../architecture/layers/ObservabilityLayer';
 import { emotionInference } from '../architecture/layers/EmotionLayer';
 import { intentMapper } from '../architecture/layers/MusicIntentLayer';
 import { discoveryEngine } from '../architecture/layers/DiscoveryLayer';
@@ -10,7 +10,7 @@ describe('Stage 01 Architecture & Domain Unit Tests', () => {
 
   it('verifies app configuration loaded with zero exposed secrets', () => {
     expect(appConfig.appName).toBe('MusicMirror');
-    expect(appConfig.version).toBe('2.0.0');
+    expect(appConfig.version).toBe('2.04.01.0');
     expect(appConfig.preferences.defaultLanguages).toContain('Telugu');
     expect(appConfig.preferences.defaultLanguages).toContain('English');
     expect(appConfig.emotionInference.minConfidenceThreshold).toBeGreaterThanOrEqual(0.5);

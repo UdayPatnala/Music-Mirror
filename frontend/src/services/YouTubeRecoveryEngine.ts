@@ -33,6 +33,7 @@ export class YouTubeRecoveryEngine {
   private currentIndex: number = 0;
   private isActive: boolean = false;
   private attemptCount: number = 0;
+  private debounceTimer: any = null;
 
   constructor(candidates: YouTubeCandidate[], callbacks: RecoveryEngineCallbacks) {
     this.candidates = candidates;
@@ -44,10 +45,18 @@ export class YouTubeRecoveryEngine {
     this.candidates = candidates;
     this.currentIndex = 0;
     this.attemptCount = 0;
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
   }
 
   /** Start: attempt the first candidate */
   public start(): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
     this.currentIndex = 0;
     this.attemptCount = 0;
     this.isActive = true;
@@ -57,11 +66,19 @@ export class YouTubeRecoveryEngine {
   /** Stop (e.g., user started a new search) */
   public stop(): void {
     this.isActive = false;
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
   }
 
   /** Called by caller when current candidate succeeded */
   public reportSuccess(): void {
     this.isActive = false;
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
   }
 
   /**
@@ -71,11 +88,17 @@ export class YouTubeRecoveryEngine {
   public reportFailure(): void {
     if (!this.isActive) return;
 
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+
     const remaining = this.candidates.length - (this.currentIndex + 1);
     this.callbacks.onRecovering?.(this.attemptCount, remaining);
 
     // Brief debounce before attempting next — feels responsive, not instant-flip
-    setTimeout(() => {
+    this.debounceTimer = setTimeout(() => {
+      this.debounceTimer = null;
       if (!this.isActive) return;
       this.currentIndex++;
       this.tryCurrentCandidate();

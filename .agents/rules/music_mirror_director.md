@@ -1,42 +1,40 @@
-# MUSIC MIRROR V2 DESIGN & ENGINEERING DIRECTOR RULE
+# MUSIC MIRROR DESIGN & ENGINEERING DIRECTOR RULE
 
 ## PRIMARY OBJECTIVE
-An AI companion that understands a user's emotional state and automatically delivers the most appropriate music with the least possible user interaction.
+Music Mirror (MM) is a **music intelligence, discovery, metadata, recommendation, and playback-orchestration system** whose user interface is only one possible client.
 
-## EXECUTION PRINCIPLES
-- Understand the complete project, vision, user journey, and current architecture before making changes.
-- Always think from first principles and question design/engineering assumptions.
+MM's purpose is to understand the user's musical and emotional context and reliably transform that context into validated, playable music without friction or fragility.
 
-## PRODUCT PHILOSOPHY
-- Emotion-first, music-first, AI-assisted, premium, minimal, intelligent, immersive, production-ready.
-- Not a generic streaming app, dashboard, or student project.
+---
 
-## VISUAL LANGUAGE & UX
-- Dark neutral backgrounds (`#090909`), glass surfaces (`rgba(22,22,22,0.85)`), soft ambient lighting (`var(--gold)` / `#D4AF37`), album-derived accents.
-- Progressive disclosure: display only what the user needs right now.
-- Album artwork is the visual centerpiece.
+## 10-STAGE CORE PIPELINE INVARIANT
+Every operation on Music Mirror must respect the 10-stage deterministic pipeline:
+$$\text{UNDERSTAND} \to \text{MODEL} \to \text{RETRIEVE} \to \text{NORMALIZE} \to \text{RESOLVE} \to \text{RANK} \to \text{VALIDATE} \to \text{PLAY} \to \text{OBSERVE} \to \text{LEARN}$$
 
-## PAGE CONTINUITY
-- Landing Page → Entrance Hall
-- Music Room → Premium Recording Studio
-- Profile → Personal Listening Lounge
-- Technical Room → AI Control Room
-- Summary → Innovation Gallery
+1. **UNDERSTAND**: Multi-modal fusion of facial expressions, subjective feeling state, and user reflective context notes.
+2. **MODEL**: Structured `MusicIntent` (valence, energy, target BPM, harmonic mode, policy: `REFLECT`, `REGULATE`, `CATHARSIS`, `BALANCE`).
+3. **RETRIEVE**: Multi-provider querying (YouTube Discovery, Jamendo API, local SQLite catalog).
+4. **NORMALIZE**: Canonical domain modeling (`canonical.ts`).
+5. **RESOLVE**: Entity deduplication, video ID validation, variant resolution.
+6. **RANK**: Multi-factor scoring (intent alignment, channel authority, recency, popularity, penalties).
+7. **VALIDATE**: Pre-flight playability check, provider capability attribution.
+8. **PLAY**: Sub-3s sequential fallback ladder (YouTube IFrame $\to$ HTML5 Audio $\to$ Data URI).
+9. **OBSERVE**: Headless state machine telemetry and error code trapping.
+10. **LEARN**: Client-side personalization updates (exponential decay $\lambda = 0.98$, cold-start heuristics).
 
-## QUALITY & VALIDATION LOOP
-1. Verify functionality, responsiveness, accessibility, performance, and visual consistency.
-2. Ensure build exit code 0 (`tsc -b && vite build`) and zero runtime/linter errors.
-3. Every feature must reduce user effort, improve emotional understanding, or deepen immersion.
+---
 
-## MANDATORY ENGINEERING INVARIANTS & PROTOCOL
-1. **Universal Project Engineering & 3-Layer Project Memory**:
-   Adhere strictly to the Universal Project Engineering & Execution System (`.agents/rules/universal_project_engineering_system.md`). Cross-check Layer 1 (Product Memory), Layer 2 (Engineering Memory: `docs/VERSION_HISTORY.md`, `docs/EXECUTION_HISTORY.md`), and Layer 3 (Actual State: Git, tests, build) before and after any change.
-2. **Audio Capability Guard**:
-   Always verify `typeof window !== 'undefined' && typeof window.Audio !== 'undefined'` before constructing `HTMLAudioElement` instances to prevent headless/test crashes.
-3. **Permanent Git & Execution History Protocol**:
-   Every session MUST consult `git log`, `docs/VERSION_HISTORY.md`, and `docs/EXECUTION_HISTORY.md` before execution, and update both files with findings upon completion.
-4. **Route & Theme Integrity**:
-   Root wrappers, error boundaries, and 404 routes must strictly inherit design system CSS custom properties (`var(--bg-primary)`, `var(--text-1)`). Never silently redirect unknown routes.
-5. **Zero-PII Telemetry**:
-   Never transmit or persist raw facial imagery, video frames, biometric tensors, or user IP addresses. All facial inference is strictly client-side.
+## SOURCES OF TRUTH
+- **Domain Truth**: Canonical domain model (`canonical.ts`).
+- **Provider Truth**: Raw third-party provider DTOs (always untrusted, normalized before ingestion).
+- **Runtime Truth**: `MusicMirrorCore` headless state machine.
+- **User Truth**: `PersonalizationStore` (local storage, zero biometrics).
+- **Model Inference**: Probabilistic emotion detection (never treated as immutable fact).
 
+---
+
+## CORE-FIRST OPERATING PHILOSOPHY
+- **UI is a Client, Not the Architecture**: The visual interface remains minimal and frozen during the core phase (`MusicMirrorCorePage.tsx`).
+- **Never Allow Visual Polish to Hide Architectural Weakness**: MM must first be a technically trustworthy music engine before any UI/UX refinement.
+- **Sub-3s Failover SLA**: When embeds or streams fail (Error 150, 100, 2, 5), failover must occur in $< 3000\text{ ms}$.
+- **Zero-PII Telemetry**: Never transmit or persist raw facial imagery, video frames, biometric tensors, or IP addresses.

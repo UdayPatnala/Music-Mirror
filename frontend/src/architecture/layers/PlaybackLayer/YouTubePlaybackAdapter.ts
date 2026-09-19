@@ -28,6 +28,7 @@ export class YouTubePlaybackAdapter implements PlaybackProvider {
   private player: any = null;
   private targetElementId: string | null = null;
   private isPlayerReady: boolean = false;
+  private initRetryCount: number = 0;
 
   public getProviderId(): string {
     return 'youtube';
@@ -47,13 +48,14 @@ export class YouTubePlaybackAdapter implements PlaybackProvider {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
     }
   }
 
   public bindElement(elementId: string): void {
     this.targetElementId = elementId;
     this.isPlayerReady = false;
+    this.initRetryCount = 0;
     this.player = null;
     this.checkAndCreatePlayer();
   }
@@ -61,7 +63,12 @@ export class YouTubePlaybackAdapter implements PlaybackProvider {
   private checkAndCreatePlayer(): void {
     if (!this.targetElementId || !this.currentTrack) return;
     if (typeof window === 'undefined' || !window.YT || !window.YT.Player) {
-      // Retry in 200ms if script hasn't loaded yet
+      this.initRetryCount++;
+      if (this.initRetryCount > 25) {
+        logger.warn('YouTubePlaybackAdapter', 'YouTube IFrame API script load timed out after 5s.');
+        this.emitEvent('error', 'YouTube Player API failed to initialize (timeout)');
+        return;
+      }
       setTimeout(() => this.checkAndCreatePlayer(), 200);
       return;
     }

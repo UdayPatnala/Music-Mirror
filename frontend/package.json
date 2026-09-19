@@ -1,7 +1,7 @@
 {
   "name": "music-mirror-v2",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.04.01.0",
   "author": "Patnala Uday Kumar",
   "type": "module",
   "scripts": {
@@ -13,13 +13,9 @@
   },
   "dependencies": {
     "face-api.js": "^0.22.2",
-    "framer-motion": "^12.42.2",
     "lucide-react": "^1.27.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "react-router-dom": "^7.18.1",
-    "recharts": "^3.10.1",
-    "zustand": "^5.0.14"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

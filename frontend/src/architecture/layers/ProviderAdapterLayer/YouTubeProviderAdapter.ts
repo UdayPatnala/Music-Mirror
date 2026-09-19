@@ -100,85 +100,119 @@ export class YouTubeProviderAdapter implements MusicProviderAdapter {
     );
 
     const now = Date.now();
-    const rawCandidates: Array<Partial<MusicCandidate> & { playbackRef: string; title: string; artist: string }> = [
-      {
-        providerTrackId: 'yt_buttabomma',
-        title: 'Buttabomma',
-        artist: 'Armaan Malik',
-        artists: ['Armaan Malik'],
-        album: 'Ala Vaikunthapurramuloo',
-        genre: 'Telugu Pop',
-        canonicalGenres: ['Telugu Pop', 'Filmi'],
-        language: 'Telugu',
-        duration: 198,
-        audioFeatures: { valence: 0.92, energy: 0.85, bpm: 120 },
-        playbackRef: 'A6BJ-PgNWXA',
-        providerUrl: 'https://www.youtube.com/watch?v=A6BJ-PgNWXA',
-        artworkUrl: 'https://img.youtube.com/vi/A6BJ-PgNWXA/hqdefault.jpg',
-      },
-      {
-        providerTrackId: 'yt_samajavaragamana',
-        title: 'Samajavaragamana',
-        artist: 'Sid Sriram',
-        artists: ['Sid Sriram'],
-        album: 'Ala Vaikunthapurramuloo',
-        genre: 'Telugu Soul',
-        canonicalGenres: ['Telugu Soul', 'Classical Fusion'],
-        language: 'Telugu',
-        duration: 214,
-        audioFeatures: { valence: 0.88, energy: 0.78, bpm: 110 },
-        playbackRef: 'E3BnMDc9ATE',
-        providerUrl: 'https://www.youtube.com/watch?v=E3BnMDc9ATE',
-        artworkUrl: 'https://img.youtube.com/vi/E3BnMDc9ATE/hqdefault.jpg',
-      },
-      {
-        providerTrackId: 'yt_blinding_lights',
-        title: 'Blinding Lights',
-        artist: 'The Weeknd',
-        artists: ['The Weeknd'],
-        album: 'After Hours',
-        genre: 'Synthpop',
-        canonicalGenres: ['Synthpop', 'Electronic'],
-        language: 'English',
-        duration: 200,
-        audioFeatures: { valence: 0.82, energy: 0.73, bpm: 171 },
-        playbackRef: '4NRXx6U8ABQ',
-        providerUrl: 'https://www.youtube.com/watch?v=4NRXx6U8ABQ',
-        artworkUrl: 'https://img.youtube.com/vi/4NRXx6U8ABQ/hqdefault.jpg',
-      },
-      {
-        providerTrackId: 'yt_tum_hi_ho',
-        title: 'Tum Hi Ho',
-        artist: 'Arijit Singh',
-        artists: ['Arijit Singh'],
-        album: 'Aashiqui 2',
-        genre: 'Bollywood Ballad',
-        canonicalGenres: ['Bollywood Ballad', 'Romantic'],
-        language: 'Hindi',
-        duration: 262,
-        audioFeatures: { valence: 0.35, energy: 0.40, bpm: 90 },
-        playbackRef: 'Umqb9KENgmk',
-        providerUrl: 'https://www.youtube.com/watch?v=Umqb9KENgmk',
-        artworkUrl: 'https://img.youtube.com/vi/Umqb9KENgmk/hqdefault.jpg',
-      },
-      {
-        providerTrackId: 'yt_rowdy_baby',
-        title: 'Rowdy Baby',
-        artist: 'Dhanush & Dhee',
-        artists: ['Dhanush', 'Dhee'],
-        album: 'Maari 2',
-        genre: 'Tamil Dance',
-        canonicalGenres: ['Tamil Dance', 'Kuthu'],
-        language: 'Tamil',
-        duration: 282,
-        audioFeatures: { valence: 0.95, energy: 0.92, bpm: 125 },
-        playbackRef: '0vGcBCBBGGQ',
-        providerUrl: 'https://www.youtube.com/watch?v=0vGcBCBBGGQ',
-        artworkUrl: 'https://img.youtube.com/vi/0vGcBCBBGGQ/hqdefault.jpg',
-      },
-    ];
+    let candidatesList: Array<Partial<MusicCandidate> & { playbackRef: string; title: string; artist: string }> = [];
 
-    const candidates: MusicCandidate[] = rawCandidates.map((c) => {
+    // Formulate real discovery query from intent & constraints
+    const keywords = (constraints?.queryKeywords && constraints.queryKeywords.length > 0)
+      ? constraints.queryKeywords.join(' ')
+      : `${intent.moodDescriptors?.[0] || 'chill'} ${intent.priorityGenres?.[0] || 'music'}`;
+
+    try {
+      const { discoverYouTubeCandidates } = await import('../../../services/YouTubeDiscoveryService');
+      const discoveryResult = await discoverYouTubeCandidates(keywords, limit);
+      if (discoveryResult && discoveryResult.candidates && discoveryResult.candidates.length > 0) {
+        candidatesList = discoveryResult.candidates.map((c) => ({
+          providerTrackId: `yt_${c.video_id}`,
+          title: c.title,
+          artist: c.channel_name,
+          artists: [c.channel_name],
+          album: null,
+          genre: intent.priorityGenres?.[0] || 'Pop',
+          canonicalGenres: [intent.priorityGenres?.[0] || 'Pop'],
+          language: intent.priorityLanguages?.[0] || 'Various',
+          duration: c.duration_seconds || 180,
+          audioFeatures: { valence: intent.targetValence, energy: intent.targetEnergy, bpm: 120 },
+          playbackRef: c.video_id,
+          providerUrl: c.watch_url,
+          artworkUrl: c.thumbnail_url,
+        }));
+      }
+    } catch (discoveryErr) {
+      logger.warn('YouTubeProviderAdapter', `Remote discovery unavailable (${discoveryErr}), using catalog fallback.`);
+    }
+
+    // Resilient fallback catalogue if remote discovery returns zero candidates
+    if (candidatesList.length === 0) {
+      candidatesList = [
+        {
+          providerTrackId: 'yt_buttabomma',
+          title: 'Buttabomma',
+          artist: 'Armaan Malik',
+          artists: ['Armaan Malik'],
+          album: 'Ala Vaikunthapurramuloo',
+          genre: 'Telugu Pop',
+          canonicalGenres: ['Telugu Pop', 'Filmi'],
+          language: 'Telugu',
+          duration: 198,
+          audioFeatures: { valence: 0.92, energy: 0.85, bpm: 120 },
+          playbackRef: 'A6BJ-PgNWXA',
+          providerUrl: 'https://www.youtube.com/watch?v=A6BJ-PgNWXA',
+          artworkUrl: 'https://img.youtube.com/vi/A6BJ-PgNWXA/hqdefault.jpg',
+        },
+        {
+          providerTrackId: 'yt_samajavaragamana',
+          title: 'Samajavaragamana',
+          artist: 'Sid Sriram',
+          artists: ['Sid Sriram'],
+          album: 'Ala Vaikunthapurramuloo',
+          genre: 'Telugu Soul',
+          canonicalGenres: ['Telugu Soul', 'Classical Fusion'],
+          language: 'Telugu',
+          duration: 214,
+          audioFeatures: { valence: 0.88, energy: 0.78, bpm: 110 },
+          playbackRef: 'E3BnMDc9ATE',
+          providerUrl: 'https://www.youtube.com/watch?v=E3BnMDc9ATE',
+          artworkUrl: 'https://img.youtube.com/vi/E3BnMDc9ATE/hqdefault.jpg',
+        },
+        {
+          providerTrackId: 'yt_blinding_lights',
+          title: 'Blinding Lights',
+          artist: 'The Weeknd',
+          artists: ['The Weeknd'],
+          album: 'After Hours',
+          genre: 'Synthpop',
+          canonicalGenres: ['Synthpop', 'Electronic'],
+          language: 'English',
+          duration: 200,
+          audioFeatures: { valence: 0.82, energy: 0.73, bpm: 171 },
+          playbackRef: '4NRXx6U8ABQ',
+          providerUrl: 'https://www.youtube.com/watch?v=4NRXx6U8ABQ',
+          artworkUrl: 'https://img.youtube.com/vi/4NRXx6U8ABQ/hqdefault.jpg',
+        },
+        {
+          providerTrackId: 'yt_tum_hi_ho',
+          title: 'Tum Hi Ho',
+          artist: 'Arijit Singh',
+          artists: ['Arijit Singh'],
+          album: 'Aashiqui 2',
+          genre: 'Bollywood Ballad',
+          canonicalGenres: ['Bollywood Ballad', 'Romantic'],
+          language: 'Hindi',
+          duration: 262,
+          audioFeatures: { valence: 0.35, energy: 0.40, bpm: 90 },
+          playbackRef: 'Umqb9KENgmk',
+          providerUrl: 'https://www.youtube.com/watch?v=Umqb9KENgmk',
+          artworkUrl: 'https://img.youtube.com/vi/Umqb9KENgmk/hqdefault.jpg',
+        },
+        {
+          providerTrackId: 'yt_rowdy_baby',
+          title: 'Rowdy Baby',
+          artist: 'Dhanush & Dhee',
+          artists: ['Dhanush', 'Dhee'],
+          album: 'Maari 2',
+          genre: 'Tamil Dance',
+          canonicalGenres: ['Tamil Dance', 'Kuthu'],
+          language: 'Tamil',
+          duration: 282,
+          audioFeatures: { valence: 0.95, energy: 0.92, bpm: 125 },
+          playbackRef: '0vGcBCBBGGQ',
+          providerUrl: 'https://www.youtube.com/watch?v=0vGcBCBBGGQ',
+          artworkUrl: 'https://img.youtube.com/vi/0vGcBCBBGGQ/hqdefault.jpg',
+        },
+      ];
+    }
+
+    const candidates: MusicCandidate[] = candidatesList.map((c) => {
       const audioFeatures = c.audioFeatures || { valence: 0.5, energy: 0.5, bpm: 120 };
       const recommendationScore = 0.90;
 
