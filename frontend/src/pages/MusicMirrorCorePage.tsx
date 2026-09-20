@@ -607,6 +607,7 @@ export default function MusicMirrorCorePage() {
               <button onClick={runOfflineTest} className="btn-sm">Test Offline Fallback</button>
               <button onClick={runLatencyBenchmark} className="btn-sm">Benchmark Latency</button>
               <button onClick={() => { clearDiscoveryCache(); addLog('Cache purged', 'info'); }} className="btn-sm">Purge Cache</button>
+              <button onClick={async () => { await musicMirrorCore.clearOfflineCache(); addLog('Offline DB cache purged', 'info'); }} className="btn-sm">Purge Offline DB</button>
               <button onClick={() => { musicMirrorCore.resetState(); addLog('Core engine reset', 'warn'); }} className="btn-sm btn-sm-danger">Reset Engine</button>
             </div>
 

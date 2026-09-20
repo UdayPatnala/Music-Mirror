@@ -87,7 +87,7 @@ export class MusicMirrorApiClient {
         backendConnected: false,
         databaseHealthy: false,
         activeProvider: 'fallback',
-        version: '2.04.02.1',
+        version: '2.04.03.0',
         lastCheckedTimestamp: start,
       };
     }

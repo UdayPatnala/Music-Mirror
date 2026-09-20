@@ -15,6 +15,8 @@ import type {
   SystemHealth,
 } from '../domain/canonical';
 import { YouTubeRecoveryEngine } from '../services/YouTubeRecoveryEngine';
+import { offlineAudioCache } from '../services/OfflineAudioCache';
+import type { CacheStats } from '../services/OfflineAudioCache';
 
 export type PlaybackStateListener = (state: PlaybackState) => void;
 export type QueueListener = (queue: QueueState) => void;
@@ -163,7 +165,20 @@ export class MusicMirrorCore {
           latencyMs: 10,
         };
       } catch {
-        throw new Error(`Failed to search tracks: ${err}`);
+        // Second fallback: search persistent client-side OfflineAudioCache
+        const offlineTracks = await offlineAudioCache.searchTracks(cleanQuery);
+        if (offlineTracks.length > 0) {
+          result = {
+            query: cleanQuery,
+            normalizedQuery: cleanQuery.toLowerCase(),
+            isCached: true,
+            tracks: offlineTracks.slice(0, limit),
+            totalResults: offlineTracks.length,
+            latencyMs: 1,
+          };
+        } else {
+          throw new Error(`Failed to search tracks: ${err}`);
+        }
       }
     }
 
@@ -449,6 +464,14 @@ export class MusicMirrorCore {
     return apiClient.checkHealth();
   }
 
+  public getOfflineCacheStats(): Promise<CacheStats> {
+    return offlineAudioCache.getStats();
+  }
+
+  public clearOfflineCache(): Promise<void> {
+    return offlineAudioCache.clear();
+  }
+
   // ─── Automated Failover Recovery Ladder ────────────────────────────
 
   public reportFailure(errorCode?: string): void {
@@ -534,6 +557,9 @@ export class MusicMirrorCore {
     this.playbackState.progressPercent = 0;
     this.updateNextCandidate();
     this.notifyQueueListeners();
+
+    // Persist verified track metadata to client-side offline audio cache
+    offlineAudioCache.saveTrack(track).catch(() => {});
   }
 
   private updateNextCandidate(): void {

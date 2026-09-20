@@ -5,7 +5,7 @@
 
 ## Current Version
 
-`2.04.02.1`
+`2.04.03.0`
 
 ## Current Status
 
@@ -42,6 +42,7 @@ VERIFIED
 | 2.04.01.1 | 2.04.01.0 | PATCH | `bad8f75` | 2026-09-19 | Fix: ENGINE: OFFLINE when backend unreachable — engine beacon stays READY |
 | 2.04.02.0 | 2.04.01.1 | FUNCTIONAL | `b10f86f` | 2026-09-20 | Core-first: strip decorative UI, centralized CapabilityRegistry, privacy-first Camera |
 | 2.04.02.1 | 2.04.02.0 | PATCH | `bbe4035` | 2026-09-20 | Complete Privacy & Consent architecture: ProviderRegistry, DataClassifier, and in-flight deduplication |
+| 2.04.03.0 | 2.04.02.1 | FUNCTIONAL | `PENDING` | 2026-09-20 | Offline IndexedDB Audio Caching, LRU eviction, memory fallback & core search integration |
 
 ---
 
@@ -49,7 +50,7 @@ VERIFIED
 
 | Target | Level | Description | Status |
 |---|---|---|---|
-| `2.04.03.0` | FUNCTIONAL | Offline IndexedDB Audio Caching & PWA ServiceWorker Streaming | PLANNED |
+| `2.05.00.0` | SUB-VERSION | Acoustic Audio DSP & Real-Time FFT Spectral Analysis | PLANNED |
 
 ---
 

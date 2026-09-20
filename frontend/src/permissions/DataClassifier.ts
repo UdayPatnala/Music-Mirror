@@ -149,6 +149,8 @@ export const MM_DATA_CLASSIFICATIONS: Readonly<Record<string, DataClass>> = {
   'discovery.candidate_pool':      DataClass.TEMPORARY_DATA,
   'discovery.cache_entry':         DataClass.PROVIDER_DATA,
   'discovery.cache_key':           DataClass.INTERNAL,
+  'cache.offline_audio_blob':      DataClass.PROVIDER_DATA,
+  'cache.offline_track_metadata':  DataClass.PROVIDER_DATA,
 
   // Playback state
   'playback.current_track':        DataClass.TEMPORARY_DATA,

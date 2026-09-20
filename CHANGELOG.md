@@ -4,6 +4,37 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.04.03.0 — 2026-09-20
+
+- **Type**: Functional Revision (Level DE)
+- **Status**: Verified
+
+### Offline IndexedDB Audio Caching & Client-Side Media Cache Engine
+
+#### Added
+- **`OfflineAudioCache.ts`**: Persistent client-side audio and track metadata cache using IndexedDB (`MusicMirrorOfflineDB`) with in-memory fallback.
+  - Implements LRU capacity management (default 50 tracks max) with automatic oldest-entry eviction.
+  - Exposes `saveTrack()`, `getTrack()`, `getRecord()`, `hasTrack()`, `getAllTracks()`, `searchTracks()`, `removeTrack()`, `clear()`, `getStats()`.
+  - Zero PII: strictly classified as `DataClass.PROVIDER_DATA` in `DataClassifier.ts`.
+- **`offline_audio_cache.test.ts`**: 11 unit tests verifying initialization, saving, retrieval, search by title/artist/genre, LRU eviction, byte size calculation, and memory fallback resilience.
+- **Diagnostics Control Surface**: Added "Purge Offline DB" diagnostic button in `MusicMirrorCorePage.tsx` providing immediate one-click cache wiping per Spec §18.
+
+#### Enhanced
+- **`MusicMirrorCore.ts`**:
+  - Automatically caches verified active tracks into `offlineAudioCache` upon playback.
+  - Integrated persistent offline search fallback into `searchTracks()` when backend network or local SQLite catalog is unreachable.
+  - Exposes `getOfflineCacheStats()` and `clearOfflineCache()` API methods.
+- **`DataClassifier.ts`**: Registered `cache.offline_audio_blob` and `cache.offline_track_metadata` as `DataClass.PROVIDER_DATA`.
+
+### Verification
+- Frontend (Vitest): **247/247 PASSED** across 15 test files (+11 new offline cache tests)
+- Backend (pytest): **143/143 PASSED**
+- Oxlint: 0 errors, 0 warnings (50 files)
+- TypeScript (tsc -b --noEmit): Clean / Exit 0
+- Vite Build: Exit 0 (710ms)
+
+---
+
 ## 2.04.02.1 — 2026-09-20
 
 - **Type**: Patch / Revision (Level F)
