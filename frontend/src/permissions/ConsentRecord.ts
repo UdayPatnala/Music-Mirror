@@ -28,7 +28,7 @@ export interface ConsentRecord {
 }
 
 // Current policy version — bump when processing purposes or data flows change materially.
-export const CURRENT_POLICY_VERSION = '2.04.02.0';
+export const CURRENT_POLICY_VERSION = '2.04.02.1';
 
 const STORAGE_PREFIX = 'mm_consent_';
 
@@ -102,7 +102,14 @@ export function withdrawConsent(purpose: string): void {
  */
 export function clearAllConsent(): void {
   try {
-    const keys = Object.keys(sessionStorage).filter(k => k.startsWith(STORAGE_PREFIX));
+    // Collect keys first to avoid mutation during iteration
+    const keys: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i);
+      if (k && k.startsWith(STORAGE_PREFIX)) {
+        keys.push(k);
+      }
+    }
     keys.forEach(k => sessionStorage.removeItem(k));
   } catch { /* non-fatal */ }
 }

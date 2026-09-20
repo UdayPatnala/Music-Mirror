@@ -28,6 +28,8 @@ export type CapabilityId =
   | 'NOTIFICATIONS'
   | 'LOCAL_STORAGE';
 
+export type CapabilityCategory = 'DEVICE' | 'STORAGE' | 'NOTIFICATION';
+
 export type CapabilityState =
   | 'NOT_REQUESTED'
   | 'REQUESTING'
@@ -38,47 +40,100 @@ export type CapabilityState =
   | 'REVOKED'
   | 'ERROR';
 
-export interface CapabilityStatus {
+export interface Capability {
   id: CapabilityId;
-  state: CapabilityState;
-  /** ISO timestamp of last state change */
-  lastUpdatedAt: string;
-  /** Human-readable reason for current state (if known) */
+  category: CapabilityCategory;
+  purpose: string;
+  required: boolean;
+  currentState: CapabilityState;
+  state: CapabilityState; // alias for backwards compatibility
+  requestedAt: string | null;
+  updatedAt: string;
+  lastUpdatedAt: string; // alias for backwards compatibility
+  policyVersion: string;
   reason: string | null;
 }
 
-export type CapabilityListener = (status: CapabilityStatus) => void;
+export type CapabilityStatus = Capability;
+export type CapabilityListener = (status: Capability) => void;
+
+export const CAPABILITY_METADATA: Record<
+  CapabilityId,
+  { category: CapabilityCategory; purpose: string; required: boolean }
+> = {
+  CAMERA: {
+    category: 'DEVICE',
+    purpose: 'Facial affect detection to assist emotional mirroring',
+    required: false,
+  },
+  MICROPHONE: {
+    category: 'DEVICE',
+    purpose: 'Acoustic voice analysis for tone and intent inference',
+    required: false,
+  },
+  NOTIFICATIONS: {
+    category: 'NOTIFICATION',
+    purpose: 'Playback status and audio transition notifications',
+    required: false,
+  },
+  LOCAL_STORAGE: {
+    category: 'STORAGE',
+    purpose: 'Offline candidate pool and preference caching',
+    required: false,
+  },
+};
+
+export const CURRENT_POLICY_VERSION = '2.04.02.1';
 
 // ---------------------------------------------------------------------------
 // Internal state store
 // ---------------------------------------------------------------------------
 
-const _states = new Map<CapabilityId, CapabilityStatus>();
+const _states = new Map<CapabilityId, Capability>();
 const _listeners = new Map<CapabilityId, Set<CapabilityListener>>();
+const _inFlightRequests = new Map<CapabilityId, Promise<Capability>>();
 
 function _now(): string {
   return new Date().toISOString();
 }
 
-function _initCapability(id: CapabilityId): CapabilityStatus {
+function _initCapability(id: CapabilityId): Capability {
   if (!_states.has(id)) {
+    const meta = CAPABILITY_METADATA[id] || {
+      category: 'DEVICE',
+      purpose: 'General device capability',
+      required: false,
+    };
+    const timestamp = _now();
     _states.set(id, {
       id,
+      category: meta.category,
+      purpose: meta.purpose,
+      required: meta.required,
+      currentState: 'NOT_REQUESTED',
       state: 'NOT_REQUESTED',
-      lastUpdatedAt: _now(),
+      requestedAt: null,
+      updatedAt: timestamp,
+      lastUpdatedAt: timestamp,
+      policyVersion: CURRENT_POLICY_VERSION,
       reason: null,
     });
   }
   return _states.get(id)!;
 }
 
-function _set(id: CapabilityId, patch: Partial<CapabilityStatus>): CapabilityStatus {
+function _set(id: CapabilityId, patch: Partial<Capability>): Capability {
   const current = _initCapability(id);
-  const updated: CapabilityStatus = {
+  const now = _now();
+  const nextState = patch.currentState ?? patch.state ?? current.currentState;
+  const updated: Capability = {
     ...current,
     ...patch,
     id,
-    lastUpdatedAt: _now(),
+    currentState: nextState,
+    state: nextState,
+    updatedAt: now,
+    lastUpdatedAt: now,
   };
   _states.set(id, updated);
   // Notify all listeners
@@ -96,9 +151,17 @@ function _set(id: CapabilityId, patch: Partial<CapabilityStatus>): CapabilitySta
 // ---------------------------------------------------------------------------
 
 /**
+ * Check the current state of a capability. (Spec §4)
+ * Returns the current Capability model without triggering permissions.
+ */
+export function check(id: CapabilityId): Capability {
+  return getState(id);
+}
+
+/**
  * Get the current capability status without triggering any permission request.
  */
-export function getState(id: CapabilityId): CapabilityStatus {
+export function getState(id: CapabilityId): Capability {
   return { ..._initCapability(id) };
 }
 
@@ -106,7 +169,7 @@ export function getState(id: CapabilityId): CapabilityStatus {
  * Returns true only if the capability is in GRANTED state.
  */
 export function isGranted(id: CapabilityId): boolean {
-  return _initCapability(id).state === 'GRANTED';
+  return _initCapability(id).currentState === 'GRANTED';
 }
 
 /**
@@ -136,15 +199,44 @@ export function isAvailable(id: CapabilityId): boolean {
 }
 
 /**
+ * Request a capability. (Spec §4)
+ * Alias for requestCapability.
+ */
+export async function request(
+  id: CapabilityId,
+  constraints?: MediaStreamConstraints
+): Promise<Capability> {
+  return requestCapability(id, constraints);
+}
+
+/**
  * Request a capability.
  *
  * This is the ONLY place where a browser permission prompt may be triggered.
  * The caller is responsible for first displaying purpose information to the user
  * and obtaining application-level consent before calling this function.
  *
- * Returns the resulting CapabilityStatus.
+ * Returns the resulting Capability.
  */
 export async function requestCapability(
+  id: CapabilityId,
+  constraints?: MediaStreamConstraints
+): Promise<CapabilityStatus> {
+  const inFlight = _inFlightRequests.get(id);
+  if (inFlight) {
+    return inFlight;
+  }
+
+  const exec = _doRequestCapability(id, constraints);
+  _inFlightRequests.set(id, exec);
+  try {
+    return await exec;
+  } finally {
+    _inFlightRequests.delete(id);
+  }
+}
+
+async function _doRequestCapability(
   id: CapabilityId,
   constraints?: MediaStreamConstraints
 ): Promise<CapabilityStatus> {
@@ -165,7 +257,7 @@ export async function requestCapability(
     return _set(id, { state: 'UNAVAILABLE', reason: 'Capability not supported in this browser/environment.' });
   }
 
-  _set(id, { state: 'REQUESTING', reason: null });
+  _set(id, { state: 'REQUESTING', requestedAt: _now(), reason: null });
 
   try {
     switch (id) {
@@ -311,4 +403,5 @@ export function watchExternalRevocation(id: CapabilityId): void {
 export function _resetForTest(id: CapabilityId): void {
   _states.delete(id);
   _watched.delete(id);
+  _inFlightRequests.delete(id);
 }

@@ -7,6 +7,8 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
+  check,
+  request,
   getState,
   isGranted,
   isAvailable,
@@ -334,3 +336,49 @@ describe('CapabilityRegistry — UNAVAILABLE when API missing', () => {
     expect(result.state).toBe('UNAVAILABLE');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Spec §4 Model & Methods compliance tests
+// ---------------------------------------------------------------------------
+
+describe('CapabilityRegistry — Spec §4 Model & Method compliance', () => {
+  it('check() returns complete Capability model with all Spec §4 fields', () => {
+    const cap = check('CAMERA');
+    expect(cap.id).toBe('CAMERA');
+    expect(cap.category).toBe('DEVICE');
+    expect(typeof cap.purpose).toBe('string');
+    expect(cap.purpose.length).toBeGreaterThan(10);
+    expect(cap.required).toBe(false);
+    expect(cap.currentState).toBe('NOT_REQUESTED');
+    expect(cap.requestedAt).toBeNull();
+    expect(typeof cap.updatedAt).toBe('string');
+    expect(typeof cap.policyVersion).toBe('string');
+  });
+
+  it('request() works as alias for requestCapability and updates requestedAt', async () => {
+    mockGetUserMedia('success');
+    const cap = await request('CAMERA');
+    expect(cap.currentState).toBe('GRANTED');
+    expect(cap.requestedAt).not.toBeNull();
+    expect(typeof cap.requestedAt).toBe('string');
+    expect(isGranted('CAMERA')).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Spec §30 Concurrency & Repeated requests
+// ---------------------------------------------------------------------------
+
+describe('CapabilityRegistry — Spec §30 Concurrency and Multiple Requests', () => {
+  it('handles multiple simultaneous request() calls cleanly without race conditions', async () => {
+    const gum = mockGetUserMedia('success');
+    const [res1, res2] = await Promise.all([
+      request('CAMERA'),
+      request('CAMERA'),
+    ]);
+    expect(res1.currentState).toBe('GRANTED');
+    expect(res2.currentState).toBe('GRANTED');
+    expect(gum).toHaveBeenCalledTimes(1);
+  });
+});
+

@@ -4,6 +4,35 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.04.02.1 — 2026-09-20
+
+- **Type**: Patch / Revision (Level F)
+- **Status**: Verified
+
+### Privacy, Consent, Permissions & Data-Access System Complete Specification
+
+#### Added
+- **`ProviderRegistry.ts` (Spec §13)**: Centralized registry recording every external service (`provider`, `purpose`, `data_sent`, `data_received`, `authentication_required`, `retention_known`, `user_control`, `failure_behavior`). Registered active providers: YouTube Data API v3, YouTube IFrame Player API, Music Mirror Backend, face-api.js.
+- **`DataClassifier.ts` (Spec §14)**: Formal data classification system defining 9 data classes from `SENSITIVE_CONTEXT` to `PUBLIC`. Maps all internal and external data fields to their respective sensitivity class and retention policy. Disallows persistence of `SENSITIVE_CONTEXT` and `TEMPORARY_DATA`.
+- **`ConsentRecord.ts` Test Suite**: 23 dedicated unit tests validating consent persistence, withdrawal lifecycle, policy version invalidation, and session isolation.
+- **`classifier_and_providers.test.ts`**: 43 comprehensive unit tests validating field classification, retention bounds, data minimization rules, and provider registry lookups.
+
+#### Enhanced
+- **`CapabilityRegistry.ts` (Spec §4 & §30)**:
+  - Upgraded model to match full Spec §4 schema: `id`, `category`, `purpose`, `required`, `currentState`, `requestedAt`, `updatedAt`, `policyVersion`, `reason`.
+  - Exposed standardized methods: `check()`, `request()`, `revokeGuidance()`, `getState()`, `isAvailable()`.
+  - Added concurrent in-flight request deduplication via `_inFlightRequests` to prevent duplicate browser prompts or race conditions.
+  - Added 3 new unit tests covering Spec §4 model compliance and concurrent request deduplication.
+
+### Verification
+- Frontend (Vitest): **236/236 PASSED** across 14 test files
+- Backend (pytest): **143/143 PASSED**
+- Oxlint: 0 errors, 0 warnings
+- TypeScript (tsc -b --noEmit): Clean
+- Vite Build: Exit 0 (444ms)
+
+---
+
 ## 2.04.02.0 — 2026-09-20
 
 - **Type**: Functional Revision (Level DE)
