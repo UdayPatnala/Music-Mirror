@@ -4,6 +4,38 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.05.00.0 — 2026-09-20
+
+- **Type**: Sub-Version Milestone (Level BC)
+- **Status**: Verified
+
+### Acoustic Audio DSP & Real-Time FFT Spectral Analysis Engine
+
+#### Added
+- **`AudioDspEngine.ts`**: High-precision mathematical audio DSP engine built on Web Audio API `AudioContext` and `AnalyserNode` (2048 FFT bins).
+  - **RMS Signal Energy**: Direct root-mean-square calculation $[0.0, 1.0]$ across time-domain audio samples.
+  - **Spectral Centroid**: Perceived brightness calculation (spectral center of gravity in Hz).
+  - **Spectral Flatness**: Wiener entropy calculation (geometric mean / arithmetic mean) distinguishing harmonic tonality from white noise.
+  - **Spectral Rolloff**: 85% energy concentration frequency boundary calculation.
+  - **7-Band Acoustic Decomposition**: Real-time energy segmentation into Sub-bass (20–60Hz), Bass (60–250Hz), Low-Mid (250–500Hz), Mid (500–2000Hz), High-Mid (2000–4000Hz), Presence (4000–6000Hz), and Brilliance (6000–20000Hz).
+  - **Dynamic Onset Detection**: Automatic transient energy jump detection for rhythm and beat alignment.
+  - **Acoustic Metadata Validation**: Computes divergence between track affective metadata coordinates (expected energy/valence) and live audio signal characteristics.
+- **`audio_dsp_engine.test.ts`**: 16 unit tests validating RMS calculation, spectral centroid discrimination, Wiener entropy flatness, 85% rolloff, 7-band frequency decomposition, onset detection, and metadata divergence checks.
+
+#### Enhanced
+- **`MusicMirrorCore.ts`**: Automatically connects active HTML5 audio element to `audioDspEngine`; exposes `getAcousticDspMetrics()` and `validateTrackAcoustics()`.
+- **`MusicMirrorCorePage.tsx`**: Added "Sample Acoustic DSP" button in the diagnostics drawer outputting real-time RMS, Centroid, and Flatness readings.
+- **`DataClassifier.ts`**: Registered `audio.rms_energy`, `audio.spectral_centroid`, `audio.spectral_flatness`, `audio.bands`, and `audio.validation_result` as `DataClass.INTERNAL`.
+
+### Verification
+- Frontend (Vitest): **284/284 PASSED** across 18 test files (+16 new tests)
+- Backend (pytest): **143/143 PASSED** across 20 test files
+- Oxlint: 0 errors, 0 warnings (60 files)
+- TypeScript (tsc -b --noEmit): Clean / Exit 0
+- Vite Build: Exit 0 (463ms), CSS 8.77KB
+
+---
+
 ## 2.04.04.0 — 2026-09-20
 
 - **Type**: Functional Revision (Level DE)

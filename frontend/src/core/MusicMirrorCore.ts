@@ -17,6 +17,8 @@ import type {
 import { YouTubeRecoveryEngine } from '../services/YouTubeRecoveryEngine';
 import { offlineAudioCache } from '../services/OfflineAudioCache';
 import type { CacheStats } from '../services/OfflineAudioCache';
+import { audioDspEngine } from '../services/AudioDspEngine';
+import type { AcousticFeatures, AcousticValidationResult } from '../services/AudioDspEngine';
 
 export type PlaybackStateListener = (state: PlaybackState) => void;
 export type QueueListener = (queue: QueueState) => void;
@@ -262,6 +264,7 @@ export class MusicMirrorCore {
         // Play via HTML5 Audio
         const audioSrc = activeTrack.previewUrl || source.sourceUrl || SILENT_WAV_DATA_URI;
         if (this.htmlAudio) {
+          audioDspEngine.connectElement(this.htmlAudio);
           this.htmlAudio.src = audioSrc;
           this.htmlAudio.volume = this.playbackState.isMuted ? 0 : this.playbackState.volumePercent / 100;
           await this.htmlAudio.play().catch(() => {
@@ -470,6 +473,14 @@ export class MusicMirrorCore {
 
   public clearOfflineCache(): Promise<void> {
     return offlineAudioCache.clear();
+  }
+
+  public getAcousticDspMetrics(): AcousticFeatures {
+    return audioDspEngine.analyzeFrame();
+  }
+
+  public validateTrackAcoustics(expectedEnergy: number): AcousticValidationResult {
+    return audioDspEngine.validateAcoustics(expectedEnergy, audioDspEngine.analyzeFrame());
   }
 
   // ─── Automated Failover Recovery Ladder ────────────────────────────

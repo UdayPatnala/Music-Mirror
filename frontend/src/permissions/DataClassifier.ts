@@ -152,6 +152,13 @@ export const MM_DATA_CLASSIFICATIONS: Readonly<Record<string, DataClass>> = {
   'cache.offline_audio_blob':      DataClass.PROVIDER_DATA,
   'cache.offline_track_metadata':  DataClass.PROVIDER_DATA,
 
+  // Audio DSP & Spectral telemetry
+  'audio.rms_energy':              DataClass.INTERNAL,
+  'audio.spectral_centroid':       DataClass.INTERNAL,
+  'audio.spectral_flatness':       DataClass.INTERNAL,
+  'audio.bands':                   DataClass.INTERNAL,
+  'audio.validation_result':       DataClass.INTERNAL,
+
   // Playback state
   'playback.current_track':        DataClass.TEMPORARY_DATA,
   'playback.position_seconds':     DataClass.TEMPORARY_DATA,

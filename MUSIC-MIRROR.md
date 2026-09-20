@@ -1,7 +1,7 @@
 # MUSIC MIRROR — PROJECT MASTER SPECIFICATION & KNOWLEDGE BASE
 
 > **AUTHORITATIVE LIVING SYSTEM RECORD**  
-> Current Authoritative Version: `2.04.04.0`  
+> Current Authoritative Version: `2.05.00.0`  
 > System Classification: Headless Music Intelligence & Affective Playback Orchestration Engine  
 > Architecture Governance: `A.BC.DE.F` (Universal Version Control & Change Governance System)  
 > Operational Priority: **Core First — Useful Data Only — Privacy by Architecture**
@@ -13,8 +13,8 @@
 - **Project Title**: Music Mirror
 - **Short Identifier**: MM
 - **Project Type**: Decoupled Music Intelligence, Context-Aware Discovery, Metadata Normalization, and Playback Orchestration System.
-- **Current Status**: `VERIFIED & HARDENED` (Headless Core, Offline Caching, ServiceWorker & Transmission Gate Operational).
-- **Current Authoritative Version**: `2.04.04.0`
+- **Current Status**: `VERIFIED & HARDENED` (Headless Core, Offline Caching, ServiceWorker, Transmission Gate & Acoustic Audio DSP Operational).
+- **Current Authoritative Version**: `2.05.00.0`
 - **Primary Repositories & Roots**:
   - Root: `d:\PROJECT\Btech\Music Mirror`
   - GitHub Remote: `https://github.com/UdayPatnala/Music-Mirror.git` (`origin/main`)
@@ -494,15 +494,16 @@ export interface TrackSource {
 
 ---
 
-## 21. Current State (`v2.04.04.0`)
+## 21. Current State (`v2.05.00.0`)
 
 - **Frontend**: Clean, functional, emoji-free control surface (`MusicMirrorCorePage.tsx`) linked to headless `MusicMirrorCore`. Lean `index.css` (420 lines).
+- **Acoustic Audio DSP Engine**: Mathematical audio signal processing and spectral decomposition (`AudioDspEngine.ts`) extracting real-time RMS energy, spectral centroid (timbre brightness), Wiener entropy flatness, 7-band acoustic frequency distribution, dynamic beat onset detection, and metadata divergence validation.
 - **Offline Audio Cache**: Client-side IndexedDB cache (`OfflineAudioCache.ts`) with LRU capacity management, search fallback, and zero-PII data classification.
 - **PWA Service Worker & Stream Caching**: Dual-tier ServiceWorker (`sw.js` & `ServiceWorkerManager.ts`) caching app shell and dedicated audio stream cache (`mm-audio-stream-v1`).
 - **Data Transmission Gate**: Runtime enforcement (`TransmissionGate.ts`, Spec §15) blocking unapproved destinations, barring `SENSITIVE_CONTEXT` transmission, and requiring consent for `PERSONAL_DATA`/`USER_DATA`.
 - **Permissions**: Centralized `CapabilityRegistry`, `ConsentRecord`, `DataClassifier`, and `ProviderRegistry` fully operational and verified by 113 unit tests.
 - **Backend**: FastAPI server providing catalog search, weighted ranking, and recommendation endpoints over a 200-song SQLite database.
-- **Quality**: 268 frontend tests across 17 suites and 143 backend tests passing (100% green). Oxlint and TypeScript clean.
+- **Quality**: 284 frontend tests across 18 suites and 143 backend tests passing (100% green). Oxlint and TypeScript clean.
 
 ---
 
@@ -537,10 +538,9 @@ export interface TrackSource {
 
 ## 25. Future Roadmap
 
-1. **`v2.04.04.0` (FUNCTIONAL)**: PWA ServiceWorker Audio Stream Caching & TransmissionGate Privacy Enforcement (`VERIFIED & COMPLETED`).
-2. **`v2.05.00.0` (SUB-VERSION)**: Acoustic Audio DSP & Real-Time FFT Spectral Analysis.
-3. **`v2.06.00.0` (SUB-VERSION)**: Production UX/UI Makeup Phase (Restoring visual polish strictly on top of verified core).
-4. **`v3.00.00.0` (MAJOR)**: Distributed Multi-Room Synchronized Audio Mesh.
+1. **`v2.05.00.0` (SUB-VERSION)**: Acoustic Audio DSP & Real-Time FFT Spectral Analysis (`VERIFIED & COMPLETED`).
+2. **`v2.06.00.0` (SUB-VERSION)**: Production UX/UI Makeup Phase (Restoring visual polish strictly on top of verified core).
+3. **`v3.00.00.0` (MAJOR)**: Distributed Multi-Room Synchronized Audio Mesh.
 
 ---
 
@@ -550,6 +550,7 @@ export interface TrackSource {
 - **False Alarm Engine Offline State**: A health check failure in the backend previously marked the whole engine offline, confusing users. Decoupling client-side headless readiness from API availability resolved this.
 - **Permission Prompt Concurrency**: Rapid, concurrent feature activation can trigger duplicate browser permission prompts. In-flight promise sharing (`SingleFlight`) completely eliminates this race condition.
 - **Architectural Privacy Gates**: Relying purely on documentation or developer convention to avoid leaking sensor/biometric data is insufficient. A formal `TransmissionGate` that blocks payload transmission at runtime before serialization guarantees compliance.
+- **Headless Mathematical DSP**: Computing acoustic features (spectral centroid, Wiener flatness, RMS) directly in an observable service decouple audio signal verification from any cosmetic rendering loop.
 
 ---
 
@@ -569,6 +570,7 @@ export interface TrackSource {
 | `2.04.02.1` | PATCH | `bbe4035` | 2026-09-20 | Complete Privacy & Consent architecture: ProviderRegistry, DataClassifier, and in-flight deduplication. |
 | `2.04.03.0` | FUNCTIONAL | `6236db7` | 2026-09-20 | Offline IndexedDB Audio Caching, LRU eviction, memory fallback & core search integration. |
 | `2.04.04.0` | FUNCTIONAL | `a920268` | 2026-09-20 | PWA ServiceWorker audio stream caching, TransmissionGate Spec §15 enforcement. |
+| `2.05.00.0` | SUB-VERSION | PENDING | 2026-09-20 | Acoustic Audio DSP & Real-Time FFT Spectral Analysis engine. |
 
 ---
 
@@ -581,4 +583,5 @@ The system is governed by a strict **Core-First** and **Privacy by Architecture*
 - Camera processing is 100% transient and client-side, immediately discarding raw frames.
 - Outgoing payloads are gated by `TransmissionGate.ts` enforcing `ProviderRegistry` validation and zero-PII transmission.
 - Audio playback is resilient offline via IndexedDB cache (`OfflineAudioCache`) and ServiceWorker stream cache (`sw.js`).
-- All tests pass (268 frontend, 143 backend), codebases are clean of lint/type errors, and visual polish is deliberately frozen until DSP spectral analysis is ready.
+- Acoustic playback fidelity and affective metadata are verified mathematically in real time via `AudioDspEngine.ts` (RMS, Centroid, Flatness, 7 Bands).
+- All tests pass (284 frontend, 143 backend), codebases are clean of lint/type errors, and visual polish is deliberately frozen until Phase 2.06.
