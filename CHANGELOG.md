@@ -4,6 +4,59 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.04.02.0 — 2026-09-20
+
+- **Type**: Functional Revision (Level DE)
+- **Status**: Verified
+
+### Core-First Directive — Minimal UI + Privacy System
+
+#### Removed (decorative, no functional value)
+- `AcousticSoundwaveCanvas.tsx` — 60 FPS canvas animation (pure cosmetic, no core function)
+- `CircumplexRadar.tsx` — decorative SVG with gradients, glow effects, emoji labels (concept preserved; component premature)
+- All emojis from JSX throughout `MusicMirrorCorePage.tsx`
+- All gradient backgrounds, glow `box-shadow` effects, and hover micro-animations from `index.css`
+- `brand-icon-wrapper` decorative icon and `brand-tagline` text
+- Emotion card visual bars (`bar-fill`/`bar-track`) and emoji fields
+- 950+ lines of "Acoustic Reflection" design system CSS
+
+#### Added — Centralized Privacy/Permission System
+- **`frontend/src/permissions/CapabilityRegistry.ts`**: Centralized device capability state machine. All device/browser permission access must go through this registry. States: `NOT_REQUESTED → REQUESTING → GRANTED/DENIED/BLOCKED/UNAVAILABLE/REVOKED/ERROR`. Methods: `requestCapability()`, `getState()`, `isGranted()`, `isAvailable()`, `markRevoked()`, `markError()`, `revokeGuidance()`, `subscribe()`, `watchExternalRevocation()`.
+- **`frontend/src/permissions/ConsentRecord.ts`**: Application-level consent recording using sessionStorage only. Records `purpose`, `decision`, `timestamp`, `policyVersion`. Auto-invalidates when policy version changes. Provides `withdrawConsent()`.
+- **`frontend/src/permissions/__tests__/capability.test.ts`**: 23 permission state machine tests covering all transitions, subscription behavior, listener error resilience, external revocation, and `revokeGuidance()` output.
+
+#### Changed — Camera (Privacy Compliance)
+- **`Camera.tsx`** fully rewritten. Camera is NOT auto-requested on mount.
+- Implements explicit consent gate: user must click "Enable Camera" after reading purpose disclosure (purpose, processing location, data retention, optional status).
+- Camera access request is triggered only through `CapabilityRegistry.requestCapability('CAMERA')`.
+- Consent is recorded via `ConsentRecord.recordConsent()` before triggering browser prompt.
+- All phase states rendered as plain text: `NOT_REQUESTED`, `LOADING_MODELS`, `REQUESTING`, `ACTIVE`, `DENIED`, `BLOCKED`, `UNAVAILABLE`, `ERROR`.
+- Removed: `lucide-react` icon imports, landmark canvas, lighting analysis, decorative overlays.
+- Stream stopped on disable or component unmount.
+
+#### Changed — MusicMirrorCorePage
+- All emojis removed from JSX.
+- `AcousticSoundwaveCanvas` and `CircumplexRadar` imports and usages removed.
+- Camera section now controlled by Show/Hide toggle — Camera component itself gates the browser prompt.
+- Emotion cards show: label, mode, BPM, valence/energy values (text only, no decorative bars).
+- Policy buttons show text labels only.
+- `TRUE_EMOTIONS` renamed to `EMOTIONS`; `emoji` and `accentColor` fields removed.
+
+#### Changed — index.css
+- Replaced 991-line "Acoustic Reflection" design system with 420-line minimal functional stylesheet.
+- CSS bundle: 20.7KB → 8.77KB (−57%).
+- Zero gradients, zero glow effects, zero animation keyframes.
+- All new class names prefixed `mm-` for clarity.
+
+### Tests
+- Frontend (Vitest): **167/167 PASSED** (+23 new capability tests)
+- Backend (pytest): **143/143 PASSED**
+- oxlint: 0 errors, 0 warnings
+- tsc -b --noEmit: exit 0
+- vite build: exit 0 (527ms)
+
+---
+
 ## 2.04.01.0 — 2026-09-19
 
 - **Type**: Functional Revision (Level DE)

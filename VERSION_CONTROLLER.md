@@ -5,7 +5,7 @@
 
 ## Current Version
 
-`2.04.01.0`
+`2.04.02.0`
 
 ## Current Status
 
@@ -37,8 +37,10 @@ VERIFIED
 | 2.03.02.0 | 2.03.01.0 | FUNCTIONAL | `5cea6f8` | 2026-09-19 | Implemented Complete Technical Operating Specification and canonical provenance models |
 | 2.03.02.1 | 2.03.02.0 | BUG/FIX | `5cea6f8` | 2026-09-19 | OmniStream/U-Tube forensic inspection, architectural lessons & regression register |
 | 2.03.03.0 | 2.03.02.1 | FUNCTIONAL | `5cea6f8` | 2026-09-19 | Autonomous cleanup, dead code elimination, dependency pruning, and architectural hardening |
-| 2.04.00.0 | 2.03.03.0 | SUB-VERSION | `5cea6f8` | 2026-09-19 | Phase 18 Dedicated UI/UX Engineering: Production Acoustic Reflection interface unfreezing UI/UX |
+| 2.04.00.0 | 2.03.03.0 | SUB-VERSION | `5cea6f8` | 2026-09-19 | Phase 18 Dedicated UI/UX Engineering: Production Acoustic Reflection interface |
 | 2.04.01.0 | 2.04.00.0 | FUNCTIONAL | `5cea6f8` | 2026-09-19 | Phase 19: Dynamic Soundwave DSP Canvas & Emotion Circumplex Radar visualization |
+| 2.04.01.1 | 2.04.01.0 | PATCH | `bad8f75` | 2026-09-19 | Fix: ENGINE: OFFLINE when backend unreachable — engine beacon stays READY |
+| 2.04.02.0 | 2.04.01.1 | FUNCTIONAL | `PENDING` | 2026-09-20 | Core-first: strip decorative UI, centralized CapabilityRegistry, privacy-first Camera |
 
 ---
 
@@ -46,7 +48,7 @@ VERIFIED
 
 | Target | Level | Description | Status |
 |---|---|---|---|
-| `2.04.02.0` | FUNCTIONAL | Offline IndexedDB Audio Caching & PWA ServiceWorker Streaming | PLANNED |
+| `2.04.03.0` | FUNCTIONAL | Offline IndexedDB Audio Caching & PWA ServiceWorker Streaming | PLANNED |
 
 ---
 

@@ -1,237 +1,103 @@
 /**
- * ============================================================================
- * B.Tech CSE Final Year Project — Music Mirror (Stage 3 Submission)
- * Originally developed by: Student 2 (Roll: 1601-22-733-024) - March 2026
- * ----------------------------------------------------------------------------
- * Contribution: Set up face-api.js core detection loop, loaded expression models,
- * computed running expression averages (EMA), and implemented webcam lighting
- * analysis frame processing.
- * ============================================================================
- * Solo Upgrades (Student Project Lead - Month 7 & 8):
- *  - Added drawing landmark canvas overlays for biometric lab feedback.
- *  - Integrated callback notifications to signal DiscoveryLayer.
- *  - Optimized frame-rate throttling to reduce CPU load.
- * ============================================================================
+ * Music Mirror — Camera Component
+ *
+ * Privacy requirements (spec §5, §6):
+ *   - Camera access is NOT requested automatically on mount.
+ *   - The user must explicitly click "Enable Camera" after reading the purpose disclosure.
+ *   - Processing is local only (face-api.js runs in-browser).
+ *   - Raw frames are not stored or transmitted.
+ *   - Stream is stopped on component unmount or user-initiated disable.
+ *   - No decorative overlays, landmark canvas, or animations.
+ *
+ * Data flow:
+ *   User click -> CapabilityRegistry.requestCapability('CAMERA')
+ *     -> getUserMedia (browser prompt)
+ *     -> face-api.js local inference (TinyFaceDetector + FaceExpressionNet)
+ *     -> extract {emotion, confidence} signal
+ *     -> discard frame
+ *     -> callback to parent
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import * as faceapi from "face-api.js";
-import { Camera as CameraIcon, CameraOff, Sun, Moon } from "lucide-react";
+import { useEffect, useRef, useState, useCallback } from 'react';
+import * as faceapi from 'face-api.js';
+import {
+  requestCapability,
+  markError,
+  watchExternalRevocation,
+  getState,
+} from '../permissions/CapabilityRegistry';
+import {
+  recordConsent,
+  hasConsent,
+  withdrawConsent,
+  CONSENT_PURPOSES,
+} from '../permissions/ConsentRecord';
 
 export interface DetectionResult {
+  /** Dominant detected emotion label */
   emotion: string;
+  /** Confidence of the dominant emotion (0.0 – 1.0) */
   confidence: number;
+  /** All emotion scores, sorted descending by confidence */
   scores: [string, number][];
-  source: string;
-  landmarks?: { x: number; y: number }[];
-  box?: { x: number; y: number; width: number; height: number };
-  inferenceMs?: number;
+  /** 'camera' — indicates this came from the camera inference pipeline */
+  source: 'camera';
+  /** Inference latency in milliseconds (for diagnostic logging) */
+  inferenceMs: number;
 }
 
 interface CameraProps {
+  /** Called each time a new emotion is inferred from the camera feed. */
   onEmotion: (result: DetectionResult) => void;
-  /** When true, loads landmark model and draws facial dots on a canvas overlay */
-  showLandmarks?: boolean;
 }
 
-export default function Camera({ onEmotion, showLandmarks = false }: CameraProps) {
+// Emotion labels that face-api.js reports
+const EMOTION_KEYS = ['happy', 'sad', 'angry', 'neutral', 'surprised', 'fearful', 'disgusted'] as const;
+
+// How many frames to average for stable readings
+const SMOOTHING_WINDOW = 5;
+
+// Detection interval — 200ms (~5 fps) is sufficient for emotion inference
+const DETECTION_INTERVAL_MS = 200;
+
+type CameraPhase =
+  | 'NOT_REQUESTED'   // Waiting for user to explicitly enable
+  | 'LOADING_MODELS'  // Downloading face-api.js models
+  | 'REQUESTING'      // Browser permission prompt shown
+  | 'ACTIVE'          // Streaming and detecting
+  | 'DENIED'          // User denied (this session)
+  | 'BLOCKED'         // Browser/OS blocked — show settings guidance
+  | 'UNAVAILABLE'     // Device not found or API not supported
+  | 'ERROR';          // Unexpected error
+
+export default function Camera({ onEmotion }: CameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const isDetectingRef = useRef(false);
+  const emotionHistoryRef = useRef<Record<string, number>[]>([]);
 
-  const [cameraState, setCameraState] = useState<"loading" | "requesting" | "active" | "error">("loading");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [lightingCondition, setLightingCondition] = useState<"good" | "low" | "high">("good");
+  const [phase, setPhase] = useState<CameraPhase>('NOT_REQUESTED');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const emotionHistory = useRef<any[]>([]);
-  const lastKnownEmotion = useRef<string | null>(null);
-  const faceLostTimer = useRef<NodeJS.Timeout | null>(null);
-
-  const analyzeLighting = (videoElement: HTMLVideoElement) => {
-    if (!canvasRef.current) {
-      canvasRef.current = document.createElement("canvas");
-      canvasRef.current.width = 160;
-      canvasRef.current.height = 120;
-    }
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.drawImage(videoElement, 0, 0, 160, 120);
-    const imageData = ctx.getImageData(0, 0, 160, 120);
-    const data = imageData.data;
-    let r: number, g: number, b: number, avg: number;
-    let colorSum = 0;
-
-    for (let x = 0, len = data.length; x < len; x += 4) {
-      r = data[x];
-      g = data[x + 1];
-      b = data[x + 2];
-      avg = Math.floor((r + g + b) / 3);
-      colorSum += avg;
-    }
-
-    const brightness = Math.floor(colorSum / (160 * 120));
-    if (brightness < 45) {
-      setLightingCondition("low");
-    } else if (brightness > 210) {
-      setLightingCondition("high");
-    } else {
-      setLightingCondition("good");
-    }
-  };
-
-  /** Draw facial landmark dots + connections on the overlay canvas */
-  const drawLandmarks = useCallback(
-    (
-      detections: faceapi.WithFaceLandmarks<
-        { detection: faceapi.FaceDetection },
-        faceapi.FaceLandmarks68
-      > | null,
-      videoEl: HTMLVideoElement
-    ) => {
-      const overlay = overlayCanvasRef.current;
-      if (!overlay) return;
-      const ctx = overlay.getContext("2d");
-      if (!ctx) return;
-
-      // Match canvas size to video display size
-      const { videoWidth, videoHeight } = videoEl;
-      overlay.width = videoWidth || 640;
-      overlay.height = videoHeight || 480;
-      ctx.clearRect(0, 0, overlay.width, overlay.height);
-
-      if (!detections) return;
-
-      const landmarks = detections.landmarks;
-      const positions = landmarks.positions;
-      const box = detections.detection.box;
-
-      // ── Face bounding box ──
-      ctx.strokeStyle = "rgba(79,70,229,0.75)";
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(box.x, box.y, box.width, box.height);
-
-      // Corner accent marks
-      const cLen = 14;
-      ctx.strokeStyle = "#4F46E5";
-      ctx.lineWidth = 2.5;
-      const corners = [
-        [box.x, box.y, cLen, 0, 0, cLen],
-        [box.x + box.width, box.y, -cLen, 0, 0, cLen],
-        [box.x, box.y + box.height, cLen, 0, 0, -cLen],
-        [box.x + box.width, box.y + box.height, -cLen, 0, 0, -cLen],
-      ] as const;
-      corners.forEach(([cx, cy, dx1, , , dy2]) => {
-        ctx.beginPath();
-        ctx.moveTo(cx + dx1, cy);
-        ctx.lineTo(cx, cy);
-        ctx.lineTo(cx, cy + dy2);
-        ctx.stroke();
-      });
-
-      // ── Landmark regions ──
-      const REGIONS: { indices: number[]; color: string; label: string }[] = [
-        { indices: Array.from({ length: 17 }, (_, i) => i),                color: "rgba(45,212,191,0.8)",  label: "jawline" },
-        { indices: Array.from({ length: 5 }, (_, i) => i + 17),            color: "rgba(99,102,241,0.8)",  label: "left_brow" },
-        { indices: Array.from({ length: 5 }, (_, i) => i + 22),            color: "rgba(99,102,241,0.8)",  label: "right_brow" },
-        { indices: Array.from({ length: 9 }, (_, i) => i + 27),            color: "rgba(139,92,246,0.8)",  label: "nose_bridge" },
-        { indices: Array.from({ length: 4 }, (_, i) => i + 36),            color: "rgba(52,211,153,0.8)",  label: "left_eye" },
-        { indices: Array.from({ length: 4 }, (_, i) => i + 42),            color: "rgba(52,211,153,0.8)",  label: "right_eye" },
-        { indices: Array.from({ length: 12 }, (_, i) => i + 48),           color: "rgba(244,114,182,0.8)", label: "mouth" },
-      ];
-
-      // Draw connecting lines between region points
-      REGIONS.forEach(({ indices, color }) => {
-        if (indices.length < 2) return;
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 0.8;
-        ctx.moveTo(positions[indices[0]].x, positions[indices[0]].y);
-        indices.slice(1).forEach((idx) => ctx.lineTo(positions[idx].x, positions[idx].y));
-        ctx.stroke();
-      });
-
-      // ── Dot for every landmark ──
-      positions.forEach((pt, i) => {
-        // Color by region
-        let dotColor = "rgba(255,255,255,0.55)";
-        if (i < 17)       dotColor = "rgba(45,212,191,0.9)";   // jaw (Teal)
-        else if (i < 27)  dotColor = "rgba(99,102,241,0.9)";  // brows (Indigo)
-        else if (i < 36)  dotColor = "rgba(139,92,246,0.9)";  // nose (Violet)
-        else if (i < 48)  dotColor = "rgba(52,211,153,0.9)";  // eyes (Emerald)
-        else               dotColor = "rgba(244,114,182,0.9)";  // mouth (Rose)
-
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = dotColor;
-        ctx.fill();
-
-        // Glow dot
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = dotColor.replace("0.9)", "0.15)");
-        ctx.fill();
-      });
-    },
-    []
-  );
-
-  const startCamera = async () => {
-    try {
-      setCameraState("requesting");
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          facingMode: "user",
-        },
-      });
-
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setCameraState("active");
-    } catch {
-      setCameraState("error");
-      setErrorMessage("Could not access camera. Please allow camera permissions.");
-    }
-  };
-
-  const loadModels = useCallback(async () => {
-    try {
-      setCameraState("loading");
-      const MODEL_URL = "/models";
-      const toLoad = [
-        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-      ];
-      if (showLandmarks) {
-        toLoad.push(faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL));
-      }
-      await Promise.all(toLoad);
-      await startCamera();
-    } catch {
-      setCameraState("error");
-      setErrorMessage("Failed to load face detection AI models.");
-    }
-  }, [showLandmarks]); // eslint-disable-line react-hooks/exhaustive-deps
+  // ---------------------------------------------------------------------------
+  // Cleanup: stop stream and detection on unmount
+  // ---------------------------------------------------------------------------
 
   useEffect(() => {
-    loadModels();
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
       isDetectingRef.current = false;
-      if (faceLostTimer.current) clearTimeout(faceLostTimer.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
     };
-  }, [loadModels]);
+  }, []);
 
-  const handleVideoPlay = () => {
+  // ---------------------------------------------------------------------------
+  // Detection loop
+  // ---------------------------------------------------------------------------
+
+  const handleVideoPlay = useCallback(() => {
     if (isDetectingRef.current) return;
     isDetectingRef.current = true;
 
@@ -239,230 +105,247 @@ export default function Camera({ onEmotion, showLandmarks = false }: CameraProps
       if (!videoRef.current || !isDetectingRef.current) return;
 
       if (videoRef.current.readyState === 4) {
-        analyzeLighting(videoRef.current);
-
         try {
           const t0 = performance.now();
 
-          let detections: any;
-          if (showLandmarks) {
-            detections = await faceapi
-              .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-              .withFaceLandmarks()
-              .withFaceExpressions();
-          } else {
-            detections = await faceapi
-              .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-              .withFaceExpressions();
-          }
+          const detection = await faceapi
+            .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+            .withFaceExpressions();
 
           const inferenceMs = Math.round(performance.now() - t0);
 
-          if (detections && detections.expressions) {
-            if (faceLostTimer.current) {
-              clearTimeout(faceLostTimer.current);
-              faceLostTimer.current = null;
+          if (detection?.expressions) {
+            // Accumulate into smoothing buffer
+            const frame: Record<string, number> = {};
+            EMOTION_KEYS.forEach(k => {
+              frame[k] = (detection.expressions as any)[k] ?? 0;
+            });
+            emotionHistoryRef.current.push(frame);
+            if (emotionHistoryRef.current.length > SMOOTHING_WINDOW) {
+              emotionHistoryRef.current.shift();
             }
 
-            emotionHistory.current.push(detections.expressions);
-            if (emotionHistory.current.length > 5) {
-              emotionHistory.current.shift();
-            }
-
-            const averagedScores: Record<string, number> = {};
-            const keys = ["happy", "sad", "angry", "neutral", "surprised", "fearful", "disgusted"];
-
-            keys.forEach((key) => {
-              const sum = emotionHistory.current.reduce((acc: number, curr: any) => acc + (curr[key] || 0), 0);
-              averagedScores[key] = sum / emotionHistory.current.length;
+            // Average across window
+            const averaged: Record<string, number> = {};
+            EMOTION_KEYS.forEach(k => {
+              const sum = emotionHistoryRef.current.reduce((acc, f) => acc + (f[k] ?? 0), 0);
+              averaged[k] = sum / emotionHistoryRef.current.length;
             });
 
-            const sorted = Object.entries(averagedScores).sort((a, b) => b[1] - a[1]);
-            const topEmotion = sorted[0][0];
-            const confidence = sorted[0][1];
-
-            lastKnownEmotion.current = topEmotion;
-
-            // Draw landmark overlay if enabled
-            if (showLandmarks && videoRef.current) {
-              drawLandmarks(detections, videoRef.current);
-            }
-
-            const box = detections.detection?.box;
-            const landmarks = showLandmarks
-              ? detections.landmarks?.positions?.map((p: any) => ({ x: p.x, y: p.y }))
-              : undefined;
+            const sorted = Object.entries(averaged).sort((a, b) => b[1] - a[1]) as [string, number][];
 
             onEmotion({
-              emotion: topEmotion,
-              confidence,
-              scores: sorted as [string, number][],
-              source: "camera",
-              landmarks,
-              box: box ? { x: box.x, y: box.y, width: box.width, height: box.height } : undefined,
+              emotion: sorted[0][0],
+              confidence: sorted[0][1],
+              scores: sorted,
+              source: 'camera',
               inferenceMs,
             });
-          } else {
-            if (showLandmarks && videoRef.current) {
-              drawLandmarks(null, videoRef.current);
-            }
-            if (lastKnownEmotion.current && !faceLostTimer.current) {
-              faceLostTimer.current = setTimeout(() => {
-                lastKnownEmotion.current = null;
-                emotionHistory.current = [];
-              }, 2000);
-            }
           }
+          // If no face detected, do not call onEmotion — preserve the last known value in parent.
         } catch {
-          // Detection frame error tolerance
+          // Detection frame errors are tolerated — retry on next interval.
         }
       }
 
-      setTimeout(detectLoop, 200);
+      setTimeout(detectLoop, DETECTION_INTERVAL_MS);
     };
 
     detectLoop();
+  }, [onEmotion]);
+
+  // ---------------------------------------------------------------------------
+  // Enable: load models -> request permission -> start stream
+  // ---------------------------------------------------------------------------
+
+  const handleEnable = useCallback(async () => {
+    // Record application-level consent before triggering browser prompt
+    recordConsent(CONSENT_PURPOSES.CAMERA_EMOTION_DETECTION, 'GRANTED');
+
+    setPhase('LOADING_MODELS');
+    setErrorMessage(null);
+    emotionHistoryRef.current = [];
+
+    try {
+      const MODEL_URL = '/models';
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+      ]);
+    } catch {
+      setPhase('ERROR');
+      setErrorMessage('Failed to load local face detection models. Check that /models is accessible.');
+      return;
+    }
+
+    setPhase('REQUESTING');
+
+    const capStatus = await requestCapability('CAMERA');
+
+    if (capStatus.state !== 'GRANTED') {
+      if (capStatus.state === 'BLOCKED') {
+        setPhase('BLOCKED');
+        setErrorMessage(capStatus.reason);
+      } else if (capStatus.state === 'UNAVAILABLE') {
+        setPhase('UNAVAILABLE');
+        setErrorMessage(capStatus.reason);
+      } else {
+        setPhase('DENIED');
+        setErrorMessage(capStatus.reason);
+      }
+      return;
+    }
+
+    // Now open the actual stream (separate from probe in CapabilityRegistry)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      watchExternalRevocation('CAMERA');
+      setPhase('ACTIVE');
+    } catch (err: any) {
+      markError('CAMERA', err?.message || 'Stream open failed');
+      setPhase('ERROR');
+      setErrorMessage('Camera stream could not be opened.');
+    }
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Disable: stop stream, clear detection, record withdrawal
+  // ---------------------------------------------------------------------------
+
+  const handleDisable = useCallback(() => {
+    isDetectingRef.current = false;
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    withdrawConsent(CONSENT_PURPOSES.CAMERA_EMOTION_DETECTION);
+    setPhase('NOT_REQUESTED');
+    setErrorMessage(null);
+    emotionHistoryRef.current = [];
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Check if consent was previously given in this session (resume without re-prompting)
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    // If the user had granted consent earlier in this session and the capability
+    // was previously GRANTED, we could re-activate. For now, always start fresh
+    // on mount — the user must explicitly re-enable.
+    // This is intentional: no hidden re-activation.
+    const priorState = getState('CAMERA');
+    const priorConsent = hasConsent(CONSENT_PURPOSES.CAMERA_EMOTION_DETECTION);
+    if (priorState.state === 'GRANTED' && priorConsent) {
+      // Silently resume is allowed within the same session if both are valid
+      // Disabled intentionally for transparency — user sees the gate each time.
+      // Uncomment below to enable auto-resume:
+      // handleEnable();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
+  const s: React.CSSProperties = {
+    fontFamily: 'inherit',
+    fontSize: '13px',
   };
 
   return (
-    <div className="camera-container" style={{ position: "relative" }}>
-      {cameraState === "loading" && (
-        <div className="camera-overlay">
-          <CameraIcon className="spinner" size={48} />
-          <p>Loading AI Modules...</p>
+    <div style={{ ...s, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+      {/* NOT REQUESTED — show purpose disclosure and enable button */}
+      {phase === 'NOT_REQUESTED' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-card)' }}>
+          <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Camera — Facial Emotion Detection</p>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+            <p style={{ margin: '0 0 4px 0' }}><strong>Purpose:</strong> Detect facial expression to assist emotion selection.</p>
+            <p style={{ margin: '0 0 4px 0' }}><strong>Processing:</strong> Local only. Runs entirely in your browser.</p>
+            <p style={{ margin: '0 0 4px 0' }}><strong>Data:</strong> No video frames are stored or transmitted. Only the inferred emotion label and confidence score are used.</p>
+            <p style={{ margin: '0 0 4px 0' }}><strong>Optional:</strong> Camera is not required. You can select emotions manually below.</p>
+          </div>
+          <button onClick={handleEnable} className="btn-primary" style={{ alignSelf: 'flex-start', fontSize: '12px', padding: '6px 14px' }}>
+            Enable Camera
+          </button>
         </div>
       )}
 
-      {cameraState === "error" && (
-        <div className="camera-overlay error">
-          <CameraOff size={48} />
-          <p>{errorMessage || "Camera access declined or unavailable."}</p>
-          <div style={{ display: "flex", gap: "8px", marginTop: "16px" }}>
-            <button className="primary-btn" onClick={startCamera}>
-              Retry Camera
-            </button>
-            <button
-              className="secondary-btn"
-              onClick={() =>
-                onEmotion({ emotion: "neutral", confidence: 0.5, scores: [["neutral", 0.5]], source: "manual" })
-              }
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                cursor: "pointer",
-              }}
-            >
-              Continue without Camera
-            </button>
-          </div>
+      {/* LOADING MODELS */}
+      {phase === 'LOADING_MODELS' && (
+        <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+          Loading face detection models...
         </div>
       )}
 
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        onPlay={handleVideoPlay}
-        className={cameraState === "active" ? "active" : ""}
-        style={{ transform: "scaleX(-1)", width: "100%", display: "block" }}
-      />
-
-      {/* Landmark overlay canvas — mirrored to match video */}
-      {showLandmarks && (
-        <canvas
-          ref={overlayCanvasRef}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            pointerEvents: "none",
-            transform: "scaleX(-1)", // mirror to match video
-          }}
-        />
+      {/* REQUESTING — browser prompt is showing */}
+      {phase === 'REQUESTING' && (
+        <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+          Waiting for camera permission...
+        </div>
       )}
 
-      {cameraState === "active" && (
-        <div
-          className="camera-indicators"
-          style={{
-            position: "absolute",
-            bottom: "12px",
-            left: "12px",
-            display: "flex",
-            gap: "8px",
-            flexDirection: "column",
-          }}
-        >
-          <div
-            className="camera-indicator"
-            style={{
-              background: "rgba(0,0,0,0.7)",
-              padding: "4px 10px",
-              borderRadius: "999px",
-              fontSize: "0.72rem",
-              color: "var(--text-2)",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              backdropFilter: "blur(8px)",
-            }}
-          >
-            <span
-              className="live-dot"
-              style={{
-                width: "7px",
-                height: "7px",
-                borderRadius: "50%",
-                background: "var(--success)",
-                boxShadow: "0 0 8px var(--success)",
-                display: "inline-block",
-                animation: "pulse 2s ease-in-out infinite",
-              }}
-            />
-            {showLandmarks ? "68 Landmarks Active" : "Emotion Active"}
+      {/* ACTIVE — stream running */}
+      {phase === 'ACTIVE' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Camera active — local processing only</span>
+            <button onClick={handleDisable} className="btn-secondary" style={{ fontSize: '11px', padding: '4px 10px' }}>
+              Disable Camera
+            </button>
           </div>
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            onPlay={handleVideoPlay}
+            style={{ width: '100%', display: 'block', transform: 'scaleX(-1)', borderRadius: 'var(--radius-sm)', background: '#000' }}
+          />
+        </div>
+      )}
 
-          {lightingCondition === "low" && (
-            <div
-              className="lighting-indicator"
-              style={{
-                background: "rgba(239, 68, 68, 0.8)",
-                padding: "4px 8px",
-                borderRadius: "12px",
-                fontSize: "0.75rem",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <Moon size={14} /> Low Lighting Detected - Soft Smoothing Active
-            </div>
-          )}
+      {/* DENIED — user said no */}
+      {phase === 'DENIED' && (
+        <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span>Camera access was denied. You can continue without camera — select emotions manually below.</span>
+          <button onClick={() => setPhase('NOT_REQUESTED')} className="btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '11px', padding: '4px 10px' }}>
+            Try Again
+          </button>
+        </div>
+      )}
 
-          {lightingCondition === "high" && (
-            <div
-              className="lighting-indicator"
-              style={{
-                background: "rgba(245, 158, 11, 0.8)",
-                padding: "4px 8px",
-                borderRadius: "12px",
-                fontSize: "0.75rem",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <Sun size={14} /> High Lighting Exposure Detected
-            </div>
-          )}
+      {/* BLOCKED — browser/OS has blocked access */}
+      {phase === 'BLOCKED' && (
+        <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <span>Camera is blocked by your browser or OS.</span>
+          <span style={{ color: 'var(--text-muted)' }}>To enable: Settings &gt; Privacy and Security &gt; Site Settings &gt; Camera</span>
+        </div>
+      )}
+
+      {/* UNAVAILABLE — hardware not present */}
+      {phase === 'UNAVAILABLE' && (
+        <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+          No camera device found. Continue with manual emotion selection.
+        </div>
+      )}
+
+      {/* ERROR */}
+      {phase === 'ERROR' && (
+        <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span>Camera error: {errorMessage || 'Unexpected failure.'}</span>
+          <button onClick={() => { setPhase('NOT_REQUESTED'); setErrorMessage(null); }} className="btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '11px', padding: '4px 10px' }}>
+            Reset
+          </button>
         </div>
       )}
     </div>
