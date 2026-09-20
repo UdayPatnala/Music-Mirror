@@ -11,6 +11,7 @@ import type {
 import Camera from '../components/Camera';
 import type { DetectionResult } from '../components/Camera';
 import { getDiscoveryCacheStats, clearDiscoveryCache } from '../services/YouTubeDiscoveryService';
+import { serviceWorkerManager } from '../services/ServiceWorkerManager';
 import { appConfig } from '../config/appConfig';
 
 /* ─── Emotion Taxonomy ───────────────────────────────────────────────────── */
@@ -608,6 +609,7 @@ export default function MusicMirrorCorePage() {
               <button onClick={runLatencyBenchmark} className="btn-sm">Benchmark Latency</button>
               <button onClick={() => { clearDiscoveryCache(); addLog('Cache purged', 'info'); }} className="btn-sm">Purge Cache</button>
               <button onClick={async () => { await musicMirrorCore.clearOfflineCache(); addLog('Offline DB cache purged', 'info'); }} className="btn-sm">Purge Offline DB</button>
+              <button onClick={async () => { await serviceWorkerManager.purgeAudioStreamCache(); addLog('SW Audio Stream cache purged', 'info'); }} className="btn-sm">Purge SW Cache</button>
               <button onClick={() => { musicMirrorCore.resetState(); addLog('Core engine reset', 'warn'); }} className="btn-sm btn-sm-danger">Reset Engine</button>
             </div>
 

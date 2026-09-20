@@ -4,6 +4,47 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.04.04.0 — 2026-09-20
+
+- **Type**: Functional Revision (Level DE)
+- **Status**: Verified
+
+### PWA ServiceWorker Audio Stream Caching & TransmissionGate Privacy Enforcement
+
+#### Added
+- **`sw.js` (PWA Service Worker)**: Dual-tier caching service worker for offline shell (`mm-static-v2.04.04.0`) and dedicated audio stream cache (`mm-audio-stream-v1`).
+  - Cache-first with bounded capacity (60 tracks) for audio chunks/streams (`.mp3`, `.m4a`, `.wav`, Jamendo streams).
+  - Stale-while-revalidate for application assets (JS, CSS, SVGs).
+  - PostMessage diagnostic protocol for `PURGE_AUDIO_CACHE` and `GET_CACHE_STATS`.
+- **`ServiceWorkerManager.ts`**: Centralized service worker lifecycle coordinator.
+  - Exposes `register()`, `unregister()`, `getStatus()`, `purgeAudioStreamCache()`, `getCacheStats()`.
+  - Node/JSDOM environment resilient with direct `caches` fallback.
+- **`TransmissionGate.ts` (Spec §15 Data Transmission Gate)**:
+  - Strict destination verification against `ProviderRegistry.ts`.
+  - Permanent architectural block and rejection of `DataClass.SENSITIVE_CONTEXT` (camera raw frames, biometric landmarks, raw PCM audio).
+  - Consent enforcement for `PERSONAL_DATA` and `USER_DATA` via `ConsentRecord.ts`.
+  - Unregistered fields blocked by default as unreviewed security risks.
+  - Zero-PII structured audit log tracking field names and metrics only.
+  - Helper functions: `evaluateTransmission()`, `assertCanTransmit()`, `sanitizeTransmissionPayload()`, `transmitSafely()`.
+- **Test Suites**:
+  - `transmission_gate.test.ts`: 13 comprehensive unit tests validating provider authorization, biometric blocking, consent gating, revocation, sanitization, and zero-PII logging.
+  - `service_worker_manager.test.ts`: 8 unit tests validating singleton lifecycle, registration, unsupported fallbacks, cache purging, and metrics calculation.
+
+#### Enhanced
+- **`index.html`**: Linked `/manifest.json` for full PWA installability and ServiceWorker scope resolution.
+- **`main.tsx`**: Automatic ServiceWorker background registration on startup.
+- **`MusicMirrorCorePage.tsx`**: Added "Purge SW Cache" control button to diagnostics drawer alongside IndexedDB purge.
+- **`CapabilityRegistry.ts` & `ConsentRecord.ts`**: Synchronized `CURRENT_POLICY_VERSION` to `2.04.04.0`.
+
+### Verification
+- Frontend (Vitest): **268/268 PASSED** across 17 test files (+21 new tests)
+- Backend (pytest): **143/143 PASSED** across 20 test files
+- Oxlint: 0 errors, 0 warnings (58 files)
+- TypeScript (tsc -b --noEmit): Clean / Exit 0
+- Vite Build: Exit 0 (651ms), CSS 8.77KB (<10KB budget)
+
+---
+
 ## 2.04.03.0 — 2026-09-20
 
 - **Type**: Functional Revision (Level DE)

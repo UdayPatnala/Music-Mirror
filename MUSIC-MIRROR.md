@@ -1,7 +1,7 @@
 # MUSIC MIRROR — PROJECT MASTER SPECIFICATION & KNOWLEDGE BASE
 
 > **AUTHORITATIVE LIVING SYSTEM RECORD**  
-> Current Authoritative Version: `2.04.03.0`  
+> Current Authoritative Version: `2.04.04.0`  
 > System Classification: Headless Music Intelligence & Affective Playback Orchestration Engine  
 > Architecture Governance: `A.BC.DE.F` (Universal Version Control & Change Governance System)  
 > Operational Priority: **Core First — Useful Data Only — Privacy by Architecture**
@@ -13,8 +13,8 @@
 - **Project Title**: Music Mirror
 - **Short Identifier**: MM
 - **Project Type**: Decoupled Music Intelligence, Context-Aware Discovery, Metadata Normalization, and Playback Orchestration System.
-- **Current Status**: `VERIFIED & HARDENED` (Headless Core, Offline Caching & Privacy-First Architecture Operational).
-- **Current Authoritative Version**: `2.04.03.0`
+- **Current Status**: `VERIFIED & HARDENED` (Headless Core, Offline Caching, ServiceWorker & Transmission Gate Operational).
+- **Current Authoritative Version**: `2.04.04.0`
 - **Primary Repositories & Roots**:
   - Root: `d:\PROJECT\Btech\Music Mirror`
   - GitHub Remote: `https://github.com/UdayPatnala/Music-Mirror.git` (`origin/main`)
@@ -494,13 +494,15 @@ export interface TrackSource {
 
 ---
 
-## 21. Current State (`v2.04.03.0`)
+## 21. Current State (`v2.04.04.0`)
 
 - **Frontend**: Clean, functional, emoji-free control surface (`MusicMirrorCorePage.tsx`) linked to headless `MusicMirrorCore`. Lean `index.css` (420 lines).
 - **Offline Audio Cache**: Client-side IndexedDB cache (`OfflineAudioCache.ts`) with LRU capacity management, search fallback, and zero-PII data classification.
-- **Permissions**: Centralized `CapabilityRegistry`, `ConsentRecord`, `DataClassifier`, and `ProviderRegistry` fully operational and verified by 92 unit tests.
+- **PWA Service Worker & Stream Caching**: Dual-tier ServiceWorker (`sw.js` & `ServiceWorkerManager.ts`) caching app shell and dedicated audio stream cache (`mm-audio-stream-v1`).
+- **Data Transmission Gate**: Runtime enforcement (`TransmissionGate.ts`, Spec §15) blocking unapproved destinations, barring `SENSITIVE_CONTEXT` transmission, and requiring consent for `PERSONAL_DATA`/`USER_DATA`.
+- **Permissions**: Centralized `CapabilityRegistry`, `ConsentRecord`, `DataClassifier`, and `ProviderRegistry` fully operational and verified by 113 unit tests.
 - **Backend**: FastAPI server providing catalog search, weighted ranking, and recommendation endpoints over a 200-song SQLite database.
-- **Quality**: 247 frontend tests across 15 suites and 143 backend tests passing (100% green). Oxlint and TypeScript clean.
+- **Quality**: 268 frontend tests across 17 suites and 143 backend tests passing (100% green). Oxlint and TypeScript clean.
 
 ---
 
@@ -514,7 +516,6 @@ export interface TrackSource {
 
 ## 23. Missing & Incomplete Areas
 
-- **ServiceWorker Audio Stream Caching**: PWA ServiceWorker stream caching for background audio buffering during transient network drops.
 - **Microphone Acoustic Ingress**: Voice-based affective inference is defined in the taxonomy but not yet connected to client media streams.
 - **Cross-Browser Permissions API Discrepancies**: Firefox and Safari exhibit partial support for `navigator.permissions.query({ name: 'camera' })`. Handled via safe try-catch fallbacks.
 
@@ -526,8 +527,7 @@ export interface TrackSource {
 - *All P0 architectural, privacy, correctness, and stability tasks are currently satisfied.*
 
 ### Priority 1 (Important)
-- Implement PWA ServiceWorker audio stream caching for uninterrupted offline playback.
-- Finalize automated end-to-end integration tests for the new `DataClassifier` transmission gates.
+- *All P1 offline caching and data transmission gate tasks are currently satisfied.*
 
 ### Priority 2 (Enhancement)
 - Expand the seed database from 200 to 1,000 canonical songs across diverse global genres.
@@ -537,7 +537,7 @@ export interface TrackSource {
 
 ## 25. Future Roadmap
 
-1. **`v2.04.03.0` (FUNCTIONAL)**: Offline IndexedDB Audio Caching & Client-Side Media Cache Engine (`VERIFIED & COMPLETED`).
+1. **`v2.04.04.0` (FUNCTIONAL)**: PWA ServiceWorker Audio Stream Caching & TransmissionGate Privacy Enforcement (`VERIFIED & COMPLETED`).
 2. **`v2.05.00.0` (SUB-VERSION)**: Acoustic Audio DSP & Real-Time FFT Spectral Analysis.
 3. **`v2.06.00.0` (SUB-VERSION)**: Production UX/UI Makeup Phase (Restoring visual polish strictly on top of verified core).
 4. **`v3.00.00.0` (MAJOR)**: Distributed Multi-Room Synchronized Audio Mesh.
@@ -549,6 +549,7 @@ export interface TrackSource {
 - **OmniStream / U-Tube Forensic Audit**: In earlier iterations of related software, heavy audio processing on the UI thread caused significant browser freezes, while persistent storage without version tags corrupted cross-session state. Music Mirror isolates all processing, keeps UI strictly reactive, and enforces explicit cache TTLs.
 - **False Alarm Engine Offline State**: A health check failure in the backend previously marked the whole engine offline, confusing users. Decoupling client-side headless readiness from API availability resolved this.
 - **Permission Prompt Concurrency**: Rapid, concurrent feature activation can trigger duplicate browser permission prompts. In-flight promise sharing (`SingleFlight`) completely eliminates this race condition.
+- **Architectural Privacy Gates**: Relying purely on documentation or developer convention to avoid leaking sensor/biometric data is insufficient. A formal `TransmissionGate` that blocks payload transmission at runtime before serialization guarantees compliance.
 
 ---
 
@@ -564,9 +565,10 @@ export interface TrackSource {
 | `2.04.00.0` | SUB-VERSION | `5cea6f8` | 2026-09-19 | Acoustic Reflection interface and design system. |
 | `2.04.01.0` | FUNCTIONAL | `5cea6f8` | 2026-09-19 | Soundwave DSP Canvas and Emotion Circumplex Radar visualization. |
 | `2.04.01.1` | PATCH | `bad8f75` | 2026-09-19 | Fixed false-positive engine offline status when backend is unreachable. |
-| `2.04.02.0` | FUNCTIONAL | `b10f86f` | 2026-09-20 | Minimal core visual strip, centralized CapabilityRegistry, privacy-first Camera. |
+| `2.04.02.0` | FUNCTIONAL | `b10f86f` | 2026-09-20 | Core-first: strip decorative UI, centralized CapabilityRegistry, privacy-first Camera. |
 | `2.04.02.1` | PATCH | `bbe4035` | 2026-09-20 | Complete Privacy & Consent architecture: ProviderRegistry, DataClassifier, and in-flight deduplication. |
 | `2.04.03.0` | FUNCTIONAL | `6236db7` | 2026-09-20 | Offline IndexedDB Audio Caching, LRU eviction, memory fallback & core search integration. |
+| `2.04.04.0` | FUNCTIONAL | PENDING | 2026-09-20 | PWA ServiceWorker audio stream caching, TransmissionGate Spec §15 enforcement. |
 
 ---
 
@@ -577,5 +579,6 @@ Music Mirror is a fully functional, headless music intelligence and playback orc
 The system is governed by a strict **Core-First** and **Privacy by Architecture** doctrine:
 - All device access routes through a centralized `CapabilityRegistry` with explicit consent disclosures.
 - Camera processing is 100% transient and client-side, immediately discarding raw frames.
-- Observability logs contain zero PII, and all external providers are bound to an audited `ProviderRegistry`.
-- All tests pass (236 frontend, 143 backend), codebases are clean of lint/type errors, and visual polish is deliberately frozen until offline caching milestones are complete.
+- Outgoing payloads are gated by `TransmissionGate.ts` enforcing `ProviderRegistry` validation and zero-PII transmission.
+- Audio playback is resilient offline via IndexedDB cache (`OfflineAudioCache`) and ServiceWorker stream cache (`sw.js`).
+- All tests pass (268 frontend, 143 backend), codebases are clean of lint/type errors, and visual polish is deliberately frozen until DSP spectral analysis is ready.
