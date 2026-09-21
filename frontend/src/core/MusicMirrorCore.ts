@@ -19,6 +19,7 @@ import { offlineAudioCache } from '../services/OfflineAudioCache';
 import type { CacheStats } from '../services/OfflineAudioCache';
 import { audioDspEngine } from '../services/AudioDspEngine';
 import type { AcousticFeatures, AcousticValidationResult } from '../services/AudioDspEngine';
+import { youtubePlaybackAdapter } from '../services/YouTubePlaybackAdapter';
 
 export type PlaybackStateListener = (state: PlaybackState) => void;
 export type QueueListener = (queue: QueueState) => void;
@@ -207,15 +208,24 @@ export class MusicMirrorCore {
     try {
       // First attempt real YouTube discovery from backend
       result = await apiClient.searchYouTubeVideos(cleanQuery, limit);
+      result.discoverySource = result.isCached ? 'CACHED_PROVIDER_RESULT' : 'LIVE_PROVIDER_RESULT';
+      result.tracks.forEach(t => {
+        t.discoverySource = result.discoverySource;
+      });
     } catch {
       // Fallback: search local database catalog
       try {
         const catalogResults = await apiClient.searchCatalog({ query: cleanQuery, limit });
+        const catalogTracks = catalogResults.items.map(t => ({
+          ...t,
+          discoverySource: 'LOCAL_CATALOG_RESULT' as const,
+        }));
         result = {
           query: cleanQuery,
           normalizedQuery: cleanQuery.toLowerCase(),
           isCached: false,
-          tracks: catalogResults.items,
+          discoverySource: 'LOCAL_CATALOG_RESULT',
+          tracks: catalogTracks,
           totalResults: catalogResults.total,
           latencyMs: 10,
         };
@@ -223,21 +233,30 @@ export class MusicMirrorCore {
         // Second fallback: search persistent client-side OfflineAudioCache
         const offlineTracks = await offlineAudioCache.searchTracks(cleanQuery);
         if (offlineTracks.length > 0) {
+          const taggedOffline = offlineTracks.slice(0, limit).map(t => ({
+            ...t,
+            discoverySource: 'OFFLINE_RESULT' as const,
+          }));
           result = {
             query: cleanQuery,
             normalizedQuery: cleanQuery.toLowerCase(),
             isCached: true,
-            tracks: offlineTracks.slice(0, limit),
+            discoverySource: 'OFFLINE_RESULT',
+            tracks: taggedOffline,
             totalResults: offlineTracks.length,
             latencyMs: 1,
           };
         } else {
           // Third fallback: Built-in resilient offline fallback catalog
-          const fallbackTracks = this.getBuiltInFallbackTracks(cleanQuery, limit);
+          const fallbackTracks = this.getBuiltInFallbackTracks(cleanQuery, limit).map(t => ({
+            ...t,
+            discoverySource: 'OFFLINE_RESULT' as const,
+          }));
           result = {
             query: cleanQuery,
             normalizedQuery: cleanQuery.toLowerCase(),
             isCached: true,
+            discoverySource: 'OFFLINE_RESULT',
             tracks: fallbackTracks,
             totalResults: fallbackTracks.length,
             latencyMs: 1,
@@ -539,13 +558,12 @@ export class MusicMirrorCore {
         if (this.htmlAudio) {
           this.htmlAudio.pause();
         }
-        // Play via YouTube embed
+        // Play via YouTube playback adapter
         if (typeof document !== 'undefined') {
           const containerId = this.mountElementId || 'youtube-player-container';
           const container = document.getElementById(containerId);
           if (container) {
-            const embedUrl = `https://www.youtube-nocookie.com/embed/${source.sourceId}?autoplay=1&enablejsapi=1`;
-            container.innerHTML = `<iframe id="mm-yt-iframe" src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%; min-height:240px; border:none; border-radius:8px;"></iframe>`;
+            youtubePlaybackAdapter.mount(container, source.sourceId);
           }
         }
         this.startSimulatedPlayback(token, activeTrack.metadata.durationSeconds || 180);
@@ -555,7 +573,7 @@ export class MusicMirrorCore {
           const containerId = this.mountElementId || 'youtube-player-container';
           const container = document.getElementById(containerId);
           if (container) {
-            container.innerHTML = '';
+            youtubePlaybackAdapter.unmount(container);
           }
         }
         // Play via HTML5 Audio with audible procedural fallback synthesis
@@ -596,12 +614,7 @@ export class MusicMirrorCore {
     if (this.htmlAudio) {
       this.htmlAudio.pause();
     }
-    if (typeof document !== 'undefined') {
-      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
-      if (iframe?.contentWindow) {
-        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
-      }
-    }
+    youtubePlaybackAdapter.pause();
     this.stopProgressTicker();
     this.updatePlaybackState({
       status: 'PAUSED',
@@ -614,12 +627,7 @@ export class MusicMirrorCore {
     if (this.playbackState.currentTrack) {
       const source = this.playbackState.currentTrack.primarySource;
       if (source && source.sourceType === 'youtube' && source.sourceId) {
-        if (typeof document !== 'undefined') {
-          const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
-          if (iframe?.contentWindow) {
-            iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
-          }
-        }
+        youtubePlaybackAdapter.play();
         this.startSimulatedPlayback(this.playbackState.sequenceToken, this.playbackState.durationSeconds || 180);
       } else if (this.htmlAudio) {
         audioDspEngine.resumeContext().catch(() => {});
@@ -646,7 +654,7 @@ export class MusicMirrorCore {
       const containerId = this.mountElementId || 'youtube-player-container';
       const container = document.getElementById(containerId);
       if (container) {
-        container.innerHTML = '';
+        youtubePlaybackAdapter.unmount(container);
       }
     }
     this.stopProgressTicker();
@@ -670,12 +678,7 @@ export class MusicMirrorCore {
         // ignore
       }
     }
-    if (typeof document !== 'undefined') {
-      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
-      if (iframe?.contentWindow) {
-        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [clamped, true] }), '*');
-      }
-    }
+    youtubePlaybackAdapter.seek(clamped);
 
     const pct = dur > 0 ? Math.round((clamped / dur) * 100) : 0;
     this.updatePlaybackState({
@@ -689,12 +692,7 @@ export class MusicMirrorCore {
     if (this.htmlAudio) {
       this.htmlAudio.volume = this.playbackState.isMuted ? 0 : clamped / 100;
     }
-    if (typeof document !== 'undefined') {
-      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
-      if (iframe?.contentWindow) {
-        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [clamped] }), '*');
-      }
-    }
+    youtubePlaybackAdapter.setVolume(clamped);
     this.preferences.volume = clamped;
     this.updatePlaybackState({ volumePercent: clamped });
   }
@@ -705,12 +703,10 @@ export class MusicMirrorCore {
       this.htmlAudio.muted = nextMuted;
       this.htmlAudio.volume = nextMuted ? 0 : this.playbackState.volumePercent / 100;
     }
-    if (typeof document !== 'undefined') {
-      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
-      if (iframe?.contentWindow) {
-        const func = nextMuted ? 'mute' : 'unMute';
-        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
-      }
+    if (nextMuted) {
+      youtubePlaybackAdapter.mute();
+    } else {
+      youtubePlaybackAdapter.unMute();
     }
     this.updatePlaybackState({ isMuted: nextMuted });
   }

@@ -4,6 +4,29 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.06.03.0 — 2026-09-21
+
+- **Type**: Functional / Minor Revision (Level E)
+- **Status**: Verified
+
+### Decoupled Music Provider Integration & Entity Resolution
+
+#### Added & Modernized
+- **Domain Decoupling (`provider.ts`)**: Defined provider-agnostic `MusicProvider` contract, search options, normalized candidate response envelopes, and standard error taxonomy (`NETWORK_ERROR`, `RATE_LIMITED`, `NOT_FOUND`, `UNAVAILABLE`, etc.).
+- **Variant Classification Engine (`VariantClassifier.ts`)**: Built heuristic classification mapping YouTube title/channel context into 8 distinct variants: `OFFICIAL_TRACK`, `OFFICIAL_VIDEO`, `LYRIC_VIDEO`, `LIVE_VERSION`, `REMIX`, `COVER`, `UNOFFICIAL_UPLOAD`, and `UNKNOWN`.
+- **Entity Resolution & Provenance Normalization (`CanonicalNormalizer.ts`)**: Decoupled publisher channels from musical artists, stripping bracketed promotional noise, handling authoritative record label distributor channels (`T-Series`, `Sony Music`, `Aditya Music`), and mapping candidates to canonical `Track` models with field-level provenance confidence scoring.
+- **YouTube Playback Adapter (`YouTubePlaybackAdapter.ts`)**: Extracted iframe embed creation and HTML5 postMessage bridge out of `MusicMirrorCore.ts`, creating clean abstraction boundaries for embedded playback.
+- **YouTube Provider Adapter (`YouTubeProviderAdapter.ts`)**: Implemented provider adapter with explicit candidate validation (`isValidVideoId`), capability mapping (`officialEmbed`), and playability assessment.
+- **Explicit Fallback Source Tagging**: Tagged all search discovery results with explicit source tags (`LIVE_PROVIDER_RESULT`, `LOCAL_CATALOG_RESULT`, `OFFLINE_RESULT`) ensuring transparent origin reporting without synthetic factual fabrication.
+
+### Verification
+- Frontend (Vitest): **302/302 PASSED** across 19 test files (including 18 new unit tests for provider integration)
+- Backend (pytest): **143/143 PASSED** across 20 test files
+- Oxlint: 0 errors, 0 warnings (66 files)
+- Production Build: 0 errors, full TypeScript type-safety verified
+
+---
+
 ## 2.06.02.0 — 2026-09-21
 
 - **Type**: Bug / Fix Patch (Level F)

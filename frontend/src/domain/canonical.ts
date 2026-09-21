@@ -57,6 +57,59 @@ export type PlaybackCapability =
   | 'metadataOnly'
   | 'unavailable';
 
+export type VariantClassification =
+  | 'OFFICIAL_TRACK'
+  | 'OFFICIAL_VIDEO'
+  | 'LYRIC_VIDEO'
+  | 'LIVE_VERSION'
+  | 'REMIX'
+  | 'COVER'
+  | 'UNOFFICIAL_UPLOAD'
+  | 'UNKNOWN';
+
+export type PlayabilityStatus =
+  | 'PLAYABLE'
+  | 'RESTRICTED'
+  | 'UNAVAILABLE'
+  | 'UNKNOWN'
+  | 'ERROR';
+
+export type DiscoverySourceType =
+  | 'LIVE_PROVIDER_RESULT'
+  | 'CACHED_PROVIDER_RESULT'
+  | 'LOCAL_CATALOG_RESULT'
+  | 'OFFLINE_RESULT';
+
+export interface PlayabilityAssessment {
+  status: PlayabilityStatus;
+  testedCapability: PlaybackCapability;
+  restrictionReason?: string;
+  verifiedAt: number;
+}
+
+export interface NormalizedCandidate {
+  id: string;
+  provider: string;
+  providerContentId: string;
+  title: string;
+  rawTitle: string;
+  detectedArtist?: string | null;
+  channelName: string;
+  channelIsVerified?: boolean;
+  channelIsTopic?: boolean;
+  channelIsVevo?: boolean;
+  durationSeconds: number;
+  durationFormatted: string;
+  publishedAt?: string | null;
+  viewCount?: number;
+  thumbnailUrl?: string | null;
+  watchUrl?: string | null;
+  variant: VariantClassification;
+  playability: PlayabilityAssessment;
+  relevanceScore?: number;
+  acousticFeatures?: AcousticFeatures;
+}
+
 export interface Source {
   id: string;
   trackId: string;
@@ -136,6 +189,9 @@ export interface Track {
   provenance?: Record<string, MetadataRecord>;
   relevanceScore?: number;
   recommendationReason?: string;
+  variant?: VariantClassification;
+  playability?: PlayabilityAssessment;
+  discoverySource?: DiscoverySourceType;
   // Aliases for compatibility
   name?: string;
   youtubeId?: string;
@@ -288,6 +344,7 @@ export interface SearchResult {
   latency?: number;
   error?: CoreError | null;
   isCached: boolean;
+  discoverySource?: DiscoverySourceType;
   tracks: Track[];
   totalResults: number;
   latencyMs: number;

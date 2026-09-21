@@ -83,7 +83,7 @@ export const CAPABILITY_METADATA: Record<
   },
 };
 
-export const CURRENT_POLICY_VERSION = '2.06.02.0';
+export const CURRENT_POLICY_VERSION = '2.06.03.0';
 
 // ---------------------------------------------------------------------------
 // Internal state store

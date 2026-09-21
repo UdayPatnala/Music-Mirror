@@ -4,6 +4,7 @@
  */
 
 import { appConfig } from '../config/appConfig';
+import { CanonicalNormalizer } from '../services/CanonicalNormalizer';
 import type {
   Track,
   SystemHealth,
@@ -87,7 +88,7 @@ export class MusicMirrorApiClient {
         backendConnected: false,
         databaseHealthy: false,
         activeProvider: 'fallback',
-        version: '2.06.02.0',
+        version: '2.06.03.0',
         lastCheckedTimestamp: start,
       };
     }
@@ -156,50 +157,38 @@ export class MusicMirrorApiClient {
       total_candidates: number;
     }>(`/api/v2/songs/youtube-search?${searchParams.toString()}`);
 
-    const tracks: Track[] = (data.candidates || []).map((c: any) => ({
-      id: `yt_${c.video_id}`,
-      title: c.title,
-      normalizedTitle: c.title.toLowerCase().trim(),
-      artist: c.channel_name || 'YouTube Artist',
-      artists: [c.channel_name || 'YouTube Artist'],
-      album: null,
-      artworkUrl: c.thumbnail_url || `https://img.youtube.com/vi/${c.video_id}/hqdefault.jpg`,
-      metadata: {
-        durationSeconds: c.duration_seconds || 180,
+    const tracks: Track[] = (data.candidates || []).map((c: any) => {
+      const vid = c.video_id || c.source_id || '';
+      return CanonicalNormalizer.candidateToTrack({
+        id: `yt_${vid}`,
+        provider: 'youtube',
+        providerContentId: vid,
+        title: c.title,
+        rawTitle: c.raw_title || c.title,
+        channelName: c.channel_name || 'YouTube Artist',
+        channelIsVerified: Boolean(c.channel_is_verified),
+        channelIsTopic: Boolean(c.channel_is_topic),
+        channelIsVevo: Boolean(c.channel_is_vevo),
+        durationSeconds: c.duration_seconds || c.duration || 180,
         durationFormatted: c.duration_str || '3:00',
-        releaseDate: c.published_at,
-        genre: 'Discovery',
-        canonicalGenres: ['Discovery'],
-        language: 'Various',
-        isExplicit: false,
-        popularity: Math.min(100, Math.round((c.view_count || 50000) / 10000)),
-        channelName: c.channel_name,
-        isVerifiedChannel: Boolean(c.channel_is_verified || c.channel_is_vevo || c.channel_is_topic),
-      },
-      acousticFeatures: {
-        valence: 0.5,
-        energy: 0.5,
-        tempo: 120,
-      },
-      primarySource: {
-        id: `src_yt_${c.video_id}`,
-        trackId: `yt_${c.video_id}`,
-        sourceType: 'youtube',
-        sourceId: c.video_id,
-        sourceUrl: c.watch_url || `https://www.youtube.com/watch?v=${c.video_id}`,
-        playbackRef: c.video_id,
-        capability: 'officialEmbed',
-        status: 'active',
-        reliabilityScore: c.score || 0.85,
-        healthScore: 1.0,
-        failureCount: 0,
-      },
-      availableSources: [],
-      relevanceScore: c.score,
-      recommendationReason: `YouTube discovery rank (${Math.round((c.score || 0.8) * 100)}%)`,
-      name: c.title,
-      youtubeId: c.video_id,
-    }));
+        publishedAt: c.published_at,
+        viewCount: c.view_count,
+        thumbnailUrl: c.thumbnail_url || `https://img.youtube.com/vi/${vid}/hqdefault.jpg`,
+        watchUrl: c.watch_url || `https://www.youtube.com/watch?v=${vid}`,
+        variant: 'UNKNOWN',
+        playability: {
+          status: 'PLAYABLE',
+          testedCapability: 'officialEmbed',
+          verifiedAt: Date.now(),
+        },
+        relevanceScore: c.score,
+        acousticFeatures: {
+          valence: 0.5,
+          energy: 0.5,
+          tempo: 120,
+        },
+      });
+    });
 
     return {
       query: data.query,
