@@ -574,7 +574,7 @@ export interface TrackSource {
 | `2.05.00.0` | SUB-VERSION | `0cfe904` | 2026-09-20 | Acoustic Audio DSP & Real-Time FFT Spectral Analysis engine. |
 | `2.06.00.0` | SUB-VERSION | `ccd4171` | 2026-09-20 | Production UX/UI Makeup Phase: sleek acoustic obsidian theme & typography. |
 | `2.06.01.0` | FUNCTIONAL | `5b63537` | 2026-09-20 | Universal Modular Architecture, Change-Isolation Governance, and Architectural Ownership Registry. |
-| `2.06.02.0` | PATCH | `632bd9c` | 2026-09-21 | Camera stream mount lifecycle synchronization, real YouTube iframe embed, and procedural audible fallback audio. |
+| `2.06.02.0` | PATCH | `a58cd1d` | 2026-09-21 | Camera stream mount lifecycle synchronization, real YouTube iframe embed, and procedural audible fallback audio. |
 
 ---
 
