@@ -15,6 +15,7 @@ import type {
 export class MusicMirrorApiClient {
   private baseUrl: string;
   private defaultTimeoutMs: number;
+  private backendReachable: boolean | null = null;
 
   constructor(baseUrl?: string, timeoutMs: number = 8000) {
     this.baseUrl = baseUrl || appConfig.apiBaseUrl;
@@ -29,12 +30,17 @@ export class MusicMirrorApiClient {
     return this.baseUrl;
   }
 
+  public isBackendReachable(): boolean | null {
+    return this.backendReachable;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
     customTimeoutMs?: number
   ): Promise<T> {
-    const timeout = customTimeoutMs || this.defaultTimeoutMs;
+    const isHealthCheck = endpoint === '/health' || endpoint.startsWith('/health');
+    const timeout = customTimeoutMs || (this.backendReachable === false && !isHealthCheck ? 1500 : this.defaultTimeoutMs);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -74,6 +80,7 @@ export class MusicMirrorApiClient {
     const start = Date.now();
     try {
       const data = await this.request<{ status: string; service: string; version: string }>('/health', {}, 3000);
+      this.backendReachable = true;
       return {
         status: data.status === 'ok' ? 'READY' : 'DEGRADED',
         backendConnected: true,
@@ -83,6 +90,7 @@ export class MusicMirrorApiClient {
         lastCheckedTimestamp: start,
       };
     } catch {
+      this.backendReachable = false;
       return {
         status: 'OFFLINE',
         backendConnected: false,
