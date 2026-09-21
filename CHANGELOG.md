@@ -4,6 +4,29 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.06.04.0 — 2026-09-21
+
+- **Type**: Functional / Minor Revision (Level E)
+- **Status**: Verified
+
+### Spotify Secondary Provider Integration & Cross-Provider Identity Resolution
+
+#### Added & Modernized
+- **Spotify Secondary Metadata Provider (`SpotifyMetadataProvider`)**: Implemented backend Spotify provider using OAuth2 Client Credentials flow with client token caching, structured search, track lookup, and 429 Too Many Requests exponential backoff.
+- **Cross-Provider Identity Resolution (`cross_match_spotify_youtube`)**: Deterministic multi-factor candidate matching supporting ISRC identity parity (1.0 confidence), normalized title and artist token overlap, and duration tolerance checks (±3s).
+- **Enriched Candidate Envelopes**: Integrated parallel Spotify metadata discovery into YouTube discovery routes (`/api/v2/songs/youtube-search`), augmenting YouTube candidates with matched Spotify IDs, ISRCs, and ranking bonuses.
+- **Frontend Spotify Provider Adapter (`SpotifyProviderAdapter`)**: Implemented provider adapter contract with explicit metadata playability semantics (`status: 'UNAVAILABLE'`, `testedCapability: 'metadataOnly'`) ensuring zero audio extraction and strictly compliant official embed delegation.
+- **Canonical Normalizer Enrichment**: Extended domain models (`NormalizedCandidate`, `Track`) and `CanonicalNormalizer` with `spotifyId`, `isrc`, `albumName`, and `spotifyUri`.
+- **Privacy & Provider Registry Hardening**: Registered `spotify_api` under `METADATA_PROVIDER` in `ProviderRegistry` with graceful degradation, zero client-side credentials, and strict zero-PII transmission.
+
+### Verification
+- Frontend (Vitest): **307/307 PASSED** across 20 test files (including 5 new unit tests for Spotify adapter)
+- Backend (pytest): **149/149 PASSED** across 21 test files (including 6 new tests for Spotify provider and identity matching)
+- Oxlint: 0 errors, 0 warnings (68 files)
+- Production Build: 0 errors, clean TypeScript build
+
+---
+
 ## 2.06.03.0 — 2026-09-21
 
 - **Type**: Functional / Minor Revision (Level E)

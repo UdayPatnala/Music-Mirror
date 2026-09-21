@@ -75,6 +75,77 @@ class IdentityResolutionService:
             
         return min(1.0, score)
 
+    @staticmethod
+    def cross_match_spotify_youtube(spotify_track: Any, youtube_candidate: Any) -> Dict[str, Any]:
+        """
+        Cross-matches an authoritative Spotify track with a YouTube candidate video.
+        Calculates confidence across:
+          - Title token overlap
+          - Artist token overlap
+          - Duration proximity (|delta| <= 5s)
+        Returns match status and confidence score.
+        """
+        sp_title = getattr(spotify_track, "name", "").lower().strip()
+        sp_artists = [a.lower().strip() for a in getattr(spotify_track, "artists", [])]
+        sp_dur_sec = getattr(spotify_track, "duration_ms", 0) / 1000.0
+        sp_isrc = getattr(spotify_track, "isrc", None)
+
+        yt_title = getattr(youtube_candidate, "title", "").lower().strip()
+        yt_channel = getattr(youtube_candidate, "channel_name", "").lower().strip()
+        yt_dur_sec = float(getattr(youtube_candidate, "duration_seconds", 0) or 0)
+        yt_isrc = getattr(youtube_candidate, "isrc", None)
+
+        confidence = 0.0
+
+        # 1. Deterministic ISRC match
+        if sp_isrc and yt_isrc and sp_isrc.upper() == yt_isrc.upper():
+            return {
+                "status": "EXACT",
+                "confidence": 1.0,
+                "reason": "ISRC deterministic match",
+                "spotify_id": getattr(spotify_track, "id", None),
+                "isrc": sp_isrc,
+            }
+
+        # 2. Title matching
+        title_words = [w for w in sp_title.split() if len(w) > 2]
+        matched_words = [w for w in title_words if w in yt_title]
+        title_ratio = len(matched_words) / max(1, len(title_words))
+        confidence += title_ratio * 0.45
+
+        # 3. Artist matching (in title or channel)
+        artist_matched = any(a in yt_title or a in yt_channel for a in sp_artists)
+        if artist_matched:
+            confidence += 0.35
+
+        # 4. Duration proximity
+        if sp_dur_sec > 0 and yt_dur_sec > 0:
+            dur_diff = abs(sp_dur_sec - yt_dur_sec)
+            if dur_diff <= 3.0:
+                confidence += 0.20
+            elif dur_diff <= 7.0:
+                confidence += 0.10
+            elif dur_diff > 30.0:
+                confidence -= 0.25
+
+        confidence = max(0.0, min(1.0, confidence))
+
+        if confidence >= 0.80:
+            status = "HIGH_CONFIDENCE"
+        elif confidence >= 0.60:
+            status = "MEDIUM_CONFIDENCE"
+        elif confidence >= 0.40:
+            status = "AMBIGUOUS"
+        else:
+            status = "UNMATCHED"
+
+        return {
+            "status": status,
+            "confidence": round(confidence, 3),
+            "spotify_id": getattr(spotify_track, "id", None),
+            "isrc": sp_isrc,
+        }
+
 
 class MetadataConflictEngine:
     """

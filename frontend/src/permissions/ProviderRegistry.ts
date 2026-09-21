@@ -165,6 +165,30 @@ const PROVIDER_REGISTRY: readonly ProviderRecord[] = [
     active: true,
     privacyPolicyUrl: 'https://github.com/justadudewhohacks/face-api.js',
   },
+  {
+    id: 'spotify_api',
+    name: 'Spotify Web API',
+    category: 'METADATA_PROVIDER',
+    purpose: 'Secondary metadata provider for music track discovery, ISRC validation, and canonical metadata enhancement. Zero media extraction.',
+    dataSent: [
+      'Search query string (title/artist/keywords) via server-side Client Credentials',
+    ],
+    dataReceived: [
+      'Spotify Track ID',
+      'ISRC (International Standard Recording Code)',
+      'Track title and performing artists',
+      'Album metadata and release date',
+      'Duration in milliseconds',
+      'High-resolution cover artwork URL',
+      'Popularity metric',
+    ],
+    authenticationRequired: true,
+    retentionKnown: false,
+    userControl: 'OPT_OUT',
+    failureBehavior: 'DEGRADE_GRACEFULLY',
+    active: true,
+    privacyPolicyUrl: 'https://www.spotify.com/legal/privacy-policy/',
+  },
 ] as const;
 
 // ---------------------------------------------------------------------------

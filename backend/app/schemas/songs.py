@@ -41,6 +41,8 @@ class YouTubeCandidateDTO(BaseModel):
     score: float = Field(0.0, description="Composite weighted relevance score (0.0 - 1.0)")
     relevance_score: Optional[float] = Field(None, description="Alias for score for backward compatibility")
     score_breakdown: Optional[ScoreBreakdownDTO] = Field(None, description="Detailed sub-score breakdown")
+    spotify_match_id: Optional[str] = Field(None, description="Cross-matched Spotify track ID if resolved")
+    isrc: Optional[str] = Field(None, description="Deterministic ISRC code if resolved from Spotify or source")
 
     @model_validator(mode="before")
     @classmethod
@@ -66,6 +68,7 @@ class YouTubeSearchResponseDTO(BaseModel):
     cached: bool = Field(False, description="Indicates whether the response was served from L1 Query Cache")
     candidates: List[YouTubeCandidateDTO] = Field(default_factory=list, description="Ranked candidate pool")
     total_candidates: Optional[int] = Field(None, description="Count of returned candidates")
+    spotify_enriched: bool = Field(False, description="Whether Spotify secondary provider participated in resolution")
 
     @model_validator(mode="before")
     @classmethod

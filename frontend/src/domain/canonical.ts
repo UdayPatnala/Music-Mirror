@@ -108,6 +108,9 @@ export interface NormalizedCandidate {
   playability: PlayabilityAssessment;
   relevanceScore?: number;
   acousticFeatures?: AcousticFeatures;
+  spotifyId?: string | null;
+  isrc?: string | null;
+  albumName?: string | null;
 }
 
 export interface Source {
@@ -195,6 +198,8 @@ export interface Track {
   // Aliases for compatibility
   name?: string;
   youtubeId?: string;
+  spotifyId?: string;
+  spotifyUri?: string;
   previewUrl?: string | null;
 }
 

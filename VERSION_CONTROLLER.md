@@ -5,7 +5,7 @@
 
 ## Current Version
 
-`2.06.03.0`
+`2.06.04.0`
 
 ## Current Status
 
@@ -49,6 +49,7 @@ VERIFIED
 | 2.06.01.0 | 2.06.00.0 | FUNCTIONAL | `5b63537` | 2026-09-20 | Universal Modular Architecture, Change-Isolation Governance, and Architectural Ownership Registry |
 | 2.06.02.0 | 2.06.01.0 | PATCH | `a58cd1d` | 2026-09-21 | Fix camera stream mount lifecycle, embed real YouTube iframe, and add procedural audible fallback audio |
 | 2.06.03.0 | 2.06.02.0 | FUNCTIONAL | `2ecf0df` | 2026-09-21 | Decoupled provider architecture, variant classifier, canonical normalizer, and YouTube playback adapter |
+| 2.06.04.0 | 2.06.03.0 | FUNCTIONAL | `1b6411a` | 2026-09-21 | Spotify secondary metadata provider, cross-provider matching, and identity resolution |
 
 ---
 

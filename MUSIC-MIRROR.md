@@ -1,7 +1,7 @@
 # MUSIC MIRROR — PROJECT MASTER SPECIFICATION & KNOWLEDGE BASE
 
 > **AUTHORITATIVE LIVING SYSTEM RECORD**  
-> Current Authoritative Version: `2.06.03.0`  
+> Current Authoritative Version: `2.06.04.0`  
 > System Classification: Headless Music Intelligence & Affective Playback Orchestration Engine  
 > Architecture Governance: `A.BC.DE.F` (Universal Version Control & Change Governance System)  
 > Operational Priority: **Core First — Useful Data Only — Privacy by Architecture**
@@ -14,7 +14,7 @@
 - **Short Identifier**: MM
 - **Project Type**: Decoupled Music Intelligence, Context-Aware Discovery, Metadata Normalization, and Playback Orchestration System.
 - **Current Status**: `VERIFIED & HARDENED` (Headless Core, Universal Modular Architecture, Change-Isolation Governance, Transmission Gate, Acoustic DSP & Production UI Theme Operational).
-- **Current Authoritative Version**: `2.06.03.0`
+- **Current Authoritative Version**: `2.06.04.0`
 - **Primary Repositories & Roots**:
   - Root: `d:\PROJECT\Btech\Music Mirror`
   - GitHub Remote: `https://github.com/UdayPatnala/Music-Mirror.git` (`origin/main`)
@@ -576,6 +576,7 @@ export interface TrackSource {
 | `2.06.01.0` | FUNCTIONAL | `5b63537` | 2026-09-20 | Universal Modular Architecture, Change-Isolation Governance, and Architectural Ownership Registry. |
 | `2.06.02.0` | PATCH | `a58cd1d` | 2026-09-21 | Camera stream mount lifecycle synchronization, real YouTube iframe embed, and procedural audible fallback audio. |
 | `2.06.03.0` | FUNCTIONAL | `2ecf0df` | 2026-09-21 | Decoupled provider architecture, variant classifier, canonical normalizer, and YouTube playback adapter. |
+| `2.06.04.0` | FUNCTIONAL | `1b6411a` | 2026-09-21 | Spotify secondary metadata provider, cross-provider matching, and identity resolution. |
 
 ---
 
@@ -592,4 +593,4 @@ The system is governed by a strict **Core-First**, **Privacy by Architecture**, 
 - Audio playback is resilient offline via IndexedDB cache (`OfflineAudioCache`) and ServiceWorker stream cache (`sw.js`).
 - Acoustic playback fidelity and affective metadata are verified mathematically in real time via `AudioDspEngine.ts` (RMS, Centroid, Flatness, 7 Bands).
 - Production UI is styled cleanly in Acoustic Obsidian with Google typography, zero emojis, and pure functional clarity.
-- All tests pass (284 frontend, 143 backend), codebases are clean of lint/type errors, and builds compile without warnings.
+- All tests pass (307 frontend, 149 backend), codebases are clean of lint/type errors, and builds compile without warnings.

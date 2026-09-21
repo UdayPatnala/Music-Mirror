@@ -384,12 +384,35 @@ async def search_youtube_videos(
             target_artist=target_artist,
         )
 
+        spotify_enriched = False
+        try:
+            from app.ingestion.spotify_provider import spotify_provider
+            from app.services.identity_resolution import IdentityResolutionService
+            if spotify_provider.is_available:
+                spotify_tracks = await spotify_provider.search_tracks(query=raw_query, limit=5)
+                if spotify_tracks:
+                    spotify_enriched = True
+                    # Cross-match ranked YouTube candidates with authoritative Spotify metadata
+                    best_sp = spotify_tracks[0]
+                    for cand in ranked:
+                        match_res = IdentityResolutionService.cross_match_spotify_youtube(best_sp, cand)
+                        if match_res["status"] in ("EXACT", "HIGH_CONFIDENCE"):
+                            cand.spotify_match_id = match_res.get("spotify_id")
+                            if match_res.get("isrc"):
+                                cand.isrc = match_res.get("isrc")
+                            # Boost high-confidence matched candidates
+                            cand.score = min(1.0, cand.score + 0.05)
+                            cand.relevance_score = cand.score
+        except Exception as sp_err:
+            pass
+
         response_dto = YouTubeSearchResponseDTO(
             query=raw_query,
             normalized_query=norm_query,
             cached=False,
             candidates=ranked,
             total_candidates=len(ranked),
+            spotify_enriched=spotify_enriched,
         )
 
         await discovery_cache.set_query_cache(cache_key, response_dto)

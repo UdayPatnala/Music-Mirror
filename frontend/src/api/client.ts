@@ -88,7 +88,7 @@ export class MusicMirrorApiClient {
         backendConnected: false,
         databaseHealthy: false,
         activeProvider: 'fallback',
-        version: '2.06.03.0',
+        version: '2.06.04.0',
         lastCheckedTimestamp: start,
       };
     }
@@ -182,6 +182,8 @@ export class MusicMirrorApiClient {
           verifiedAt: Date.now(),
         },
         relevanceScore: c.score,
+        spotifyId: c.spotify_match_id || undefined,
+        isrc: c.isrc || undefined,
         acousticFeatures: {
           valence: 0.5,
           energy: 0.5,
@@ -198,6 +200,42 @@ export class MusicMirrorApiClient {
       totalResults: tracks.length,
       latencyMs: Date.now() - start,
     };
+  }
+
+  // ─── Spotify Secondary Metadata Provider ────────────────────────────
+
+  public async getSpotifyStatus(): Promise<{ status: string; configured: boolean; enabled: boolean }> {
+    try {
+      return await this.request<{ status: string; configured: boolean; enabled: boolean }>('/api/v2/spotify/status');
+    } catch {
+      return { status: 'DISABLED', configured: false, enabled: false };
+    }
+  }
+
+  public async searchSpotify(query: string, limit: number = 10): Promise<{
+    query: string;
+    total: number;
+    tracks: any[];
+  }> {
+    try {
+      const searchParams = new URLSearchParams({
+        q: query,
+        limit: String(limit),
+      });
+      return await this.request<{ query: string; total: number; tracks: any[] }>(
+        `/api/v2/spotify/search?${searchParams.toString()}`
+      );
+    } catch {
+      return { query, total: 0, tracks: [] };
+    }
+  }
+
+  public async getSpotifyTrack(trackId: string): Promise<any | null> {
+    try {
+      return await this.request<any>(`/api/v2/spotify/track/${encodeURIComponent(trackId)}`);
+    } catch {
+      return null;
+    }
   }
 
   // ─── Emotion Recommendations ───────────────────────────────────────
