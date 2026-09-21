@@ -25,6 +25,8 @@ import {
   markError,
   watchExternalRevocation,
   getState,
+  getActiveMediaStream,
+  setActiveMediaStream,
 } from '../permissions/CapabilityRegistry';
 import {
   recordConsent,
@@ -80,6 +82,27 @@ export default function Camera({ onEmotion }: CameraProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // ---------------------------------------------------------------------------
+  // Pre-load models quietly in background so Enable Camera is fast
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    const preload = async () => {
+      try {
+        const MODEL_URL = '/models';
+        if (!faceapi.nets.tinyFaceDetector.isLoaded) {
+          await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        }
+        if (!faceapi.nets.faceExpressionNet.isLoaded) {
+          await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+        }
+      } catch {
+        // Will load in handleEnable if preload is blocked or network slow
+      }
+    };
+    preload();
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // Cleanup: stop stream and detection on unmount
   // ---------------------------------------------------------------------------
 
@@ -90,6 +113,7 @@ export default function Camera({ onEmotion }: CameraProps) {
         streamRef.current.getTracks().forEach(t => t.stop());
         streamRef.current = null;
       }
+      setActiveMediaStream('CAMERA', null);
     };
   }, []);
 
@@ -155,27 +179,41 @@ export default function Camera({ onEmotion }: CameraProps) {
   }, [onEmotion]);
 
   // ---------------------------------------------------------------------------
+  // Callback ref: ensures video element receives stream as soon as it mounts in DOM
+  // ---------------------------------------------------------------------------
+
+  const setVideoNode = useCallback((node: HTMLVideoElement | null) => {
+    (videoRef as any).current = node;
+    if (node && streamRef.current) {
+      node.srcObject = streamRef.current;
+      node.play().catch(() => {});
+    }
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // Enable: load models -> request permission -> start stream
   // ---------------------------------------------------------------------------
 
   const handleEnable = useCallback(async () => {
     // Record application-level consent before triggering browser prompt
     recordConsent(CONSENT_PURPOSES.CAMERA_EMOTION_DETECTION, 'GRANTED');
-
-    setPhase('LOADING_MODELS');
     setErrorMessage(null);
     emotionHistoryRef.current = [];
 
-    try {
-      const MODEL_URL = '/models';
-      await Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-      ]);
-    } catch {
-      setPhase('ERROR');
-      setErrorMessage('Failed to load local face detection models. Check that /models is accessible.');
-      return;
+    // Ensure models are loaded
+    if (!faceapi.nets.tinyFaceDetector.isLoaded || !faceapi.nets.faceExpressionNet.isLoaded) {
+      setPhase('LOADING_MODELS');
+      try {
+        const MODEL_URL = '/models';
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+          faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+        ]);
+      } catch {
+        setPhase('ERROR');
+        setErrorMessage('Failed to load local face detection models. Check that /models is accessible.');
+        return;
+      }
     }
 
     setPhase('REQUESTING');
@@ -196,14 +234,19 @@ export default function Camera({ onEmotion }: CameraProps) {
       return;
     }
 
-    // Now open the actual stream (separate from probe in CapabilityRegistry)
+    // Reuse stream from CapabilityRegistry if available, or open fresh
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
-      });
+      let stream = getActiveMediaStream('CAMERA');
+      if (!stream) {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+        });
+        setActiveMediaStream('CAMERA', stream);
+      }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.play().catch(() => {});
       }
       watchExternalRevocation('CAMERA');
       setPhase('ACTIVE');
@@ -215,15 +258,13 @@ export default function Camera({ onEmotion }: CameraProps) {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Ensure video element receives stream immediately upon phase becoming ACTIVE
+  // Ensure video element receives stream upon phase becoming ACTIVE
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
     if (phase === 'ACTIVE' && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
-      videoRef.current.play().catch(() => {
-        // Autoplay policy fallback
-      });
+      videoRef.current.play().catch(() => {});
     }
   }, [phase]);
 
@@ -237,6 +278,7 @@ export default function Camera({ onEmotion }: CameraProps) {
       streamRef.current.getTracks().forEach(t => t.stop());
       streamRef.current = null;
     }
+    setActiveMediaStream('CAMERA', null);
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
@@ -317,11 +359,12 @@ export default function Camera({ onEmotion }: CameraProps) {
             </button>
           </div>
           <video
-            ref={videoRef}
+            ref={setVideoNode}
             autoPlay
             muted
             playsInline
             onPlay={handleVideoPlay}
+            onLoadedMetadata={handleVideoPlay}
             style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)', borderRadius: 'var(--radius-sm)', background: '#000' }}
           />
         </div>

@@ -28,7 +28,7 @@ export interface ConsentRecord {
 }
 
 // Current policy version — bump when processing purposes or data flows change materially.
-export const CURRENT_POLICY_VERSION = '2.06.04.0';
+export const CURRENT_POLICY_VERSION = '2.06.04.1';
 
 const STORAGE_PREFIX = 'mm_consent_';
 

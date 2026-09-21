@@ -589,21 +589,27 @@ export class MusicMirrorCore {
           this.htmlAudio.loop = true;
           this.htmlAudio.src = audioSrc;
           this.htmlAudio.volume = this.playbackState.isMuted ? 0 : this.playbackState.volumePercent / 100;
-          await this.htmlAudio.play().catch(() => {
-            // Autoplay blocked by browser policy: handled gracefully
+          let playStarted = false;
+          try {
+            await this.htmlAudio.play();
+            playStarted = true;
+          } catch {
+            // Autoplay blocked by browser policy: stay in READY state until user interaction
             this.updatePlaybackState({
               status: 'READY',
               isPlaying: false,
               isBuffering: false,
             });
-          });
+          }
+          if (playStarted) {
+            this.startProgressTicker(token);
+            this.updatePlaybackState({
+              status: 'PLAYING',
+              isPlaying: true,
+              isBuffering: false,
+            });
+          }
         }
-        this.startProgressTicker(token);
-        this.updatePlaybackState({
-          status: 'PLAYING',
-          isPlaying: true,
-          isBuffering: false,
-        });
       }
     } catch (playErr: any) {
       this.handlePlaybackFailure(playErr.message || 'Playback failed');
@@ -630,17 +636,27 @@ export class MusicMirrorCore {
         youtubePlaybackAdapter.play();
         this.startSimulatedPlayback(this.playbackState.sequenceToken, this.playbackState.durationSeconds || 180);
       } else if (this.htmlAudio) {
+        if (!this.htmlAudio.src || (typeof window !== 'undefined' && this.htmlAudio.src === window.location.href)) {
+          await this.play(this.playbackState.currentTrack);
+          return;
+        }
         audioDspEngine.resumeContext().catch(() => {});
-        await this.htmlAudio.play().catch(() => {});
-        this.startProgressTicker(this.playbackState.sequenceToken);
-        this.updatePlaybackState({
-          status: 'PLAYING',
-          isPlaying: true,
-          isBuffering: false,
-        });
+        try {
+          await this.htmlAudio.play();
+          this.startProgressTicker(this.playbackState.sequenceToken);
+          this.updatePlaybackState({
+            status: 'PLAYING',
+            isPlaying: true,
+            isBuffering: false,
+          });
+        } catch {
+          await this.play(this.playbackState.currentTrack);
+        }
       } else {
         await this.play();
       }
+    } else {
+      await this.play();
     }
   }
 
@@ -810,6 +826,10 @@ export class MusicMirrorCore {
 
   public getQueue(): QueueState {
     return { ...this.queueState, items: [...this.queueState.items] };
+  }
+
+  public selectTrack(track: Track): void {
+    this.setTrackAsActive(track);
   }
 
   public getPlaybackState(): PlaybackState {

@@ -1,7 +1,7 @@
 # Music Mirror — Modular Dependency Map & Ownership Graph
 
 > **AUTHORITATIVE DEPENDENCY RELATIONSHIP GRAPH**  
-> Version: `2.06.04.0`  
+> Version: `2.06.04.1`  
 > Governed by: [`.agents/rules/universal_modular_architecture_and_change_isolation.md`](.agents/rules/universal_modular_architecture_and_change_isolation.md)
 
 ---

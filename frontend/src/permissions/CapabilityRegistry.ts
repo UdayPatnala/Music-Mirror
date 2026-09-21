@@ -83,7 +83,7 @@ export const CAPABILITY_METADATA: Record<
   },
 };
 
-export const CURRENT_POLICY_VERSION = '2.06.04.0';
+export const CURRENT_POLICY_VERSION = '2.06.04.1';
 
 // ---------------------------------------------------------------------------
 // Internal state store
@@ -92,6 +92,27 @@ export const CURRENT_POLICY_VERSION = '2.06.04.0';
 const _states = new Map<CapabilityId, Capability>();
 const _listeners = new Map<CapabilityId, Set<CapabilityListener>>();
 const _inFlightRequests = new Map<CapabilityId, Promise<Capability>>();
+const _activeStreams = new Map<CapabilityId, MediaStream>();
+
+export function getActiveMediaStream(id: CapabilityId): MediaStream | null {
+  const stream = _activeStreams.get(id);
+  if (stream) {
+    const tracks = stream.getTracks();
+    if (tracks.some(t => t.readyState === 'live')) {
+      return stream;
+    }
+    _activeStreams.delete(id);
+  }
+  return null;
+}
+
+export function setActiveMediaStream(id: CapabilityId, stream: MediaStream | null): void {
+  if (stream) {
+    _activeStreams.set(id, stream);
+  } else {
+    _activeStreams.delete(id);
+  }
+}
 
 function _now(): string {
   return new Date().toISOString();
@@ -265,8 +286,7 @@ async function _doRequestCapability(
         const stream = await navigator.mediaDevices.getUserMedia(
           constraints || { video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } }
         );
-        // Stop the probe stream immediately — actual usage is by the consumer.
-        stream.getTracks().forEach(t => t.stop());
+        _activeStreams.set(id, stream);
         return _set(id, { state: 'GRANTED', reason: null });
       }
 
@@ -274,7 +294,7 @@ async function _doRequestCapability(
         const stream = await navigator.mediaDevices.getUserMedia(
           constraints || { audio: true }
         );
-        stream.getTracks().forEach(t => t.stop());
+        _activeStreams.set(id, stream);
         return _set(id, { state: 'GRANTED', reason: null });
       }
 
@@ -328,6 +348,11 @@ async function _doRequestCapability(
  * This does NOT call any browser API — it only updates internal state.
  */
 export function markRevoked(id: CapabilityId, reason?: string): CapabilityStatus {
+  const s = _activeStreams.get(id);
+  if (s) {
+    try { s.getTracks().forEach(t => t.stop()); } catch {}
+  }
+  _activeStreams.delete(id);
   return _set(id, { state: 'REVOKED', reason: reason || 'Permission revoked externally.' });
 }
 
@@ -335,6 +360,11 @@ export function markRevoked(id: CapabilityId, reason?: string): CapabilityStatus
  * Mark a capability as errored (e.g. device disconnected mid-session).
  */
 export function markError(id: CapabilityId, reason: string): CapabilityStatus {
+  const s = _activeStreams.get(id);
+  if (s) {
+    try { s.getTracks().forEach(t => t.stop()); } catch {}
+  }
+  _activeStreams.delete(id);
   return _set(id, { state: 'ERROR', reason });
 }
 
@@ -401,6 +431,11 @@ export function watchExternalRevocation(id: CapabilityId): void {
  * Intended for testing only. Do not call in production flows.
  */
 export function _resetForTest(id: CapabilityId): void {
+  const s = _activeStreams.get(id);
+  if (s) {
+    try { s.getTracks().forEach(t => t.stop()); } catch {}
+  }
+  _activeStreams.delete(id);
   _states.delete(id);
   _watched.delete(id);
   _inFlightRequests.delete(id);

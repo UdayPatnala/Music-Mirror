@@ -40,7 +40,7 @@ const getEnv = (): 'development' | 'production' | 'test' => {
 export const appConfig: AppConfig = {
   env: getEnv(),
   appName: 'MusicMirror',
-  version: '2.06.04.0',
+  version: '2.06.04.1',
   apiBaseUrl: import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8000',
   emotionInference: {
     minConfidenceThreshold: 0.60,

@@ -65,7 +65,7 @@ export default function MusicMirrorCorePage() {
   const [mirrorPolicy, setMirrorPolicy] = useState<MirrorPolicy>('REFLECT');
   const [targetEmotion, setTargetEmotion] = useState<EmotionDescriptor>(EMOTIONS[0]);
   const [facialDetection, setFacialDetection] = useState<DetectionResult | null>(null);
-  const [cameraVisible, setCameraVisible] = useState<boolean>(false);
+  const [cameraVisible, setCameraVisible] = useState<boolean>(true);
   const [userNote, setUserNote] = useState<string>('');
 
   // ── Discovery & Results ────────────────────────────────────────────
@@ -108,6 +108,16 @@ export default function MusicMirrorCorePage() {
       addLog(`Backend unreachable: ${err.message}`, 'warn');
     });
 
+    // Bootstrap initial candidate recommendations so tracks are ready to play immediately
+    musicMirrorCore.getRecommendations(activeEmotion.id, mirrorPolicy.toLowerCase()).then(recs => {
+      if (recs.tracks.length > 0) {
+        setRecommendations(recs.tracks);
+        recs.tracks.forEach(t => musicMirrorCore.addToQueue(t));
+        musicMirrorCore.selectTrack(recs.tracks[0]);
+        addLog(`Loaded ${recs.tracks.length} recommendations for ${activeEmotion.label}`, 'info');
+      }
+    }).catch(() => {});
+
     const statsTimer = setInterval(() => {
       setCacheStats(getDiscoveryCacheStats());
     }, 2000);
@@ -117,7 +127,7 @@ export default function MusicMirrorCorePage() {
       unsubQueue();
       clearInterval(statsTimer);
     };
-  }, [addLog]);
+  }, [addLog, activeEmotion.id, activeEmotion.label, mirrorPolicy]);
 
   // ── Effective valence blends facial detection if available ─────────
   const effectiveValence = facialDetection
@@ -507,9 +517,25 @@ export default function MusicMirrorCorePage() {
             </div>
           </div>
 
-          {/* YouTube iframe mount */}
+          {/* YouTube iframe mount / Acoustic Player Stage */}
           <div className="mm-yt-container">
-            <div id="youtube-player-container" ref={ytPlayerContainerRef} />
+            <div id="youtube-player-container" ref={ytPlayerContainerRef}>
+              {(!playback.currentTrack || playback.currentTrack.primarySource?.sourceType !== 'youtube') && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-dim)', gap: '6px', padding: '16px', textAlign: 'center' }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600, color: 'var(--text)' }}>
+                    {playback.currentTrack ? playback.currentTrack.title : 'Music Mirror Audio Engine'}
+                  </span>
+                  <span style={{ fontSize: '12px' }}>
+                    {playback.currentTrack ? `${playback.currentTrack.artist} · Harmonic Audio Synthesis` : 'Select an emotion or search to begin playback'}
+                  </span>
+                  {playback.currentTrack?.acousticFeatures && (
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
+                      Valence: {playback.currentTrack.acousticFeatures.valence} · Energy: {playback.currentTrack.acousticFeatures.energy} · {playback.currentTrack.acousticFeatures.tempo} BPM
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Search */}

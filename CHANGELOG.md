@@ -4,6 +4,30 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.06.04.1 — 2026-09-21
+
+- **Type**: Bug / Fix Patch (Level F)
+- **Status**: Verified
+
+### Camera Stream Lifecycle Synchronization & Audio Playback Bootstrap
+
+#### Fixed & Optimized
+- **Camera Stream Cache & Hardware Reuse (`CapabilityRegistry.ts`, `Camera.tsx`)**: Cached granted media streams in `CapabilityRegistry` so `Camera.tsx` immediately consumes the active hardware stream without redundant teardown/re-prompt cycles, preventing Windows/Chrome `TrackStartError`.
+- **Instant Video Binding via Callback Ref (`Camera.tsx`)**: Replaced standard effect ref with immediate callback ref `setVideoNode`, binding `video.srcObject` and calling `video.play()` the exact instant the element attaches to the DOM.
+- **Background Model Pre-loading (`Camera.tsx`)**: Silently preloaded `tinyFaceDetector` and `faceExpressionNet` weights in the background so "Enable Camera" opens the feed immediately without waiting on downloads.
+- **Camera Panel Default Visibility (`MusicMirrorCorePage.tsx`)**: Changed `cameraVisible` initial state to `true` so the camera control interface is immediately accessible upon launch.
+- **Initial Playback Bootstrap (`MusicMirrorCorePage.tsx`)**: Auto-loaded initial candidate recommendations on page mount, pre-queuing tracks and setting the active track so playback is immediately responsive.
+- **Autoplay Rejection Guard (`MusicMirrorCore.ts`)**: Prevented progress ticker and `PLAYING` state transition when browser autoplay restrictions block playback, staying in `READY` until user interaction.
+- **Acoustic Stage Placeholder (`MusicMirrorCorePage.tsx`)**: Rendered an informative acoustic engine stage displaying track metadata and DSP features when YouTube iframe is idle, eliminating empty black viewports.
+
+### Verification
+- Frontend (Vitest): **307/307 PASSED** across 20 test files
+- Backend (pytest): **149/149 PASSED** across 21 test files
+- Oxlint: 0 errors, 0 warnings (68 files)
+- Production Build: 0 errors, clean TypeScript build
+
+---
+
 ## 2.06.04.0 — 2026-09-21
 
 - **Type**: Functional / Minor Revision (Level E)
