@@ -104,7 +104,7 @@ export default function Camera({ onEmotion }: CameraProps) {
     const detectLoop = async () => {
       if (!videoRef.current || !isDetectingRef.current) return;
 
-      if (videoRef.current.readyState === 4) {
+      if (videoRef.current.readyState >= 2) {
         try {
           const t0 = performance.now();
 
@@ -215,6 +215,19 @@ export default function Camera({ onEmotion }: CameraProps) {
   }, []);
 
   // ---------------------------------------------------------------------------
+  // Ensure video element receives stream immediately upon phase becoming ACTIVE
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    if (phase === 'ACTIVE' && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {
+        // Autoplay policy fallback
+      });
+    }
+  }, [phase]);
+
+  // ---------------------------------------------------------------------------
   // Disable: stop stream, clear detection, record withdrawal
   // ---------------------------------------------------------------------------
 
@@ -309,7 +322,7 @@ export default function Camera({ onEmotion }: CameraProps) {
             muted
             playsInline
             onPlay={handleVideoPlay}
-            style={{ width: '100%', display: 'block', transform: 'scaleX(-1)', borderRadius: 'var(--radius-sm)', background: '#000' }}
+            style={{ width: '100%', height: '240px', objectFit: 'cover', display: 'block', transform: 'scaleX(-1)', borderRadius: 'var(--radius-sm)', background: '#000' }}
           />
         </div>
       )}

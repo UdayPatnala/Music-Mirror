@@ -105,6 +105,19 @@ export class AudioDspEngine {
   }
 
   /**
+   * Resume the AudioContext if it is suspended by browser autoplay policy.
+   */
+  public async resumeContext(): Promise<void> {
+    if (this._audioContext && this._audioContext.state === 'suspended') {
+      try {
+        await this._audioContext.resume();
+      } catch (err) {
+        console.warn('[AudioDSP] AudioContext resume failed:', err);
+      }
+    }
+  }
+
+  /**
    * Connect an HTML audio element to the DSP analyser.
    */
   public connectElement(element: HTMLMediaElement): boolean {
@@ -119,6 +132,9 @@ export class AudioDspEngine {
       this._sourceNode = this._audioContext.createMediaElementSource(element);
       this._sourceNode.connect(this._analyserNode);
       this._analyserNode.connect(this._audioContext.destination);
+      if (this._audioContext.state === 'suspended') {
+        this._audioContext.resume().catch(() => {});
+      }
       return true;
     } catch (err) {
       console.warn('[AudioDSP] Element connection failed:', err);

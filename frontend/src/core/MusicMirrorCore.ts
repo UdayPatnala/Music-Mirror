@@ -24,8 +24,61 @@ export type PlaybackStateListener = (state: PlaybackState) => void;
 export type QueueListener = (queue: QueueState) => void;
 
 // Safe synthetic offline audio tone (silent 2-second valid WAV base64) for resilient offline testing
-const SILENT_WAV_DATA_URI =
+export const SILENT_WAV_DATA_URI =
   'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
+
+/**
+ * Procedurally generates a short, loopable musical audio WAV (8-bit mono PCM)
+ * matching the emotional valence and energy profile.
+ */
+export function createHarmonicWavUri(valence: number = 0.5, energy: number = 0.5, durationSec: number = 3): string {
+  const sampleRate = 8000;
+  const numSamples = Math.floor(sampleRate * durationSec);
+  const buffer = new ArrayBuffer(44 + numSamples);
+  const view = new DataView(buffer);
+
+  // RIFF header
+  view.setUint32(0, 0x52494646, false); // 'RIFF'
+  view.setUint32(4, 36 + numSamples, true);
+  view.setUint32(8, 0x57415645, false); // 'WAVE'
+  view.setUint32(12, 0x666d7420, false); // 'fmt '
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM format
+  view.setUint16(22, 1, true); // Mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate, true); // Byte rate (sampleRate * 1 * 1)
+  view.setUint16(32, 1, true); // Block align
+  view.setUint16(34, 8, true); // 8 bits per sample
+  view.setUint32(36, 0x64617461, false); // 'data'
+  view.setUint32(40, numSamples, true);
+
+  const isMajor = valence >= 0.45;
+  const f1 = 261.63; // C4
+  const f2 = isMajor ? 329.63 : 311.13; // E4 or Eb4
+  const f3 = 392.00; // G4
+  const f4 = isMajor ? 523.25 : 466.16; // C5 or Bb4
+  const amp = 20 + Math.round(Math.min(1, Math.max(0, energy)) * 22);
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / sampleRate;
+    const envelope = Math.sin((Math.PI * i) / numSamples);
+    const wave =
+      Math.sin(2 * Math.PI * f1 * t) * 0.40 +
+      Math.sin(2 * Math.PI * f2 * t) * 0.30 +
+      Math.sin(2 * Math.PI * f3 * t) * 0.20 +
+      Math.sin(2 * Math.PI * f4 * t) * 0.10;
+    const sampleVal = Math.min(255, Math.max(0, Math.round(128 + wave * amp * envelope)));
+    view.setUint8(44 + i, sampleVal);
+  }
+
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const base64 = typeof btoa !== 'undefined' ? btoa(binary) : Buffer.from(binary, 'binary').toString('base64');
+  return `data:audio/wav;base64,${base64}`;
+}
 
 export class MusicMirrorCore {
   private static instance: MusicMirrorCore | null = null;
@@ -281,7 +334,7 @@ export class MusicMirrorCore {
           trackId: 'fb_gentle_breeze',
           sourceType: 'fallback',
           sourceId: 'fallback_gentle_breeze',
-          playbackRef: SILENT_WAV_DATA_URI,
+          playbackRef: createHarmonicWavUri(0.50, 0.35),
           capability: 'directStream',
           status: 'active',
           reliabilityScore: 1.0,
@@ -317,7 +370,7 @@ export class MusicMirrorCore {
           trackId: 'fb_upbeat_morning',
           sourceType: 'fallback',
           sourceId: 'fallback_upbeat_morning',
-          playbackRef: SILENT_WAV_DATA_URI,
+          playbackRef: createHarmonicWavUri(0.85, 0.80),
           capability: 'directStream',
           status: 'active',
           reliabilityScore: 1.0,
@@ -353,7 +406,7 @@ export class MusicMirrorCore {
           trackId: 'fb_midnight_reflection',
           sourceType: 'fallback',
           sourceId: 'fallback_midnight_reflection',
-          playbackRef: SILENT_WAV_DATA_URI,
+          playbackRef: createHarmonicWavUri(0.25, 0.20),
           capability: 'directStream',
           status: 'active',
           reliabilityScore: 1.0,
@@ -389,7 +442,7 @@ export class MusicMirrorCore {
           trackId: 'fb_solitude_piano',
           sourceType: 'fallback',
           sourceId: 'fallback_solitude_piano',
-          playbackRef: SILENT_WAV_DATA_URI,
+          playbackRef: createHarmonicWavUri(0.35, 0.30),
           capability: 'directStream',
           status: 'active',
           reliabilityScore: 1.0,
@@ -425,7 +478,7 @@ export class MusicMirrorCore {
           trackId: 'fb_cosmic_harmony',
           sourceType: 'fallback',
           sourceId: 'fallback_cosmic_harmony',
-          playbackRef: SILENT_WAV_DATA_URI,
+          playbackRef: createHarmonicWavUri(0.60, 0.50),
           capability: 'directStream',
           status: 'active',
           reliabilityScore: 1.0,
@@ -482,13 +535,40 @@ export class MusicMirrorCore {
       const source = activeTrack.primarySource;
 
       if (source && source.sourceType === 'youtube' && source.sourceId) {
-        // Play via YouTube embed / simulated player
+        // Pause any HTML5 Audio
+        if (this.htmlAudio) {
+          this.htmlAudio.pause();
+        }
+        // Play via YouTube embed
+        if (typeof document !== 'undefined') {
+          const containerId = this.mountElementId || 'youtube-player-container';
+          const container = document.getElementById(containerId);
+          if (container) {
+            const embedUrl = `https://www.youtube-nocookie.com/embed/${source.sourceId}?autoplay=1&enablejsapi=1`;
+            container.innerHTML = `<iframe id="mm-yt-iframe" src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; height:100%; min-height:240px; border:none; border-radius:8px;"></iframe>`;
+          }
+        }
         this.startSimulatedPlayback(token, activeTrack.metadata.durationSeconds || 180);
       } else {
-        // Play via HTML5 Audio
-        const audioSrc = activeTrack.previewUrl || source.sourceUrl || SILENT_WAV_DATA_URI;
+        // Clear YouTube iframe if previous track was YouTube
+        if (typeof document !== 'undefined') {
+          const containerId = this.mountElementId || 'youtube-player-container';
+          const container = document.getElementById(containerId);
+          if (container) {
+            container.innerHTML = '';
+          }
+        }
+        // Play via HTML5 Audio with audible procedural fallback synthesis
+        const audioSrc =
+          activeTrack.previewUrl ||
+          source?.playbackRef ||
+          source?.sourceUrl ||
+          createHarmonicWavUri(activeTrack.acousticFeatures?.valence ?? 0.5, activeTrack.acousticFeatures?.energy ?? 0.5);
+
         if (this.htmlAudio) {
           audioDspEngine.connectElement(this.htmlAudio);
+          audioDspEngine.resumeContext().catch(() => {});
+          this.htmlAudio.loop = true;
           this.htmlAudio.src = audioSrc;
           this.htmlAudio.volume = this.playbackState.isMuted ? 0 : this.playbackState.volumePercent / 100;
           await this.htmlAudio.play().catch(() => {
@@ -516,6 +596,12 @@ export class MusicMirrorCore {
     if (this.htmlAudio) {
       this.htmlAudio.pause();
     }
+    if (typeof document !== 'undefined') {
+      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
+      }
+    }
     this.stopProgressTicker();
     this.updatePlaybackState({
       status: 'PAUSED',
@@ -526,7 +612,27 @@ export class MusicMirrorCore {
 
   public async resume(): Promise<void> {
     if (this.playbackState.currentTrack) {
-      await this.play();
+      const source = this.playbackState.currentTrack.primarySource;
+      if (source && source.sourceType === 'youtube' && source.sourceId) {
+        if (typeof document !== 'undefined') {
+          const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
+          if (iframe?.contentWindow) {
+            iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*');
+          }
+        }
+        this.startSimulatedPlayback(this.playbackState.sequenceToken, this.playbackState.durationSeconds || 180);
+      } else if (this.htmlAudio) {
+        audioDspEngine.resumeContext().catch(() => {});
+        await this.htmlAudio.play().catch(() => {});
+        this.startProgressTicker(this.playbackState.sequenceToken);
+        this.updatePlaybackState({
+          status: 'PLAYING',
+          isPlaying: true,
+          isBuffering: false,
+        });
+      } else {
+        await this.play();
+      }
     }
   }
 
@@ -534,6 +640,14 @@ export class MusicMirrorCore {
     if (this.htmlAudio) {
       this.htmlAudio.pause();
       this.htmlAudio.currentTime = 0;
+      this.htmlAudio.loop = false;
+    }
+    if (typeof document !== 'undefined') {
+      const containerId = this.mountElementId || 'youtube-player-container';
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = '';
+      }
     }
     this.stopProgressTicker();
     this.updatePlaybackState({
@@ -556,6 +670,12 @@ export class MusicMirrorCore {
         // ignore
       }
     }
+    if (typeof document !== 'undefined') {
+      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [clamped, true] }), '*');
+      }
+    }
 
     const pct = dur > 0 ? Math.round((clamped / dur) * 100) : 0;
     this.updatePlaybackState({
@@ -569,6 +689,12 @@ export class MusicMirrorCore {
     if (this.htmlAudio) {
       this.htmlAudio.volume = this.playbackState.isMuted ? 0 : clamped / 100;
     }
+    if (typeof document !== 'undefined') {
+      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setVolume', args: [clamped] }), '*');
+      }
+    }
     this.preferences.volume = clamped;
     this.updatePlaybackState({ volumePercent: clamped });
   }
@@ -578,6 +704,13 @@ export class MusicMirrorCore {
     if (this.htmlAudio) {
       this.htmlAudio.muted = nextMuted;
       this.htmlAudio.volume = nextMuted ? 0 : this.playbackState.volumePercent / 100;
+    }
+    if (typeof document !== 'undefined') {
+      const iframe = document.getElementById('mm-yt-iframe') as HTMLIFrameElement | null;
+      if (iframe?.contentWindow) {
+        const func = nextMuted ? 'mute' : 'unMute';
+        iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*');
+      }
     }
     this.updatePlaybackState({ isMuted: nextMuted });
   }

@@ -93,6 +93,7 @@ export default function MusicMirrorCorePage() {
   // ── Initialization ─────────────────────────────────────────────────
   useEffect(() => {
     musicMirrorCore.initialize();
+    musicMirrorCore.bindYouTubeContainer('youtube-player-container');
     const unsubPlayback = musicMirrorCore.subscribe(state => setPlayback(state));
     const unsubQueue = musicMirrorCore.subscribeQueue(q => setQueue(q));
 
