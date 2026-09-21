@@ -7,6 +7,7 @@ from sqlalchemy import text, func
 
 from app.db.database import get_db, DB_PATH
 from app.db.models import Song, Artist, Album, SongSource, UserMusicPreference, UserInteraction, UserAffinity, RepairIncident
+from app.core.config import settings
 from app.core.governance import GovernanceConfig, GovernanceAuditLog, circuit_breaker_manager
 from app.services.catalog_reconciliation import CatalogReconciler
 from app.services.ml_model_ecosystem import ModelRegistry
@@ -18,7 +19,7 @@ router = APIRouter()
 @router.get("", status_code=200)
 def health_check():
     """Simple Liveness Probe."""
-    return {"status": "ok", "service": "MusicMirrorBackend", "version": "2.0.0"}
+    return {"status": "ok", "service": "MusicMirrorBackend", "version": settings.VERSION}
 
 
 @router.get("/database", status_code=200)

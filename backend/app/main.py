@@ -37,7 +37,7 @@ try:
 except Exception as e:
     logger.warning(f"Auto-seed check warning: {e}")
 
-app = FastAPI(title=settings.PROJECT_NAME, version="2.0.0")
+app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,7 +61,7 @@ app.include_router(local_explorer.router, prefix="/local-explorer", tags=["Local
 async def root():
     return {
         "service": "Music Mirror API",
-        "version": "2.0.0",
+        "version": settings.VERSION,
         "status": "ok",
         "docs": "/docs",
         "health": "/health",

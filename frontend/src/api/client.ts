@@ -79,7 +79,7 @@ export class MusicMirrorApiClient {
         backendConnected: true,
         databaseHealthy: true,
         activeProvider: 'youtube',
-        version: data.version || '2.04.01.0',
+        version: data.version || '2.06.04.1',
         lastCheckedTimestamp: start,
       };
     } catch {
