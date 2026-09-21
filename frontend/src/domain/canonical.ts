@@ -75,7 +75,7 @@ export interface Source {
 export interface AudioSource {
   id: string;
   trackId: string;
-  sourceType: 'youtube' | 'jamendo' | 'local' | 'stream';
+  sourceType: 'youtube' | 'jamendo' | 'local' | 'stream' | 'fallback';
   sourceId: string; // e.g. 11-char YouTube video ID or stream track ID
   sourceUrl?: string | null;
   playbackRef: string; // Video ID, stream URL, or local object URL

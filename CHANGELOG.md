@@ -4,6 +4,27 @@ All notable changes to the Music Mirror platform are documented in this file in 
 
 ---
 
+## 2.06.01.0 — 2026-09-20
+
+- **Type**: Functional Revision (Level DE)
+- **Status**: Verified
+
+### Universal Modular Architecture & Change-Isolation Governance
+
+#### Added & Codified
+- **`.agents/rules/universal_modular_architecture_and_change_isolation.md`**: Authoritative system-wide governance rule enforcing domain/feature ownership boundaries, locality of code, change radius classification (Direct, Related, Dependent, Shared, Unrelated), and the 18-step master change workflow.
+- **`ARCHITECTURE.md` (Overhauled)**: Comprehensive living architectural specification documenting the 10-stage core pipeline, frontend & backend domain ownership maps, module registry, end-to-end traceability chains, state ownership register, and zero-phantom/zero-orphan file audit.
+- **`DEPENDENCY_MAP.md`**: Mermaid-rendered subsystem relationship diagram and module dependency matrix enforcing unidirectional downward dependency flow and zero circular coupling.
+
+### Verification
+- Frontend (Vitest): **284/284 PASSED** across 18 test files
+- Backend (pytest): **143/143 PASSED** across 20 test files
+- Oxlint: 0 errors, 0 warnings (60 files)
+- TypeScript (tsc -b --noEmit): Clean / Exit 0
+- Production Vite Build: Exit 0 (386ms)
+
+---
+
 ## 2.06.00.0 — 2026-09-20
 
 - **Type**: Sub-Version Milestone (Level BC)

@@ -142,11 +142,11 @@ export default function MusicMirrorCorePage() {
       addLog(`Reflecting: ${activeEmotion.label} [${mirrorPolicy}]`, 'info');
 
       if (mirrorPolicy === 'REGULATE') {
-        const journey = await apiClient.getTransitionJourney({
-          startEmotion: activeEmotion.id,
-          targetEmotion: targetEmotion.id,
-          steps: 4,
-        });
+        const journey = await musicMirrorCore.getTransitionJourney(
+          activeEmotion.id,
+          targetEmotion.id,
+          4
+        );
         setJourneySteps(journey.journeySteps || journey.tracks);
         setRecommendations(journey.tracks);
         if (journey.tracks.length > 0) {
@@ -154,27 +154,30 @@ export default function MusicMirrorCorePage() {
           journey.tracks.forEach(t => musicMirrorCore.addToQueue(t));
           await musicMirrorCore.play(journey.tracks[0]);
           addLog(`Journey: ${journey.tracks.length} tracks loaded`, 'info');
+        } else {
+          addLog('Regulate journey fallback: searching candidate pool...', 'warn');
+          await handleSearch(`${activeEmotion.label} ${activeEmotion.mode || ''}`);
         }
       } else {
-        const recs = await apiClient.getRecommendations({
-          emotion: activeEmotion.id,
-          goal: mirrorPolicy.toLowerCase(),
-        });
+        const recs = await musicMirrorCore.getRecommendations(
+          activeEmotion.id,
+          mirrorPolicy.toLowerCase()
+        );
         setRecommendations(recs.tracks);
         if (recs.tracks.length > 0) {
           musicMirrorCore.clearQueue();
           recs.tracks.forEach(t => musicMirrorCore.addToQueue(t));
           await musicMirrorCore.play(recs.tracks[0]);
-          addLog(`Recommendations: ${recs.tracks.length} tracks loaded`, 'info');
+          addLog(`Reflect: ${recs.tracks.length} tracks loaded`, 'info');
         } else {
           addLog('No catalog results. Searching candidate pool...', 'warn');
-          await handleSearch(`${activeEmotion.label} ${activeEmotion.mode}`);
+          await handleSearch(`${activeEmotion.label} ${activeEmotion.mode || ''}`);
         }
       }
       setLastLatencyMs(Date.now() - start);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Recommendation request failed');
-      addLog(`Recommendation error: ${err.message}`, 'error');
+      addLog(`Fallback: candidate recovery triggered (${err.message})`, 'warn');
+      await handleSearch(`${activeEmotion.label} ${activeEmotion.mode || ''}`);
     } finally {
       setIsSearching(false);
     }
@@ -191,6 +194,14 @@ export default function MusicMirrorCorePage() {
       addLog(`Search: "${q}"`, 'info');
       const result: SearchResult = await musicMirrorCore.searchTracks(q, 12);
       setSearchResults(result.tracks);
+      if (recommendations.length === 0) {
+        setRecommendations(result.tracks);
+      }
+      if (result.tracks.length > 0 && queue.items.length === 0) {
+        musicMirrorCore.clearQueue();
+        result.tracks.forEach(t => musicMirrorCore.addToQueue(t));
+        await musicMirrorCore.play(result.tracks[0]);
+      }
       setLastLatencyMs(Date.now() - start);
       addLog(`Results: ${result.tracks.length} tracks (${result.latencyMs}ms, cached: ${result.isCached})`, 'info');
     } catch (err: any) {

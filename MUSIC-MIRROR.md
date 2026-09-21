@@ -1,7 +1,7 @@
 # MUSIC MIRROR — PROJECT MASTER SPECIFICATION & KNOWLEDGE BASE
 
 > **AUTHORITATIVE LIVING SYSTEM RECORD**  
-> Current Authoritative Version: `2.06.00.0`  
+> Current Authoritative Version: `2.06.01.0`  
 > System Classification: Headless Music Intelligence & Affective Playback Orchestration Engine  
 > Architecture Governance: `A.BC.DE.F` (Universal Version Control & Change Governance System)  
 > Operational Priority: **Core First — Useful Data Only — Privacy by Architecture**
@@ -13,8 +13,8 @@
 - **Project Title**: Music Mirror
 - **Short Identifier**: MM
 - **Project Type**: Decoupled Music Intelligence, Context-Aware Discovery, Metadata Normalization, and Playback Orchestration System.
-- **Current Status**: `VERIFIED & HARDENED` (Headless Core, Offline Caching, Transmission Gate, Acoustic DSP & Production UI Theme Operational).
-- **Current Authoritative Version**: `2.06.00.0`
+- **Current Status**: `VERIFIED & HARDENED` (Headless Core, Universal Modular Architecture, Change-Isolation Governance, Transmission Gate, Acoustic DSP & Production UI Theme Operational).
+- **Current Authoritative Version**: `2.06.01.0`
 - **Primary Repositories & Roots**:
   - Root: `d:\PROJECT\Btech\Music Mirror`
   - GitHub Remote: `https://github.com/UdayPatnala/Music-Mirror.git` (`origin/main`)
@@ -573,6 +573,7 @@ export interface TrackSource {
 | `2.04.04.0` | FUNCTIONAL | `a920268` | 2026-09-20 | PWA ServiceWorker audio stream caching, TransmissionGate Spec §15 enforcement. |
 | `2.05.00.0` | SUB-VERSION | `0cfe904` | 2026-09-20 | Acoustic Audio DSP & Real-Time FFT Spectral Analysis engine. |
 | `2.06.00.0` | SUB-VERSION | `ccd4171` | 2026-09-20 | Production UX/UI Makeup Phase: sleek acoustic obsidian theme & typography. |
+| `2.06.01.0` | FUNCTIONAL | PENDING | 2026-09-20 | Universal Modular Architecture, Change-Isolation Governance, and Architectural Ownership Registry. |
 
 ---
 
@@ -580,7 +581,9 @@ export interface TrackSource {
 
 Music Mirror is a fully functional, headless music intelligence and playback orchestration system built in React 19, TypeScript, and FastAPI. It receives user affective or textual intent, identifies candidate tracks across multiple providers, ranks them via multi-factor weighted scoring, and guarantees audio playback resilience via an automated sub-3-second fallback ladder.
 
-The system is governed by a strict **Core-First** and **Privacy by Architecture** doctrine:
+The system is governed by a strict **Core-First**, **Privacy by Architecture**, and **Modular Change-Isolation** doctrine:
+- Every page, feature, function, component, service, and API has a strictly defined ownership boundary (`ARCHITECTURE.md`, `DEPENDENCY_MAP.md`).
+- All modifications are governed by the five-tier Change Radius (`DIRECT`, `RELATED`, `DEPENDENT`, `SHARED`, `UNRELATED`) with pre-flight change manifests.
 - All device access routes through a centralized `CapabilityRegistry` with explicit consent disclosures.
 - Camera processing is 100% transient and client-side, immediately discarding raw frames.
 - Outgoing payloads are gated by `TransmissionGate.ts` enforcing `ProviderRegistry` validation and zero-PII transmission.

@@ -1,7 +1,7 @@
 {
   "name": "music-mirror-v2",
   "private": true,
-  "version": "2.06.00.0",
+  "version": "2.06.01.0",
   "author": "Patnala Uday Kumar",
   "type": "module",
   "scripts": {
