@@ -270,6 +270,18 @@ export default function MusicMirrorCorePage() {
     addLog(`Benchmark: ${duration}ms`, 'info');
   };
 
+  const runSpotifyCheck = async () => {
+    setTestStatus('Checking Spotify secondary provider status...');
+    try {
+      const status = await apiClient.getSpotifyStatus();
+      setTestStatus(`Spotify: ${status.status} (Enabled: ${status.enabled}, Auth: ${status.authenticated ? 'YES' : 'NO'})`);
+      addLog(`Spotify provider: ${status.status}`, 'info');
+    } catch (err: any) {
+      setTestStatus(`Spotify check: offline (${err.message})`);
+      addLog(`Spotify status error: ${err.message}`, 'warn');
+    }
+  };
+
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
@@ -469,6 +481,8 @@ export default function MusicMirrorCorePage() {
                     <span>E:{playback.currentTrack.acousticFeatures?.energy ?? 'n/a'}</span>
                     <span>BPM:{playback.currentTrack.acousticFeatures?.tempo ?? 'n/a'}</span>
                     <span>SRC:{playback.currentTrack.primarySource?.sourceType ?? 'n/a'}</span>
+                    {playback.currentTrack.isrc && <span>ISRC:{playback.currentTrack.isrc}</span>}
+                    {playback.currentTrack.spotifyId && <span style={{ color: 'var(--ok)' }}>SPOTIFY:SYNCED</span>}
                   </div>
                 )}
               </div>
@@ -572,7 +586,10 @@ export default function MusicMirrorCorePage() {
                     <span className="mm-track-idx">{idx + 1}</span>
                     <div className="mm-track-meta">
                       <span className="mm-track-row-title">{track.title}</span>
-                      <span className="mm-track-row-sub">{track.artist} · {track.metadata.durationFormatted}</span>
+                      <span className="mm-track-row-sub">
+                        {track.artist} · {track.metadata.durationFormatted}
+                        {track.spotifyId && <span style={{ marginLeft: '6px', color: 'var(--ok)', fontSize: '11px' }}>· Spotify Enriched</span>}
+                      </span>
                     </div>
                     <div className="mm-track-actions">
                       <button onClick={() => handlePlayTrack(track)} className="btn-sm btn-sm-action">Play</button>
@@ -645,6 +662,7 @@ export default function MusicMirrorCorePage() {
               <button onClick={runFailoverTest} className="btn-sm">Simulate Error 150</button>
               <button onClick={runOfflineTest} className="btn-sm">Test Offline Fallback</button>
               <button onClick={runLatencyBenchmark} className="btn-sm">Benchmark Latency</button>
+              <button onClick={runSpotifyCheck} className="btn-sm">Check Spotify</button>
               <button onClick={() => { clearDiscoveryCache(); addLog('Cache purged', 'info'); }} className="btn-sm">Purge Cache</button>
               <button onClick={async () => { await musicMirrorCore.clearOfflineCache(); addLog('Offline DB cache purged', 'info'); }} className="btn-sm">Purge Offline DB</button>
               <button onClick={async () => { await serviceWorkerManager.purgeAudioStreamCache(); addLog('SW Audio Stream cache purged', 'info'); }} className="btn-sm">Purge SW Cache</button>
