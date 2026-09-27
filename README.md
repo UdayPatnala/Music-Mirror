@@ -1,218 +1,131 @@
-# Music Mirror V2 🎵
+# Music Mirror
 
-> **Emotion-Aware AI Music Player** — Real-time facial emotion detection driving adaptive music playback.  
-> Originally developed as a **B.Tech CSE Final Year Project** by a team of 4 students (6 months), later upgraded and modernized solo by the **Student Project Lead** (4 months & continuing). Detailed logs available in [BTECH_PROJECT_REPORT.md](file:///d:/PROJECT/Btech/Music%20Mirror/docs/BTECH_PROJECT_REPORT.md).
+> **Emotion-Aware AI Music System** — Real-time facial emotion detection driving adaptive music playback.
+> Originally developed as a **B.Tech CSE Final Year Project** by a team of 4 students, subsequently modernized and expanded into an enterprise-grade multi-provider audio streaming system.
 
 [![Live App](https://img.shields.io/badge/Live-music--mirror--aos.vercel.app-black?style=for-the-badge&logo=vercel)](https://music-mirror-aos.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-UdayPatnala%2FMusic--Mirror-181717?style=for-the-badge&logo=github)](https://github.com/UdayPatnala/Music-Mirror)
 
 ---
 
+## Authoritative Documentation
+
+Music Mirror maintains **two authoritative master markdown documents** that govern all technical, architectural, and historical aspects of the project:
+
+1. [PRODUCT_MASTER.md](file:///d:/PROJECT/Btech/Music%20Mirror/PRODUCT_MASTER.md)
+   * The single source of truth for product specifications, system architecture, provider mechanics (YouTube, Spotify, Jamendo), privacy safeguards (TransmissionGate), state machines, and operational guidelines.
+2. [VERSION_CONTROLLER.md](file:///d:/PROJECT/Btech/Music%20Mirror/VERSION_CONTROLLER.md)
+   * The complete historical ledger, 4-tier semantic versioning system, academic project heritage and team roles, execution history, and release changelogs.
+
+---
+
 ## What It Does
 
-MusicMirror uses your webcam to detect your emotion in real time (happy, sad, calm, energetic, etc.) and automatically selects music that matches or improves your mood. All AI inference runs **100% in-browser** — no camera data is sent to any server.
+Music Mirror uses client-side computer vision to detect facial emotion in real time (happy, sad, calm, energetic, neutral) and dynamically recommends and plays music matching or shifting the user's emotional state.
+
+* **100% Client-Side Biometrics**: Face detection runs entirely within browser WebGL via `face-api.js`. Camera frames never touch a server, disk, or network socket.
+* **Multi-Provider Discovery**: YouTube (primary video discovery & official IFrame playback), Spotify (secondary metadata enhancement with cross-provider candidate matching), Jamendo CC (creative commons audio fallback), and Offline Catalog (zero-network resilient playback).
+* **Privacy by Architecture**: Enforced by client-side `TransmissionGate`, ensuring zero PII or raw biometrics leak into API payloads.
 
 ---
 
-## Architecture
+## Architecture Overview
 
 ```
-frontend/          React 19 + TypeScript + Vite SPA
+frontend/                 React 19 + TypeScript + Vite SPA
   src/
-    pages/         LandingPage, MoodRoom, DashboardPage, ProfilePage, SummaryPage
-    components/    Camera (face-api.js), Brand (Wordmark/CDDisc), NetworkStatusIndicator
-    store/         useAppStore.ts — Zustand with persist middleware (localStorage)
-    architecture/  Layered orchestration: EmotionLayer → IntentLayer → DiscoveryLayer → PlaybackLayer
-    config/        appConfig.ts — centralised env-backed config
-    utils/         security.ts — input sanitisation
-    types/         index.ts — shared TypeScript interfaces
+    architecture/         Strict 4-layer orchestration:
+      EmotionLayer/       Facial landmark processing, EMA temporal smoothing, confidence thresholding
+      IntentLayer/        Emotion-to-musical-intent mapping, valence/energy vector calculation
+      DiscoveryLayer/     Multi-provider resolution (YouTube, Spotify, Jamendo, Offline fallback)
+      PlaybackLayer/      Unified playback engine with YouTube IFrame & HTML5 Audio adapters
+    components/           Camera, brand, biometric monitor, queue, audio controls
+    store/                Zustand with localStorage persistence
+    api/                  Backend API client with retry and deduplication
+    types/                Shared TypeScript contracts
 
-backend/           Python FastAPI (optional — app works fully offline without it)
-  app/             FastAPI routes (emotion recommendation, transition engine)
-  data/            Song dataset CSV
-  tests/           PyTest unit + stress tests
+backend/                  Python FastAPI High-Performance Service
+  app/
+    api/routes/           Emotion recommendation, song search, health checks
+    providers/            YouTube and Spotify discovery providers with circuit breakers & LRU cache
+    services/             Recommendation engine, emotion mapping, cross-provider matching pool
+  data/                   Song database and seed dataset
+  tests/                  Pytest suite (150 tests covering providers, circuit breakers, endpoints)
 ```
-
-**Data flow:**  
-`Camera → EmotionLayer → MusicIntentLayer → DiscoveryLayer (Jamendo CC API / offline fallback) → HTML5 Audio playback`
-
-**State:** Zustand store (`music-mirror-storage-v2` in localStorage). All data is local-only. No backend auth required.
 
 ---
 
-## Quick Start (Frontend Only — Recommended)
+## Quick Start
+
+### 1. Frontend (Standalone Client)
 
 ```bash
-git clone https://github.com/UdayPatnala/Music-Mirror.git
-cd "Music Mirror/frontend"
+cd frontend
 npm install
-cp .env.example .env.local   # optional, defaults work out of the box
 npm run dev
-# → http://localhost:5173
+# Running on http://localhost:5173
 ```
 
-No backend required. Music is streamed from Jamendo CC API directly in the browser.
-
----
-
-## Environment Variables
-
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `VITE_API_BASE_URL` | No | `http://localhost:8000` | Optional backend API URL |
-| `VITE_JAMENDO_CLIENT_ID` | No | `c8993883` (public) | Jamendo API client ID |
-
-Copy `frontend/.env.example` to `frontend/.env.local` and edit as needed.
-
----
-
-## Available Routes
-
-| Route | Page | Purpose |
-|---|---|---|
-| `/` | LandingPage | Entry point — animated CD intro, onboarding |
-| `/room` | MoodRoom | Main player — webcam, emotion, audio, queue |
-| `/dashboard` | DashboardPage | AI Lab — live emotion charts, face landmarks, biometric panel |
-| `/profile` | ProfilePage | User profile, favorites, privacy controls |
-| `/summary` | SummaryPage | Project abstract + architecture |
-
----
-
-## Scripts
+### 2. Backend (Optional High-Performance Discovery Service)
 
 ```bash
-# Development
-npm run dev              # Vite dev server on :5173
-
-# Tests
-npm run test             # Vitest (68 unit + integration tests)
-
-# Build
-npm run build            # Production bundle → frontend/build/
-
-# Type check
-npx tsc -b --noEmit
-
-# Backend (optional)
 cd backend
+python -m venv .venv
+# Activate venv: .venv\Scripts\Activate.ps1 (Windows) or source .venv/bin/activate (Linux/macOS)
 pip install -r requirements.txt
-uvicorn app.main:app --reload   # API on :8000
+uvicorn app.main:app --reload --port 8000
+# Running on http://localhost:8000 (Docs at /docs)
+```
+
+Alternatively, from the repository root:
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+---
+
+## Testing & Quality Assurance
+
+Both suites maintain a 100% green test matrix:
+
+```bash
+# Frontend tests (Vitest: 307 tests)
+npm --prefix frontend test -- --run
+
+# Frontend linting (Oxlint)
+npm --prefix frontend run lint
+
+# Frontend production build check
+npm --prefix frontend run build
+
+# Backend tests (Pytest: 150 tests)
+python -m pytest backend -q
 ```
 
 ---
 
 ## Music Providers
 
-| Provider | Type | Notes |
+| Provider | Role | Technical Implementation |
 |---|---|---|
-| **Jamendo CC** | Primary | Free CC-licensed MP3 streams via Jamendo v3.0 API |
-| **Offline Fallback** | Fallback | Built-in catalog of 20+ hardcoded Jamendo streams |
-| **YouTube** | Legacy catalog | Hardcoded video IDs for UI demo only (no real playback) |
-
-The player auto-falls back to the offline catalog if the Jamendo API is unreachable.
-
----
-
-## AI & Biometric System
-
-- **Model**: `face-api.js` TinyFaceDetector + FaceExpressionNet (WebGL)
-- **Models location**: `frontend/public/models/`
-- **Processing**: 100% client-side — no frames stored or transmitted
-- **Emotion classes**: happy, sad, angry, disgusted, fearful, surprised, neutral
-- **EMA smoothing**: 10-frame temporal window, α=0.25
+| **YouTube** | Primary Discovery & Playback | Official YouTube IFrame API adapter, dual-mode fallback, yt-dlp discovery |
+| **Spotify** | Secondary Metadata & Discovery | Client Credentials OAuth2, LRU cached, circuit breaker, cross-candidate matching |
+| **Jamendo CC** | Secondary Audio Stream | Direct Creative Commons MP3 streaming via Jamendo v3 API |
+| **Offline Catalog** | Resilient Fallback | Embedded catalog guaranteeing instant playback even with zero network connectivity |
 
 ---
 
-## Privacy Model
+## Privacy Architecture
 
-- **Camera data**: Processed in WebGL. Raw frames are never stored or sent.
-- **Biometric data**: Facial landmark coordinates are computed in-memory and discarded after each frame.
-- **Emotion history**: Stored in localStorage only, never transmitted.
-- **User data controls**: Available in `/profile` → Privacy Controls section:
-  - Clear Favorites
-  - Clear Playback History
-  - Delete All My Data (purges localStorage completely)
+1. **Client Isolation**: All inference (TinyFaceDetector + FaceExpressionNet) executes locally in browser memory.
+2. **TransmissionGate**: Explicit cryptographic gating preventing camera frames, landmarks, or biometric vectors from entering network serialization pipelines.
+3. **Local Storage Only**: User favorites, playback preferences, and emotion history reside exclusively in browser `localStorage`.
+4. **Data Purge**: Dedicated privacy controls allow instant one-click sanitization of all local data.
 
 ---
 
-## Reliability & Recovery
+## Authors & Governance
 
-Since MusicMirror is a **client-only SPA** with no database:
-
-| What can be recovered | How |
-|---|---|
-| User profile + favorites | Stored in `localStorage` key `music-mirror-storage-v2` — survives page refresh |
-| Music catalog | Rebuilt from Jamendo API on load, or from offline fallback catalog |
-| Configuration | Rebuilt from env vars + hardcoded defaults |
-
-| What cannot be recovered | Reason |
-|---|---|
-| localStorage if user clears browser data | By design — user-initiated |
-| Camera session state | Ephemeral, not stored |
-
-**Rollback**: Vercel deploys are immutable — roll back via Vercel Dashboard → Deployments → Promote previous deployment.
-
----
-
-## Deployment
-
-Frontend is deployed to Vercel automatically on push to `main`.
-
-```
-vercel.json — rewrites all routes to index.html (SPA routing)
-```
-
-Manual deploy:
-```bash
-cd frontend
-npm run build
-# Upload frontend/build/ to any static host (Vercel, Netlify, GitHub Pages)
-```
-
----
-
-## Security Model
-
-- No auth tokens, no user accounts, no server-side sessions
-- All API keys are public (Jamendo public client ID is freely distributed)
-- Input sanitised via `frontend/src/utils/security.ts` (`sanitizeInputText`)
-- CSP headers set via Vercel (`vercel.json`)
-- No raw camera frames stored; no biometric data persisted
-
----
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| Camera not starting | Grant browser camera permission; use HTTPS or localhost |
-| No audio plays | Browser autoplay policy — click Play button once to unlock audio context |
-| Face not detected | Ensure face is well-lit and fully visible; models load from `/models/` |
-| Jamendo tracks silent | Check browser console for CORS errors; try refreshing |
-| Build fails | Run `npx tsc -b --noEmit` first to surface type errors |
-| Vercel 404 on refresh | Ensure `vercel.json` rewrites are present |
-
----
-
-## Known Limitations
-
-- YouTube player shows hardcoded catalog metadata only (no real YouTube playback due to API key requirements)
-- Spotify integration is UI-only (no OAuth implemented)
-- Emotion accuracy depends on lighting and webcam quality
-- Mobile camera support varies by browser
-- Jamendo API has rate limits (~60 req/min on the public key)
-
----
-
-## Authors & Credits
-
-### B.Tech CSE Final Year Project Team (Months 1 - 6)
-* **Student 1** (Roll: 1601-22-733-045) — *Project Lead / Player Integrations*
-* **Student 2** (Roll: 1601-22-733-024) — *Biometrics & face-api.js ML Engine*
-* **Student 3** (Roll: 1601-22-733-089) — *Backend API & DB Ingestion*
-* **Student 4** (Roll: 1601-22-733-112) — *HTML/CSS Layouts & Assets*
-
-*Under the guidance of the **Professor & Head of Department**, CSE Department, 2026.*
-
-### Solo Production Upgrades (Months 7 - 10+)
-* Upgraded & modernized by the **Student Project Lead** (Student 1) (Zustand stores, Clean layers, YouTube IFrame API, recovery engine, client-side caching, request deduplication, and automated backend test suites).
+* **B.Tech CSE Project Team**: Initial prototype and foundational emotion recognition system developed by 4 students under departmental faculty guidance.
+* **Production Architecture & Upgrades**: Modernized, layered architecture, multi-provider engine, and enterprise test suites developed and maintained by the Project Lead.
+* Full governance, contributor credits, and version history are recorded in [VERSION_CONTROLLER.md](file:///d:/PROJECT/Btech/Music%20Mirror/VERSION_CONTROLLER.md).
