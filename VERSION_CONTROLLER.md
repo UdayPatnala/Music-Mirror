@@ -32,6 +32,14 @@ The platform adheres to a strict 4-tier semantic versioning hierarchy:
 - **`DE`**: **Functional Revision** ($01 \dots 99$, $00$ reserved for resets) — New user-facing features, modules, workflows, API route additions, algorithmic enhancements.
 - **`F`**: **Patch / Bug Fix** ($0 \dots 9$) — Small bug fixes, validation corrections, performance tweaks, documentation or styling corrections.
 
+### Delegation of Versioning Authority Matrix
+
+| Tier Component | Authority Level | Protocol & Invariant |
+|---|---|---|
+| **`A` (Major Version)** | **Zero Autonomous Authority** | **STRICT USER CONSENT REQUIRED.** Never create or increment a new major version `v(A+1).xx.xx.x` without explicit, prior user authorization. |
+| **`B` (Milestone Tens)** | **Partial Authority** | Consult/confirm for milestone-tier shifts unless directly instructed. |
+| **`C.DE.F` (Milestone Units, Functional, Patch)** | **Full Autonomous Authority** | Authorized to autonomously advance for algorithmic upgrades, functional revisions, refactors, bugfixes, and performance optimizations. |
+
 ### The 12-Step Master Command Execution Loop
 Before and after every architectural or functional change, the following execution loop is strictly enforced:
 ```
