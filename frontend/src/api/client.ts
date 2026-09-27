@@ -5,6 +5,7 @@
 
 import { appConfig } from '../config/appConfig';
 import { CanonicalNormalizer } from '../services/CanonicalNormalizer';
+import { VariantClassifier } from '../services/VariantClassifier';
 import type {
   Track,
   SystemHealth,
@@ -183,7 +184,13 @@ export class MusicMirrorApiClient {
         viewCount: c.view_count,
         thumbnailUrl: c.thumbnail_url || `https://img.youtube.com/vi/${vid}/hqdefault.jpg`,
         watchUrl: c.watch_url || `https://www.youtube.com/watch?v=${vid}`,
-        variant: 'UNKNOWN',
+        variant: VariantClassifier.classify(
+          c.title,
+          c.channel_name || 'YouTube Artist',
+          Boolean(c.channel_is_topic),
+          Boolean(c.channel_is_vevo)
+        ),
+        albumName: c.album_name || undefined,
         playability: {
           status: 'PLAYABLE',
           testedCapability: 'officialEmbed',

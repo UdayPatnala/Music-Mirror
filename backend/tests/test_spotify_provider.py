@@ -138,3 +138,29 @@ def test_cross_provider_matching_high_confidence():
     assert match["status"] == "HIGH_CONFIDENCE"
     assert match["confidence"] >= 0.80
     assert match["spotify_id"] == "sp_222"
+
+
+def test_cross_provider_matching_pool_selection():
+    sp_pool = [
+        SpotifyTrackDTO(id="sp_wrong", name="Different Song", artists=["The Weeknd"], duration_ms=180000),
+        SpotifyTrackDTO(id="sp_exact", name="Save Your Tears", artists=["The Weeknd"], duration_ms=215000, isrc="USUM72000123"),
+    ]
+
+    youtube_candidate = MagicMock()
+    youtube_candidate.title = "The Weeknd - Save Your Tears (Official Music Video)"
+    youtube_candidate.channel_name = "TheWeekndVEVO"
+    youtube_candidate.duration_seconds = 216
+    youtube_candidate.isrc = "USUM72000123"
+
+    best_match = None
+    for sp in sp_pool:
+        res = IdentityResolutionService.cross_match_spotify_youtube(sp, youtube_candidate)
+        if res["status"] in ("EXACT", "HIGH_CONFIDENCE"):
+            if best_match is None or res["confidence"] > best_match["confidence"]:
+                best_match = res
+
+    assert best_match is not None
+    assert best_match["spotify_id"] == "sp_exact"
+    assert best_match["status"] == "EXACT"
+    assert best_match["confidence"] == 1.0
+

@@ -274,7 +274,7 @@ export default function MusicMirrorCorePage() {
     setTestStatus('Checking Spotify secondary provider status...');
     try {
       const status = await apiClient.getSpotifyStatus();
-      setTestStatus(`Spotify: ${status.status} (Enabled: ${status.enabled}, Auth: ${status.authenticated ? 'YES' : 'NO'})`);
+      setTestStatus(`Spotify: ${status.status} (Enabled: ${status.enabled}, Configured: ${status.configured ? 'YES' : 'NO'})`);
       addLog(`Spotify provider: ${status.status}`, 'info');
     } catch (err: any) {
       setTestStatus(`Spotify check: offline (${err.message})`);

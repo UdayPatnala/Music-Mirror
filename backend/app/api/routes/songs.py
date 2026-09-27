@@ -392,17 +392,23 @@ async def search_youtube_videos(
                 spotify_tracks = await spotify_provider.search_tracks(query=raw_query, limit=5)
                 if spotify_tracks:
                     spotify_enriched = True
-                    # Cross-match ranked YouTube candidates with authoritative Spotify metadata
-                    best_sp = spotify_tracks[0]
+                    # Cross-match ranked YouTube candidates with authoritative Spotify metadata pool
                     for cand in ranked:
-                        match_res = IdentityResolutionService.cross_match_spotify_youtube(best_sp, cand)
-                        if match_res["status"] in ("EXACT", "HIGH_CONFIDENCE"):
-                            cand.spotify_match_id = match_res.get("spotify_id")
-                            if match_res.get("isrc"):
-                                cand.isrc = match_res.get("isrc")
+                        best_match_res = None
+                        for sp in spotify_tracks:
+                            match_res = IdentityResolutionService.cross_match_spotify_youtube(sp, cand)
+                            if match_res["status"] in ("EXACT", "HIGH_CONFIDENCE"):
+                                if best_match_res is None or match_res["confidence"] > best_match_res["confidence"]:
+                                    best_match_res = match_res
+                        if best_match_res:
+                            cand.spotify_match_id = best_match_res.get("spotify_id")
+                            if best_match_res.get("isrc"):
+                                cand.isrc = best_match_res.get("isrc")
                             # Boost high-confidence matched candidates
                             cand.score = min(1.0, cand.score + 0.05)
                             cand.relevance_score = cand.score
+                    # Re-sort ranked candidates so boosted matches float to top
+                    ranked.sort(key=lambda item: item.score, reverse=True)
         except Exception as sp_err:
             pass
 
