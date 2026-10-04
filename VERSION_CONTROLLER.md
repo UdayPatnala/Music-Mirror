@@ -99,7 +99,7 @@ Receive Instruction
 | `2.06.04.1` | 2.06.04.0 | PATCH | `d4477a2` | 2026-09-21 | Fix camera stream lifecycle reuse, background model preloading, and player bootstrap |
 | `2.06.05.0` | 2.06.04.1 | FUNCTIONAL | `335c1ba` | 2026-09-27 | Universal Project File Consolidation, Master Architecture & Multi-Candidate Cross-Matching |
 | `2.06.05.1` | 2.06.05.0 | PATCH | `97d562a` | 2026-10-04 | V1 Baseline & V2 Developer Mode Separation, AppVersionInfo Model & Diagnostics VersionPanel |
-| `2.06.06.0` | 2.06.05.1 | FUNCTIONAL | HEAD | 2026-10-04 | Cross-Deployment Mode Switcher, Acoustic Brand Assets, SVG Favicon & Tab Bar Titles |
+| `2.06.06.0` | 2.06.05.1 | FUNCTIONAL | `d9cb6e3` | 2026-10-04 | Cross-Deployment Mode Switcher, Acoustic Brand Assets, SVG Favicon & Tab Bar Titles |
 
 ---
 
