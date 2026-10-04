@@ -17,10 +17,10 @@
 | **Functional Revision** | `05` (Universal File Consolidation & Multi-Candidate Cross-Matching) |
 | **Patch / Audit Revision** | `1` (V1 Baseline & V2 Developer Mode Separation) |
 | **Verification Status** | `VERIFIED & PRODUCTION HARDENED` |
-| **Frontend Test Suite** | **318 / 318 PASSED** (21 test files, Vitest) |
+| **Frontend Test Suite** | **320 / 320 PASSED** (21 test files, Vitest) |
 | **Backend Test Suite** | **150 / 150 PASSED** (21 test files, Pytest) |
 | **Static Linter (oxlint)** | **0 errors, 0 warnings** across all files |
-| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~665ms) |
+| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~609ms) |
 
 ---
 
@@ -112,14 +112,18 @@ Receive Instruction
 - **Authoritative Version Data Model (`AppVersionInfo`)**:
   - Implemented `frontend/src/config/appVersionInfo.ts` as the single authoritative runtime version and mode model.
   - Supports `BASELINE` and `DEVELOPER` modes determined by deployment (`VITE_APP_MODE`), not by client-side toggles.
-  - Built-in startup validation (`validateVersionIntegrity()`) to detect mode/version mismatches.
+  - Exported canonical helper functions `getApplicationMode()` and `getApplicationVersion()`.
+  - Built-in startup validation (`validateVersionIntegrity()`) called on initialization to log diagnostic warnings on mode/version mismatches.
+- **Backend Mode & Health Observability**:
+  - Added `MODE` configuration setting to `backend/app/core/config.py` driven by `MM_MODE`.
+  - Updated `/health` endpoint in `backend/app/api/routes/health.py` and `frontend/src/api/client.ts` to expose and consume backend mode telemetry.
 - **User-Facing Version Information Panel (`VersionPanel`)**:
   - Implemented `frontend/src/components/VersionPanel.tsx` inside the Diagnostics drawer.
   - Displays Initial Version (V1 — April 10, 2026), Current Version (V2), Mode (Developer), Status (In Development), compact version history, and collapsible developer metadata (branch, semver, build timestamp).
   - Extended footer badge with runtime mode indicator (`v2.06.05.1 · Developer`).
 - **Test Suite Expansion & Verification**:
-  - Created unit test suite `frontend/src/config/__tests__/appVersionInfo.test.ts` validating data model invariants, initial/current markers, and integrity checks.
-  - Test suite passes 318 / 318 tests across 21 test files with zero failures.
+  - Created unit test suite `frontend/src/config/__tests__/appVersionInfo.test.ts` validating data model invariants, initial/current markers, helper functions, and integrity checks.
+  - Test suite passes 320 / 320 tests across 21 test files with zero failures.
   - Backend test suite passes 150 / 150 tests across 21 files.
   - Oxlint passes with 0 errors and 0 warnings. Clean Vite production build.
 

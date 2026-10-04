@@ -492,7 +492,7 @@ The system is validated by an automated **4-Tier Test Matrix**:
 4. **Tier 4 (Real-World Stress Scenarios)**: Rapid control spamming, consecutive embed error cascades, complete network blackout.
 
 ### Test Matrix Baseline
-- **Frontend Vitest**: **318 / 318 passing** across 21 test files.
+- **Frontend Vitest**: **320 / 320 passing** across 21 test files.
 - **Backend Pytest**: **150 / 150 passing** across 21 test files.
 - **Linter (Oxlint)**: **0 warnings, 0 errors** across all source files.
 - **Typecheck & Production Build**: `tsc -b && vite build` clean build exit 0.

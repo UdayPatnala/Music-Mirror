@@ -127,3 +127,20 @@ export function validateVersionIntegrity(): { valid: boolean; warnings: string[]
 
   return { valid: warnings.length === 0, warnings };
 }
+
+/**
+ * Returns the active runtime application mode ('BASELINE' | 'DEVELOPER').
+ * Single authoritative source of truth.
+ */
+export function getApplicationMode(): AppMode {
+  return appVersionInfo.mode;
+}
+
+/**
+ * Returns the active runtime application version label ('V1' | 'V2' | ...).
+ * Single authoritative source of truth.
+ */
+export function getApplicationVersion(): string {
+  return appVersionInfo.currentVersion.label;
+}
+

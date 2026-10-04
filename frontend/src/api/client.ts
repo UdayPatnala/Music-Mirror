@@ -80,14 +80,15 @@ export class MusicMirrorApiClient {
   public async checkHealth(): Promise<SystemHealth> {
     const start = Date.now();
     try {
-      const data = await this.request<{ status: string; service: string; version: string }>('/health', {}, 3000);
+      const data = await this.request<{ status: string; service: string; version: string; mode?: string }>('/health', {}, 3000);
       this.backendReachable = true;
       return {
         status: data.status === 'ok' ? 'READY' : 'DEGRADED',
         backendConnected: true,
         databaseHealthy: true,
         activeProvider: 'youtube',
-        version: data.version || '2.06.04.1',
+        version: data.version || '2.06.05.1',
+        mode: data.mode,
         lastCheckedTimestamp: start,
       };
     } catch {
@@ -97,7 +98,7 @@ export class MusicMirrorApiClient {
         backendConnected: false,
         databaseHealthy: false,
         activeProvider: 'fallback',
-        version: '2.06.04.1',
+        version: '2.06.05.1',
         lastCheckedTimestamp: start,
       };
     }

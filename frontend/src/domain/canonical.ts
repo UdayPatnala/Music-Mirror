@@ -371,5 +371,7 @@ export interface SystemHealth {
   databaseHealthy: boolean;
   activeProvider: string;
   version: string;
+  mode?: string;
   lastCheckedTimestamp: number;
 }
+

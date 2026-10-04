@@ -13,7 +13,7 @@ import type { DetectionResult } from '../components/Camera';
 import { getDiscoveryCacheStats, clearDiscoveryCache } from '../services/YouTubeDiscoveryService';
 import { serviceWorkerManager } from '../services/ServiceWorkerManager';
 import { appConfig } from '../config/appConfig';
-import { appVersionInfo } from '../config/appVersionInfo';
+import { appVersionInfo, validateVersionIntegrity } from '../config/appVersionInfo';
 import VersionPanel from '../components/VersionPanel';
 
 /* ─── Emotion Taxonomy ───────────────────────────────────────────────────── */
@@ -98,6 +98,12 @@ export default function MusicMirrorCorePage() {
     musicMirrorCore.bindYouTubeContainer('youtube-player-container');
     const unsubPlayback = musicMirrorCore.subscribe(state => setPlayback(state));
     const unsubQueue = musicMirrorCore.subscribeQueue(q => setQueue(q));
+
+    // Validate mode/version integrity at application startup
+    const integrity = validateVersionIntegrity();
+    if (!integrity.valid) {
+      integrity.warnings.forEach(w => addLog(`[Version Integrity] ${w}`, 'warn'));
+    }
 
     apiClient.checkHealth().then(h => {
       setHealth({

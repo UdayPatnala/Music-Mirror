@@ -19,7 +19,12 @@ router = APIRouter()
 @router.get("", status_code=200)
 def health_check():
     """Simple Liveness Probe."""
-    return {"status": "ok", "service": "MusicMirrorBackend", "version": settings.VERSION}
+    return {
+        "status": "ok",
+        "service": "MusicMirrorBackend",
+        "version": settings.VERSION,
+        "mode": settings.MODE,
+    }
 
 
 @router.get("/database", status_code=200)

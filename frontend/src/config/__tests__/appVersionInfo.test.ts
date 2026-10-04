@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { appVersionInfo, validateVersionIntegrity } from '../appVersionInfo';
+import { appVersionInfo, validateVersionIntegrity, getApplicationMode, getApplicationVersion } from '../appVersionInfo';
 import type { AppMode, VersionStatus } from '../appVersionInfo';
 
 describe('AppVersionInfo — data model', () => {
@@ -78,3 +78,14 @@ describe('validateVersionIntegrity', () => {
     expect(result.warnings).toHaveLength(0);
   });
 });
+
+describe('getApplicationMode & getApplicationVersion helpers', () => {
+  it('getApplicationMode returns the active mode', () => {
+    expect(['BASELINE', 'DEVELOPER']).toContain(getApplicationMode());
+  });
+
+  it('getApplicationVersion returns the current version label', () => {
+    expect(getApplicationVersion()).toBe('V2');
+  });
+});
+
