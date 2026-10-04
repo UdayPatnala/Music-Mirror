@@ -13,6 +13,8 @@ import type { DetectionResult } from '../components/Camera';
 import { getDiscoveryCacheStats, clearDiscoveryCache } from '../services/YouTubeDiscoveryService';
 import { serviceWorkerManager } from '../services/ServiceWorkerManager';
 import { appConfig } from '../config/appConfig';
+import { appVersionInfo } from '../config/appVersionInfo';
+import VersionPanel from '../components/VersionPanel';
 
 /* ─── Emotion Taxonomy ───────────────────────────────────────────────────── */
 
@@ -689,6 +691,8 @@ export default function MusicMirrorCorePage() {
                 )}
               </div>
             </div>
+
+            <VersionPanel />
           </div>
         )}
       </section>
@@ -696,7 +700,7 @@ export default function MusicMirrorCorePage() {
       {/* ── FOOTER ──────────────────────────────────────────────────── */}
       <footer className="mm-footer">
         <span>Music Mirror — Headless Core</span>
-        <span>v{appConfig.version}</span>
+        <span>v{appConfig.version} &middot; {appVersionInfo.mode === 'BASELINE' ? 'Baseline' : 'Developer'}</span>
       </footer>
 
     </div>

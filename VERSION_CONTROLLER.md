@@ -1,7 +1,7 @@
 # VERSION CONTROLLER
 
 > **AUTHORITATIVE HISTORICAL LEDGER & GOVERNANCE MECHANISM — FILE 2 OF 2**  
-> Current Authoritative Version: `2.06.05.0`  
+> Current Authoritative Version: `2.06.05.1`  
 > Status: `VERIFIED`  
 > Operating Standard: **Universal Version Control & Change Governance System (`A.BC.DE.F`)**  
 > Enforced by: Architectural Governance Invariant & Pre/Post Execution Gate
@@ -12,15 +12,15 @@
 
 | Attribute | Authoritative Value |
 |---|---|
-| **Authoritative Version** | `2.06.05.0` |
+| **Authoritative Version** | `2.06.05.1` |
 | **Release Line / Sub-Version** | `06` (Decoupled Provider Architecture & Obsidian UI) |
 | **Functional Revision** | `05` (Universal File Consolidation & Multi-Candidate Cross-Matching) |
-| **Patch / Audit Revision** | `0` (Zero Defects Baseline) |
+| **Patch / Audit Revision** | `1` (V1 Baseline & V2 Developer Mode Separation) |
 | **Verification Status** | `VERIFIED & PRODUCTION HARDENED` |
-| **Frontend Test Suite** | **307 / 307 PASSED** (20 test files, Vitest) |
+| **Frontend Test Suite** | **318 / 318 PASSED** (21 test files, Vitest) |
 | **Backend Test Suite** | **150 / 150 PASSED** (21 test files, Pytest) |
 | **Static Linter (oxlint)** | **0 errors, 0 warnings** across all files |
-| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~540ms) |
+| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~665ms) |
 
 ---
 
@@ -97,11 +97,31 @@ Receive Instruction
 | `2.06.03.0` | 2.06.02.0 | FUNCTIONAL | `2ecf0df` | 2026-09-21 | Decoupled provider architecture, variant classifier, canonical normalizer, and YouTube playback adapter |
 | `2.06.04.0` | 2.06.03.0 | FUNCTIONAL | `ebfab56` | 2026-09-21 | Spotify secondary metadata provider, cross-provider matching, and identity resolution |
 | `2.06.04.1` | 2.06.04.0 | PATCH | `d4477a2` | 2026-09-21 | Fix camera stream lifecycle reuse, background model preloading, and player bootstrap |
-| `2.06.05.0` | 2.06.04.1 | FUNCTIONAL | HEAD | 2026-09-27 | Universal Project File Consolidation, Master Architecture & Multi-Candidate Cross-Matching |
+| `2.06.05.0` | 2.06.04.1 | FUNCTIONAL | `335c1ba` | 2026-09-27 | Universal Project File Consolidation, Master Architecture & Multi-Candidate Cross-Matching |
+| `2.06.05.1` | 2.06.05.0 | PATCH | HEAD | 2026-10-04 | V1 Baseline & V2 Developer Mode Separation, AppVersionInfo Model & Diagnostics VersionPanel |
 
 ---
 
 ## 4. Detailed Version-by-Version Release & Change Ledger
+
+### `2.06.05.1` — 2026-10-04 (Patch Revision)
+- **V1 Baseline & V2 Developer Mode Separation**:
+  - Established formal version and deployment boundary between the April 2026 academic baseline (V1) and active development (V2).
+  - Pushed CRA-compatible `vercel.json` to frozen `v1-production` branch (commit `a974925`), tagged `v1.0.0-baseline` and `music-mirror-v1`. V1 is configured to serve the public Vercel production URL (`https://music-mirror-aos.vercel.app/`).
+  - Active development remains on branch `main` (V2 Developer Mode), deployed to Vercel preview environments.
+- **Authoritative Version Data Model (`AppVersionInfo`)**:
+  - Implemented `frontend/src/config/appVersionInfo.ts` as the single authoritative runtime version and mode model.
+  - Supports `BASELINE` and `DEVELOPER` modes determined by deployment (`VITE_APP_MODE`), not by client-side toggles.
+  - Built-in startup validation (`validateVersionIntegrity()`) to detect mode/version mismatches.
+- **User-Facing Version Information Panel (`VersionPanel`)**:
+  - Implemented `frontend/src/components/VersionPanel.tsx` inside the Diagnostics drawer.
+  - Displays Initial Version (V1 — April 10, 2026), Current Version (V2), Mode (Developer), Status (In Development), compact version history, and collapsible developer metadata (branch, semver, build timestamp).
+  - Extended footer badge with runtime mode indicator (`v2.06.05.1 · Developer`).
+- **Test Suite Expansion & Verification**:
+  - Created unit test suite `frontend/src/config/__tests__/appVersionInfo.test.ts` validating data model invariants, initial/current markers, and integrity checks.
+  - Test suite passes 318 / 318 tests across 21 test files with zero failures.
+  - Backend test suite passes 150 / 150 tests across 21 files.
+  - Oxlint passes with 0 errors and 0 warnings. Clean Vite production build.
 
 ### `2.06.05.0` — 2026-09-27 (Functional Revision)
 - **Universal Project File Consolidation**: Executed comprehensive consolidation establishing exactly two authoritative project markdown documents: `PRODUCT_MASTER.md` (single source of truth for product, architecture, provider mechanics, and security) and `VERSION_CONTROLLER.md` (historical ledger, academic heritage, and version governance). Pruned obsolete agent artifacts (`.agents/`), scratch scripts, and legacy documentation.

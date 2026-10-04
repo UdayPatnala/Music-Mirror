@@ -1,7 +1,7 @@
 # MUSIC MIRROR — AUTHORITATIVE PRODUCT MASTER SPECIFICATION
 
 > **AUTHORITATIVE LIVING SYSTEM RECORD — FILE 1 OF 2**  
-> Current Authoritative Version: `2.06.04.1`  
+> Current Authoritative Version: `2.06.05.1`  
 > System Classification: Headless Music Intelligence, Context-Aware Retrieval, Metadata Normalization & Playback Orchestration Engine  
 > Architectural Governance: `A.BC.DE.F` Standard (Controlled via `VERSION_CONTROLLER.md`)  
 > Operating Standard: **Core First — Useful Data Only — Privacy by Architecture — Zero Redundancy**
@@ -14,7 +14,7 @@
 - **Short Identifier**: MM
 - **Classification**: Decoupled Music Intelligence, Context-Aware Discovery, Metadata Normalization, and Resilient Playback Orchestration System.
 - **Current Status**: `VERIFIED & PRODUCTION HARDENED` (Headless Core, Universal Modular Architecture, Change-Isolation Governance, Transmission Gate, Acoustic DSP & Production UI Theme Operational).
-- **Current Authoritative Version**: `2.06.04.1`
+- **Current Authoritative Version**: `2.06.05.1`
 - **Repository Roots**:
   - Local Workspace: `d:\PROJECT\Btech\Music Mirror`
   - GitHub Remote: `https://github.com/UdayPatnala/Music-Mirror.git` (`origin/main`)
@@ -492,7 +492,7 @@ The system is validated by an automated **4-Tier Test Matrix**:
 4. **Tier 4 (Real-World Stress Scenarios)**: Rapid control spamming, consecutive embed error cascades, complete network blackout.
 
 ### Test Matrix Baseline
-- **Frontend Vitest**: **307 / 307 passing** across 20 test files.
+- **Frontend Vitest**: **318 / 318 passing** across 21 test files.
 - **Backend Pytest**: **150 / 150 passing** across 21 test files.
 - **Linter (Oxlint)**: **0 warnings, 0 errors** across all source files.
 - **Typecheck & Production Build**: `tsc -b && vite build` clean build exit 0.
@@ -518,6 +518,7 @@ Derived from forensic analysis of multi-engine multimedia portals (OmniStream / 
 - **ADR-04: SingleFlight Concurrency Guard**: Backend coalesces concurrent duplicate queries into a single in-flight promise to protect rate limits.
 - **ADR-05: Spotify Secondary Integration**: Spotify acts strictly as an authoritative metadata and ISRC provider; playback remains on YouTube iframe.
 - **ADR-06: Two-Master Documentation Rule**: Repository governance is centralized into exactly two authoritative Markdown files: `PRODUCT_MASTER.md` and `VERSION_CONTROLLER.md`.
+- **ADR-07: Version Boundary & Dual Runtime Modes**: The original April 2026 academic baseline is permanently preserved and frozen on branch `v1-production` (commit `a974925`, tags `v1.0.0-baseline` and `music-mirror-v1`) as Baseline Mode, serving the public Vercel production URL. Active development continues on branch `main` as Developer Mode (V2). Runtime mode is driven by `VITE_APP_MODE` (`BASELINE` | `DEVELOPER`) through `AppVersionInfo` with a zero-clutter `VersionPanel` in the diagnostics drawer.
 
 ---
 
