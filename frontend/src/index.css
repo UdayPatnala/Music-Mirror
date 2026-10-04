@@ -102,6 +102,19 @@ html, body, #root {
   box-shadow: var(--shadow-sm);
 }
 
+.mm-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mm-logo-mark {
+  width: 26px;
+  height: 26px;
+  display: block;
+  flex-shrink: 0;
+}
+
 .mm-title {
   font-family: var(--font-display);
   font-size: 16px;
@@ -111,6 +124,58 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.mm-mode-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+/* ── Mode Selector ────────────────────────────────────────────────────────── */
+
+.mm-mode-selector {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 2px;
+  gap: 2px;
+}
+
+.mm-mode-btn {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.mm-mode-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mm-mode-btn.active {
+  background: var(--bg-card);
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: default;
 }
 
 .mm-status-row {

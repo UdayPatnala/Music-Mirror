@@ -30,7 +30,7 @@ class ErrorBoundary extends Component<EBProps, EBState> {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '24px', fontFamily: 'monospace', maxWidth: '600px', margin: '40px auto', border: '2px solid red', background: '#FFF' }}>
-          <h2 style={{ color: 'red', marginTop: 0 }}>🪞 Music Mirror Core Exception</h2>
+          <h2 style={{ color: 'red', marginTop: 0 }}>Music Mirror Core Exception</h2>
           <p>An unexpected error occurred during execution:</p>
           <pre style={{ background: '#F8D7DA', padding: '12px', overflowX: 'auto', fontSize: '12px' }}>
             {this.state.error?.message || String(this.state.error)}

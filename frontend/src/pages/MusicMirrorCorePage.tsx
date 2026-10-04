@@ -15,6 +15,7 @@ import { serviceWorkerManager } from '../services/ServiceWorkerManager';
 import { appConfig } from '../config/appConfig';
 import { appVersionInfo, validateVersionIntegrity } from '../config/appVersionInfo';
 import VersionPanel from '../components/VersionPanel';
+import ModeSelector from '../components/ModeSelector';
 
 /* ─── Emotion Taxonomy ───────────────────────────────────────────────────── */
 
@@ -98,6 +99,9 @@ export default function MusicMirrorCorePage() {
     musicMirrorCore.bindYouTubeContainer('youtube-player-container');
     const unsubPlayback = musicMirrorCore.subscribe(state => setPlayback(state));
     const unsubQueue = musicMirrorCore.subscribeQueue(q => setQueue(q));
+
+    // Synchronize tab bar title with active mode
+    document.title = appVersionInfo.mode === 'BASELINE' ? 'Music Mirror — Baseline' : 'Music Mirror — Developer';
 
     // Validate mode/version integrity at application startup
     const integrity = validateVersionIntegrity();
@@ -305,7 +309,12 @@ export default function MusicMirrorCorePage() {
 
       {/* ── HEADER ─────────────────────────────────────────────────── */}
       <header className="mm-header">
-        <span className="mm-title">Music Mirror</span>
+        <div className="mm-brand-group">
+          <img src="/music-mirror-mark.svg" alt="Music Mirror Logo" className="mm-logo-mark" width="28" height="28" />
+          <span className="mm-title">Music Mirror</span>
+          <span className="mm-mode-badge">{appVersionInfo.mode === 'BASELINE' ? 'V1 · Baseline' : 'V2 · Developer'}</span>
+        </div>
+        <ModeSelector />
         <div className="mm-status-row">
           <span className={`mm-status-dot ${health.status === 'READY' ? 'ready' : health.status === 'DEGRADED' ? 'degraded' : 'offline'}`} />
           <span>ENGINE: {health.status}</span>
@@ -315,8 +324,6 @@ export default function MusicMirrorCorePage() {
           <span>PROVIDER: {health.activeProvider.toUpperCase()}</span>
           <span>|</span>
           <span>LATENCY: {lastLatencyMs}ms</span>
-          <span>|</span>
-          <span>v{appConfig.version}</span>
         </div>
       </header>
 

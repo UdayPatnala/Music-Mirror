@@ -1,7 +1,7 @@
 # VERSION CONTROLLER
 
 > **AUTHORITATIVE HISTORICAL LEDGER & GOVERNANCE MECHANISM — FILE 2 OF 2**  
-> Current Authoritative Version: `2.06.05.1`  
+> Current Authoritative Version: `2.06.06.0`  
 > Status: `VERIFIED`  
 > Operating Standard: **Universal Version Control & Change Governance System (`A.BC.DE.F`)**  
 > Enforced by: Architectural Governance Invariant & Pre/Post Execution Gate
@@ -12,15 +12,15 @@
 
 | Attribute | Authoritative Value |
 |---|---|
-| **Authoritative Version** | `2.06.05.1` |
+| **Authoritative Version** | `2.06.06.0` |
 | **Release Line / Sub-Version** | `06` (Decoupled Provider Architecture & Obsidian UI) |
-| **Functional Revision** | `05` (Universal File Consolidation & Multi-Candidate Cross-Matching) |
-| **Patch / Audit Revision** | `1` (V1 Baseline & V2 Developer Mode Separation) |
+| **Functional Revision** | `06` (Cross-Deployment Mode Switcher & Acoustic Brand Assets) |
+| **Patch / Audit Revision** | `0` (Zero Defects Baseline) |
 | **Verification Status** | `VERIFIED & PRODUCTION HARDENED` |
-| **Frontend Test Suite** | **320 / 320 PASSED** (21 test files, Vitest) |
+| **Frontend Test Suite** | **322 / 322 PASSED** (22 test files, Vitest) |
 | **Backend Test Suite** | **150 / 150 PASSED** (21 test files, Pytest) |
 | **Static Linter (oxlint)** | **0 errors, 0 warnings** across all files |
-| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~609ms) |
+| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~780ms) |
 
 ---
 
@@ -99,10 +99,24 @@ Receive Instruction
 | `2.06.04.1` | 2.06.04.0 | PATCH | `d4477a2` | 2026-09-21 | Fix camera stream lifecycle reuse, background model preloading, and player bootstrap |
 | `2.06.05.0` | 2.06.04.1 | FUNCTIONAL | `335c1ba` | 2026-09-27 | Universal Project File Consolidation, Master Architecture & Multi-Candidate Cross-Matching |
 | `2.06.05.1` | 2.06.05.0 | PATCH | `97d562a` | 2026-10-04 | V1 Baseline & V2 Developer Mode Separation, AppVersionInfo Model & Diagnostics VersionPanel |
+| `2.06.06.0` | 2.06.05.1 | FUNCTIONAL | HEAD | 2026-10-04 | Cross-Deployment Mode Switcher, Acoustic Brand Assets, SVG Favicon & Tab Bar Titles |
 
 ---
 
 ## 4. Detailed Version-by-Version Release & Change Ledger
+
+### `2.06.06.0` — 2026-10-04 (Functional Revision)
+- **Cross-Deployment Mode Switcher (`ModeSelector.tsx`)**:
+  - Implemented minimal, non-disruptive, zero-emoji application mode switcher in `frontend/src/components/ModeSelector.tsx`.
+  - Directly switches between V1 Baseline (`https://music-mirror-aos.vercel.app/`) and V2 Developer Mode via authoritative `deploymentUrls`.
+  - Embedded in header of `MusicMirrorCorePage.tsx` next to brand mark and title.
+- **Acoustic Brand Assets & Favicons**:
+  - Generated high-resolution brand mark in `frontend/public/music-mirror-mark.svg` featuring acoustic obsidian backdrop, concentric harmonic rings, and reflective central diamond.
+  - Generated modern, high-contrast SVG favicon in `frontend/public/favicon.svg` matching the Obsidian & Indigo Reflection theme.
+  - Synchronized browser tab bar titles: `<title>Music Mirror — Developer</title>` in `frontend/index.html` with dynamic runtime title updates in `MusicMirrorCorePage.tsx`.
+- **Zero-Emoji Enforcement**:
+  - Pruned legacy emoji from `frontend/src/App.tsx` ErrorBoundary heading.
+- **Verification Gate**: 322 / 322 Vitest tests passing across 22 test files, 150 / 150 Pytest tests passing, 0 Oxlint warnings/errors, clean Vite build.
 
 ### `2.06.05.1` — 2026-10-04 (Patch Revision)
 - **V1 Baseline & V2 Developer Mode Separation**:

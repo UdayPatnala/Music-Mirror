@@ -32,6 +32,16 @@ export interface VersionRecord {
   isCurrent: boolean;
 }
 
+export interface AppDeploymentUrls {
+  baselineUrl: string;
+  developerUrl: string;
+}
+
+export const deploymentUrls: AppDeploymentUrls = {
+  baselineUrl: (import.meta.env?.VITE_BASELINE_URL as string | undefined) || 'https://music-mirror-aos.vercel.app',
+  developerUrl: (import.meta.env?.VITE_DEVELOPER_URL as string | undefined) || (typeof window !== 'undefined' ? window.location.origin : 'https://music-mirror-dev.vercel.app'),
+};
+
 export interface AppVersionInfo {
   // ── User-facing ───────────────────────────────────────────────────────
   mode: AppMode;
@@ -39,6 +49,8 @@ export interface AppVersionInfo {
   currentVersion: VersionRecord;
   /** Full ordered history from first to current release */
   versionHistory: VersionRecord[];
+  /** Authoritative cross-deployment target URLs */
+  deploymentUrls: AppDeploymentUrls;
 
   // ── Developer-facing (not shown in normal UI) ──────────────────────────
   internal: {
@@ -56,8 +68,8 @@ function resolveMode(): AppMode {
   const envMode = (import.meta.env?.VITE_APP_MODE as string | undefined);
   if (envMode === 'BASELINE') return 'BASELINE';
   if (envMode === 'DEVELOPER') return 'DEVELOPER';
-  // Fallback: production Vite builds default to BASELINE; dev server to DEVELOPER
-  return import.meta.env?.MODE === 'production' ? 'BASELINE' : 'DEVELOPER';
+  // On main branch (V2 Developer line), default mode is DEVELOPER
+  return 'DEVELOPER';
 }
 
 // ─── Canonical version records ────────────────────────────────────────────────
@@ -89,8 +101,9 @@ export const appVersionInfo: AppVersionInfo = {
   initialVersion: V1_RECORD,
   currentVersion: V2_RECORD,
   versionHistory: [V1_RECORD, V2_RECORD],
+  deploymentUrls,
   internal: {
-    semver: (import.meta.env?.VITE_APP_SEMVER as string | undefined) ?? '2.06.05.1',
+    semver: (import.meta.env?.VITE_APP_SEMVER as string | undefined) ?? '2.06.06.0',
     gitBranch: (import.meta.env?.VITE_GIT_BRANCH as string | undefined) ?? 'main',
     buildTimestamp: (import.meta.env?.VITE_BUILD_TIMESTAMP as string | undefined) ?? '',
     environment: (import.meta.env?.MODE as string | undefined) ?? 'development',
