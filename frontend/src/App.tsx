@@ -57,7 +57,7 @@ export default function App() {
   const [currentMode, setCurrentMode] = useState<AppMode>(appVersionInfo.mode);
 
   useEffect(() => {
-    document.title = currentMode === 'BASELINE' ? 'Music Mirror — Baseline' : 'Music Mirror — Developer';
+    document.title = currentMode === 'BASELINE' ? 'Emotune — Facial Emotion Music Recommender' : 'Emoflow — Adaptive Music Intelligence';
 
     const unsubscribe = subscribeToModeChange((newMode) => {
       setCurrentMode(newMode);

@@ -88,6 +88,16 @@ describe('Decoupled Provider & Normalization Architecture', () => {
       expect(res.confidence).toBe(0.5);
     });
 
+    it('extracts clean title and performing artist from Indian multi-pipe YouTube titles', () => {
+      const cleaned = CanonicalNormalizer.cleanTitle('Samajavaragamana | Ala Vaikunthapurramuloo | Allu Arjun | Full Video Song | 4K');
+      expect(cleaned).toBe('Samajavaragamana | Ala Vaikunthapurramuloo | Allu Arjun');
+
+      const res = CanonicalNormalizer.resolveEntities('Samajavaragamana | Ala Vaikunthapurramuloo | Sid Sriram | Full Video Song', 'Aditya Music', true);
+      expect(res.title).toBe('Samajavaragamana');
+      expect(res.artist).toBe('Sid Sriram');
+      expect(res.isPerformingArtist).toBe(true);
+    });
+
     it('converts NormalizedCandidate to full canonical Track', () => {
       const candidate: NormalizedCandidate = {
         id: 'yt_dQw4w9WgXcQ',

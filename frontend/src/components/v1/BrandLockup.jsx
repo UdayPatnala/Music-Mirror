@@ -1,10 +1,10 @@
-const BRAND_MARK_URL = `${process.env.PUBLIC_URL}/music-mirror-mark.svg`;
+const BRAND_MARK_URL = "/emotune-mark.svg";
 
 export default function BrandLockup({ label, labelClassName = "" }) {
   return (
     <div className="brand-lockup">
       <img
-        alt="Music Mirror logo"
+        alt="Emotune logo"
         className="brand-mark"
         height="72"
         src={BRAND_MARK_URL}
@@ -12,9 +12,10 @@ export default function BrandLockup({ label, labelClassName = "" }) {
       />
 
       <div className="brand-copy">
-        <p className={labelClassName}>{label}</p>
-        <h1>Music Mirror</h1>
+        <p className={labelClassName}>{label || "Facial Emotion-Based Music Recommendation System"}</p>
+        <h1>Emotune</h1>
       </div>
     </div>
   );
 }
+

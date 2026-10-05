@@ -9,20 +9,34 @@ from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
 from app.db.models import Song, Artist, UserMusicPreference
 
-DATA_PATH = Path(__file__).parent.parent.parent.parent / "data" / "songs.json"
+STATIC_SONGS: dict[str, list[dict[str, Any]]] = {}
 
-try:
-    with DATA_PATH.open("r", encoding="utf-8") as file:
-        STATIC_SONGS: dict[str, list[dict[str, Any]]] = json.load(file)
-except Exception:
-    STATIC_SONGS = {}
+candidate_paths = [
+    Path(__file__).resolve().parent.parent.parent / "data" / "songs.json",
+    Path(__file__).resolve().parent.parent.parent.parent / "data" / "songs.json",
+    Path.cwd() / "data" / "songs.json",
+    Path.cwd() / "backend" / "data" / "songs.json",
+]
+
+for p in candidate_paths:
+    if p.exists():
+        try:
+            with p.open("r", encoding="utf-8") as file:
+                STATIC_SONGS = json.load(file)
+            if STATIC_SONGS:
+                break
+        except Exception:
+            continue
 
 SONGS = STATIC_SONGS
 
 EMOTION_MAP = {
     "surprised": "surprise", "fearful": "sad", "disgusted": "angry",
     "joyful": "happy", "excited": "happy", "depressed": "sad",
-    "enraged": "angry", "calm": "neutral"
+    "enraged": "angry", "calm": "neutral",
+    "serene": "serene", "melancholy": "sad", "triumphant": "triumphant",
+    "focused": "focused", "cathartic": "cathartic", "centered": "neutral",
+    "cheer": "happy", "grief": "sad", "rage": "angry",
 }
 
 EMOTION_TARGETS = {
@@ -31,6 +45,10 @@ EMOTION_TARGETS = {
     "angry": {"valence": 0.25, "energy": 0.90, "tempo": 0.85},
     "neutral": {"valence": 0.50, "energy": 0.50, "tempo": 0.50},
     "surprise": {"valence": 0.75, "energy": 0.80, "tempo": 0.70},
+    "serene": {"valence": 0.70, "energy": 0.25, "tempo": 0.35},
+    "triumphant": {"valence": 0.85, "energy": 0.92, "tempo": 0.75},
+    "focused": {"valence": 0.55, "energy": 0.45, "tempo": 0.45},
+    "cathartic": {"valence": 0.30, "energy": 0.95, "tempo": 0.85},
 }
 
 DEFAULT_WEIGHTS = {"valence": 0.4, "energy": 0.4, "tempo": 0.2}
@@ -46,8 +64,28 @@ ADJACENT_GENRES = {
 }
 
 
-def format_duration(seconds: int) -> str:
-    sec = max(0, seconds or 180)
+def parse_duration_seconds(raw: Any) -> int:
+    if isinstance(raw, (int, float)):
+        return max(0, int(raw))
+    if isinstance(raw, str):
+        if ":" in raw:
+            parts = raw.split(":")
+            if len(parts) == 2:
+                try:
+                    return int(parts[0]) * 60 + int(parts[1])
+                except ValueError:
+                    pass
+        try:
+            return max(0, int(float(raw)))
+        except (ValueError, TypeError):
+            pass
+    return 180
+
+
+def format_duration(seconds: Any) -> str:
+    if isinstance(seconds, str) and ":" in seconds:
+        return seconds
+    sec = parse_duration_seconds(seconds)
     mins = sec // 60
     secs = sec % 60
     return f"{mins}:{secs:02d}"
@@ -97,11 +135,13 @@ class RecommendationService:
             close_on_exit = True
 
         try:
-            db_songs = db.query(Song).join(Artist).all()
+            db_songs = db.query(Song).outerjoin(Artist).all()
             if db_songs:
                 candidates = []
                 for s in db_songs:
                     artist_name = s.artist.name if s.artist else "Unknown Artist"
+                    yid = s.youtube_id or ""
+                    art = s.cover_image_url or (f"https://img.youtube.com/vi/{yid}/hqdefault.jpg" if yid else None)
                     candidates.append({
                         "id": s.id,
                         "title": s.title,
@@ -111,17 +151,18 @@ class RecommendationService:
                         "genre": s.genre,
                         "language": s.language,
                         "explicit": s.explicit,
-                        "duration": s.duration,
+                        "duration": parse_duration_seconds(s.duration),
                         "duration_str": format_duration(s.duration),
                         "valence": s.valence if (s.valence is not None and s.valence > 0.0) else (0.25 if (s.mood in ("sad", "calm") or any(g in (s.genre or "").lower() for g in ("sad", "ballad", "ambient", "classical"))) else 0.75),
                         "energy": s.energy if (s.energy is not None and s.energy > 0.0) else (0.85 if s.mood in ("happy", "energetic") else 0.5),
                         "tempo": s.tempo if (s.tempo is not None and s.tempo > 0.0) else 120.0,
-                        "popularity": s.popularity,
-                        "mood": s.mood,
-                        "youtubeId": s.youtube_id,
-                        "youtube_id": s.youtube_id,
+                        "popularity": s.popularity or 80,
+                        "mood": s.mood or "neutral",
+                        "youtubeId": yid,
+                        "youtube_id": yid,
+                        "album_art": art,
+                        "cover_image_url": art,
                         "preview_url": s.preview_url or s.audio_url or None,
-                        "cover_image_url": s.cover_image_url or (f"https://img.youtube.com/vi/{s.youtube_id}/hqdefault.jpg" if s.youtube_id else None),
                     })
                 return candidates
         except Exception:
@@ -135,9 +176,15 @@ class RecommendationService:
         for category_list in STATIC_SONGS.values():
             for item in category_list:
                 item_copy = item.copy()
-                sec = item_copy.get("duration", 180)
+                sec = parse_duration_seconds(item_copy.get("duration", 180))
                 item_copy["duration"] = sec
                 item_copy["duration_str"] = format_duration(sec)
+                yid = item_copy.get("youtubeId") or item_copy.get("youtube_id") or ""
+                art = item_copy.get("cover_image_url") or item_copy.get("album_art") or (f"https://img.youtube.com/vi/{yid}/hqdefault.jpg" if yid else None)
+                item_copy["youtubeId"] = yid
+                item_copy["youtube_id"] = yid
+                item_copy["album_art"] = art
+                item_copy["cover_image_url"] = art
                 all_static.append(item_copy)
         return all_static
 

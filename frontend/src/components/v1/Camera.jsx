@@ -79,12 +79,31 @@ export default function Camera({ onEmotion }) {
             const result = await faceapi
               .detectSingleFace(
                 videoElement,
-                new faceapi.TinyFaceDetectorOptions()
+                new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.22 })
               )
               .withFaceExpressions();
 
             if (result?.expressions) {
-              const scores = Object.entries(result.expressions)
+              const weights = {
+                happy: 1.45,
+                sad: 1.40,
+                angry: 1.35,
+                surprised: 1.35,
+                fearful: 1.30,
+                disgusted: 1.30,
+                neutral: 0.65,
+              };
+
+              let sumWeighted = 0;
+              const weightedMap = {};
+              Object.entries(result.expressions).forEach(([emo, val]) => {
+                const w = (weights[emo] ?? 1.0) * val;
+                weightedMap[emo] = w;
+                sumWeighted += w;
+              });
+
+              const scores = Object.entries(weightedMap)
+                .map(([emo, w]) => [emo, sumWeighted > 0 ? w / sumWeighted : 0])
                 .sort((left, right) => right[1] - left[1])
                 .slice(0, 3);
 
@@ -102,7 +121,7 @@ export default function Camera({ onEmotion }) {
           } finally {
             isDetectingRef.current = false;
           }
-        }, 2000);
+        }, 600);
       } catch (error) {
         if (isCancelled) return;
 

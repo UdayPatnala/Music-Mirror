@@ -511,7 +511,213 @@ export class MusicMirrorCore {
           tempo: 100,
         },
       },
+      {
+        id: 'fb_viva_la_vida',
+        title: 'Viva La Vida',
+        normalizedTitle: 'viva la vida',
+        artist: 'Coldplay',
+        artists: ['Coldplay'],
+        album: 'Viva la Vida or Death and All His Friends',
+        duration: 242,
+        metadata: {
+          durationSeconds: 242,
+          durationFormatted: '4:02',
+          genre: 'Orchestral Pop Rock',
+          canonicalGenres: ['Pop Rock', 'Alternative'],
+          language: 'English',
+          isExplicit: false,
+          popularity: 98,
+        },
+        primarySource: {
+          id: 'src_fb_viva_la_vida',
+          trackId: 'fb_viva_la_vida',
+          sourceType: 'youtube',
+          sourceId: 'dvgZkm1xWPE',
+          sourceUrl: 'https://www.youtube.com/watch?v=dvgZkm1xWPE',
+          playbackRef: 'dvgZkm1xWPE',
+          capability: 'officialEmbed',
+          status: 'active',
+          reliabilityScore: 0.98,
+          healthScore: 1.0,
+          failureCount: 0,
+        },
+        availableSources: [],
+        acousticFeatures: {
+          valence: 0.85,
+          energy: 0.82,
+          tempo: 138,
+        },
+      },
+      {
+        id: 'fb_someone_like_you',
+        title: 'Someone Like You',
+        normalizedTitle: 'someone like you',
+        artist: 'Adele',
+        artists: ['Adele'],
+        album: '21',
+        duration: 285,
+        metadata: {
+          durationSeconds: 285,
+          durationFormatted: '4:45',
+          genre: 'Soul Pop',
+          canonicalGenres: ['Soul Pop', 'Ballad'],
+          language: 'English',
+          isExplicit: false,
+          popularity: 96,
+        },
+        primarySource: {
+          id: 'src_fb_someone_like_you',
+          trackId: 'fb_someone_like_you',
+          sourceType: 'youtube',
+          sourceId: 'hLQl3WQQoQ0',
+          sourceUrl: 'https://www.youtube.com/watch?v=hLQl3WQQoQ0',
+          playbackRef: 'hLQl3WQQoQ0',
+          capability: 'officialEmbed',
+          status: 'active',
+          reliabilityScore: 0.98,
+          healthScore: 1.0,
+          failureCount: 0,
+        },
+        availableSources: [],
+        acousticFeatures: {
+          valence: 0.20,
+          energy: 0.25,
+          tempo: 68,
+        },
+      },
+      {
+        id: 'fb_samajavaragamana',
+        title: 'Samajavaragamana',
+        normalizedTitle: 'samajavaragamana',
+        artist: 'Sid Sriram',
+        artists: ['Sid Sriram'],
+        album: 'Ala Vaikunthapurramuloo',
+        duration: 220,
+        metadata: {
+          durationSeconds: 220,
+          durationFormatted: '3:40',
+          genre: 'Telugu Classical Fusion',
+          canonicalGenres: ['Telugu Pop', 'Melodic'],
+          language: 'Telugu',
+          isExplicit: false,
+          popularity: 97,
+        },
+        primarySource: {
+          id: 'src_fb_samajavaragamana',
+          trackId: 'fb_samajavaragamana',
+          sourceType: 'youtube',
+          sourceId: 'E3BnMDc9ATE',
+          sourceUrl: 'https://www.youtube.com/watch?v=E3BnMDc9ATE',
+          playbackRef: 'E3BnMDc9ATE',
+          capability: 'officialEmbed',
+          status: 'active',
+          reliabilityScore: 0.98,
+          healthScore: 1.0,
+          failureCount: 0,
+        },
+        availableSources: [],
+        acousticFeatures: {
+          valence: 0.88,
+          energy: 0.78,
+          tempo: 110,
+        },
+      },
+      {
+        id: 'fb_believer',
+        title: 'Believer',
+        normalizedTitle: 'believer',
+        artist: 'Imagine Dragons',
+        artists: ['Imagine Dragons'],
+        album: 'Evolve',
+        duration: 204,
+        metadata: {
+          durationSeconds: 204,
+          durationFormatted: '3:24',
+          genre: 'Arena Rock',
+          canonicalGenres: ['Arena Rock', 'Alternative'],
+          language: 'English',
+          isExplicit: false,
+          popularity: 99,
+        },
+        primarySource: {
+          id: 'src_fb_believer',
+          trackId: 'fb_believer',
+          sourceType: 'youtube',
+          sourceId: '7wtfhZwyrcc',
+          sourceUrl: 'https://www.youtube.com/watch?v=7wtfhZwyrcc',
+          playbackRef: '7wtfhZwyrcc',
+          capability: 'officialEmbed',
+          status: 'active',
+          reliabilityScore: 0.98,
+          healthScore: 1.0,
+          failureCount: 0,
+        },
+        availableSources: [],
+        acousticFeatures: {
+          valence: 0.35,
+          energy: 0.92,
+          tempo: 125,
+        },
+      },
+      {
+        id: 'fb_sunflower',
+        title: 'Sunflower',
+        normalizedTitle: 'sunflower',
+        artist: 'Post Malone & Swae Lee',
+        artists: ['Post Malone', 'Swae Lee'],
+        album: 'Spider-Man: Into the Spider-Verse',
+        duration: 158,
+        metadata: {
+          durationSeconds: 158,
+          durationFormatted: '2:38',
+          genre: 'Melodic Hip-Hop',
+          canonicalGenres: ['Hip-Hop', 'Pop'],
+          language: 'English',
+          isExplicit: false,
+          popularity: 99,
+        },
+        primarySource: {
+          id: 'src_fb_sunflower',
+          trackId: 'fb_sunflower',
+          sourceType: 'youtube',
+          sourceId: 'ApXoWvfEYVU',
+          sourceUrl: 'https://www.youtube.com/watch?v=ApXoWvfEYVU',
+          playbackRef: 'ApXoWvfEYVU',
+          capability: 'officialEmbed',
+          status: 'active',
+          reliabilityScore: 0.98,
+          healthScore: 1.0,
+          failureCount: 0,
+        },
+        availableSources: [],
+        acousticFeatures: {
+          valence: 0.65,
+          energy: 0.55,
+          tempo: 90,
+        },
+      },
     ];
+
+    const q = (_queryOrEmotion || '').toLowerCase().trim();
+    if (q) {
+      const scored = [...fallbackSeed].map(t => {
+        let score = 0;
+        if (t.title.toLowerCase().includes(q) || t.artist.toLowerCase().includes(q)) score += 4;
+        if (t.metadata.genre?.toLowerCase().includes(q)) score += 3;
+        if (q.includes('joy') || q.includes('happy') || q.includes('triumph')) {
+          score += (t.acousticFeatures?.valence || 0.5) * 3;
+        } else if (q.includes('melancholy') || q.includes('sad')) {
+          score += (1 - (t.acousticFeatures?.valence || 0.5)) * 3;
+        } else if (q.includes('serene') || q.includes('calm')) {
+          score += (1 - (t.acousticFeatures?.energy || 0.5)) * 3;
+        } else if (q.includes('cathartic') || q.includes('angry')) {
+          score += (t.acousticFeatures?.energy || 0.5) * 3;
+        }
+        return { track: t, score };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      return scored.map(s => s.track).slice(0, limit);
+    }
 
     return fallbackSeed.slice(0, limit);
   }

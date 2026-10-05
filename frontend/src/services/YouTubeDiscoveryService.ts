@@ -135,7 +135,7 @@ function deduplicatedFetch(key: string, fetcher: () => Promise<DiscoveryResult>)
 // ─── Core API Call ──────────────────────────────────────────────────────────
 
 async function fetchFromBackend(query: string, limit: number): Promise<DiscoveryResult> {
-  const timeoutMs = appConfig.env === 'test' ? 300 : 2500;
+  const timeoutMs = appConfig.env === 'test' ? 300 : 6000;
   const url = `${appConfig.apiBaseUrl}/api/v2/songs/youtube-search?q=${encodeURIComponent(query)}&limit=${limit}`;
   const resp = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
   if (!resp.ok) {

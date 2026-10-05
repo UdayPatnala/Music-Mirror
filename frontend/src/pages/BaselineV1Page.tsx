@@ -318,7 +318,7 @@ export default function BaselineV1Page() {
   const handleDetection = useCallback((nextDetection: any) => {
     setDetection(nextDetection);
 
-    if (nextDetection.confidence < 0.5) {
+    if (nextDetection.confidence < 0.25) {
       return;
     }
 
@@ -420,7 +420,7 @@ export default function BaselineV1Page() {
       <div className="app-shell">
         <header className="topbar" style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <BrandLockup
-            label="Emotion-aware music room — Baseline V1"
+            label="Facial Emotion-Based Music Recommendation System"
             labelClassName="topbar-label"
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -439,7 +439,7 @@ export default function BaselineV1Page() {
 
       <header className="topbar">
         <BrandLockup
-          label="Emotion-aware music room — Baseline V1"
+          label="Facial Emotion-Based Music Recommendation System"
           labelClassName="topbar-label"
         />
 
@@ -663,14 +663,14 @@ export default function BaselineV1Page() {
             <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--line)' }}>
               <span className="meta-label">Version Switcher</span>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--accent)', fontWeight: 600 }}>V1 · Baseline</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--accent)', fontWeight: 600 }}>Emotune (V1 Baseline)</span>
                 <button
                   className="quick-link"
                   type="button"
                   style={{ margin: 0, padding: '8px 16px', fontSize: '0.8rem', cursor: 'pointer' }}
                   onClick={() => setApplicationMode('DEVELOPER')}
                 >
-                  Switch to Developer V2 &rarr;
+                  Switch to Emoflow (V2) &rarr;
                 </button>
               </div>
             </div>

@@ -51,32 +51,51 @@ export class CanonicalNormalizer {
    */
   public static cleanTitle(rawTitle: string): string {
     if (!rawTitle) return '';
-    return rawTitle
+    let cleaned = rawTitle
       .replace(/&amp;/g, '&')
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       // Strip bracketed qualifiers: [Official Video], (4K), [Full Audio], (Slowed + Reverb), etc.
-      .replace(/\[\s*(official|video|audio|music|4k|hd|lyrics?|full|remastered|visualizer|hq|live|slowed|reverb|nightcore).*?\]/gi, '')
-      .replace(/\(\s*(official|video|audio|music|4k|hd|lyrics?|full|remastered|visualizer|hq|live|slowed|reverb|nightcore).*?\)/gi, '')
-      .replace(/\s+/g, ' ')
-      .trim();
+      .replace(/\[\s*(official|video|audio|music|4k|hd|uhd|lyrics?|lyrical|full|remastered|visualizer|hq|live|slowed|reverb|nightcore|teaser|promo).*?\]/gi, '')
+      .replace(/\(\s*(official|video|audio|music|4k|hd|uhd|lyrics?|lyrical|full|remastered|visualizer|hq|live|slowed|reverb|nightcore|teaser|promo).*?\)/gi, '');
+
+    // Strip trailing video tags like " | Full Video Song | Telugu", " | Lyrical Video"
+    cleaned = cleaned.replace(/\s*\|\s*(full video song|video song|official video|lyrical video|full song|official music video|audio song|4k|hd|promo|teaser).*$/i, '');
+    cleaned = cleaned.replace(/\s*-\s*(official music video|official video|full video).*$/i, '');
+
+    return cleaned.replace(/\s+/g, ' ').trim();
   }
 
   /**
    * Splits standard "Artist - Title" strings.
    */
   public static splitArtistTitle(text: string): { artist: string; title: string } | null {
-    if (!text || !text.includes(' - ')) return null;
-    const parts = text.split(' - ');
-    if (parts.length >= 2) {
-      const artist = parts[0].trim();
-      const title = parts.slice(1).join(' - ').trim();
-      if (artist.length > 0 && artist.length < 50 && title.length > 0) {
-        return { artist, title };
+    if (!text) return null;
+
+    if (text.includes(' - ')) {
+      const parts = text.split(' - ');
+      if (parts.length >= 2) {
+        const artist = parts[0].trim();
+        const title = parts.slice(1).join(' - ').trim();
+        if (artist.length > 0 && artist.length < 50 && title.length > 0) {
+          return { artist, title };
+        }
       }
     }
+
+    if (text.includes(' // ')) {
+      const parts = text.split(' // ');
+      if (parts.length >= 2) {
+        const artist = parts[0].trim();
+        const title = parts.slice(1).join(' // ').trim();
+        if (artist.length > 0 && artist.length < 50 && title.length > 0) {
+          return { artist, title };
+        }
+      }
+    }
+
     return null;
   }
 
@@ -114,6 +133,22 @@ export class CanonicalNormalizer {
         isPerformingArtist: true,
         confidence: isRecordLabel ? 0.9 : 0.85,
       };
+    }
+
+    // 2b. Check for pipe format: "Song Title | Movie | Artist"
+    if (cleanedTitle.includes(' | ')) {
+      const parts = cleanedTitle.split(' | ').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 2) {
+        const title = parts[0];
+        const lastPart = parts[parts.length - 1];
+        const artist = lastPart.length > 0 && lastPart.length < 45 ? lastPart : cleanChannel;
+        return {
+          artist,
+          title,
+          isPerformingArtist: true,
+          confidence: isRecordLabel ? 0.85 : 0.75,
+        };
+      }
     }
 
     // 3. If Record Label channel and no separator in title

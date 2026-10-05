@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="emotune-bg" x1="20" y1="20" x2="236" y2="236" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#061A14"/>
+      <stop offset="100%" stop-color="#020B08"/>
+    </linearGradient>
+    <linearGradient id="emotune-accent" x1="60" y1="40" x2="200" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="50%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="emotune-glow" x1="120" y1="60" x2="120" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6EE7B7"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Container Base -->
+  <rect x="16" y="16" width="224" height="224" rx="48" fill="url(#emotune-bg)"/>
+  <rect x="16" y="16" width="224" height="224" rx="48" stroke="#134E4A" stroke-width="2"/>
+
+  <!-- Musical Note Stem and Head Structure -->
+  <!-- Note Head (Bottom Left) -->
+  <ellipse cx="88" cy="180" rx="34" ry="24" transform="rotate(-25 88 180)" fill="url(#emotune-accent)"/>
+
+  <!-- Vertical Stem rising into Headphone Contour -->
+  <path d="M112 170 L112 68 C112 56 122 46 136 46 L178 40 C186 39 194 45 194 54 L194 130 C186 124 174 122 162 125 C146 129 136 142 140 156 C144 168 158 174 172 171 C186 168 194 156 194 144 L194 66 L128 76 L128 170 Z" fill="url(#emotune-accent)" opacity="0.2"/>
+
+  <!-- Main Stylized Musical Note Silhouette with Negative Space Profile -->
+  <path d="M106 172 L106 64 C106 54 114 46 124 46 L172 40 C182 39 190 47 190 56 L190 126 C182 120 172 118 162 120 C146 124 138 138 142 152 C146 166 160 172 174 169 C184 167 190 158 190 148 L190 62 L122 72 L122 116 C126 112 134 110 142 112 C154 115 162 126 160 138 C158 142 156 146 154 148 L156 152 C160 152 162 154 162 158 C162 162 158 164 154 164 L154 170 C160 172 160 176 156 178 C152 180 148 178 146 176 C138 182 126 180 118 172 L106 172 Z" fill="url(#emotune-accent)"/>
+
+  <!-- Headphone Arc / Ear Cup on Face Contour -->
+  <path d="M142 112 C130 116 122 128 124 142 C126 152 134 160 144 162" stroke="#A7F3D0" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="144" cy="140" r="7" fill="url(#emotune-glow)"/>
+
+  <!-- Acoustic Waves radiating forward from face -->
+  <path d="M174 132 C182 138 186 148 184 158" stroke="#34D399" stroke-width="3" stroke-linecap="round"/>
+  <path d="M184 124 C196 132 202 148 198 164" stroke="#34D399" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+</svg>

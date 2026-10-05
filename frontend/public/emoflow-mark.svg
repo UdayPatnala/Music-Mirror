@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="emoflow-bg" x1="20" y1="20" x2="236" y2="236" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0E1328"/>
+      <stop offset="100%" stop-color="#050814"/>
+    </linearGradient>
+    <linearGradient id="emoflow-wave-grad" x1="40" y1="128" x2="216" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A855F7"/>
+      <stop offset="35%" stop-color="#6366F1"/>
+      <stop offset="70%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <filter id="emoflow-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base -->
+  <rect x="16" y="16" width="224" height="224" rx="48" fill="url(#emoflow-bg)"/>
+  <rect x="16" y="16" width="224" height="224" rx="48" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- Background Orbit / Flow Field -->
+  <ellipse cx="128" cy="128" rx="76" ry="60" stroke="url(#emoflow-wave-grad)" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.25"/>
+
+  <!-- Emotion Trigger Pulse Seed -->
+  <circle cx="52" cy="144" r="8" fill="#A855F7" filter="url(#emoflow-glow)"/>
+
+  <!-- Continuous Adaptive Waveform Loop (Discovery -> Ranking -> Playback -> Feedback Loop) -->
+  <path d="M72 144 C88 144 96 172 112 184 C126 194 140 188 150 166 C164 128 156 72 180 68 C198 64 212 88 212 120 C212 162 188 186 164 182 C146 178 140 148 126 112 C116 88 102 78 88 86 C74 94 78 122 96 128 C120 134 144 98 174 98 C192 98 206 116 206 134" 
+        stroke="url(#emoflow-wave-grad)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Convergence Feedback Node -->
+  <circle cx="206" cy="134" r="6" fill="#06B6D4" filter="url(#emoflow-glow)"/>
+</svg>

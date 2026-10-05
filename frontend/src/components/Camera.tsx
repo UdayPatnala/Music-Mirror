@@ -53,8 +53,7 @@ interface CameraProps {
   onEmotion: (result: DetectionResult) => void;
 }
 
-// Emotion labels that face-api.js reports
-const EMOTION_KEYS = ['happy', 'sad', 'angry', 'neutral', 'surprised', 'fearful', 'disgusted'] as const;
+import { EMOTION_KEYS, EMOTION_CALIBRATION } from './cameraConstants';
 
 // How many frames to average for stable readings
 const SMOOTHING_WINDOW = 5;
@@ -133,23 +132,38 @@ export default function Camera({ onEmotion }: CameraProps) {
           const t0 = performance.now();
 
           const detection = await faceapi
-            .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+            .detectSingleFace(
+              videoRef.current,
+              new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.22 })
+            )
             .withFaceExpressions();
 
           const inferenceMs = Math.round(performance.now() - t0);
 
           if (detection?.expressions) {
-            // Accumulate into smoothing buffer
+            // Calibrate raw expressions to overcome neutral dominance
+            const rawCalibrated: Record<string, number> = {};
+            let sumWeights = 0;
+            EMOTION_KEYS.forEach(k => {
+              const raw = (detection.expressions as any)[k] ?? 0;
+              const weight = EMOTION_CALIBRATION[k] ?? 1.0;
+              const val = raw * weight;
+              rawCalibrated[k] = val;
+              sumWeights += val;
+            });
+
+            // Normalize calibrated distribution
             const frame: Record<string, number> = {};
             EMOTION_KEYS.forEach(k => {
-              frame[k] = (detection.expressions as any)[k] ?? 0;
+              frame[k] = sumWeights > 0 ? rawCalibrated[k] / sumWeights : 0;
             });
+
             emotionHistoryRef.current.push(frame);
             if (emotionHistoryRef.current.length > SMOOTHING_WINDOW) {
               emotionHistoryRef.current.shift();
             }
 
-            // Average across window
+            // Average across window for temporal stability
             const averaged: Record<string, number> = {};
             EMOTION_KEYS.forEach(k => {
               const sum = emotionHistoryRef.current.reduce((acc, f) => acc + (f[k] ?? 0), 0);

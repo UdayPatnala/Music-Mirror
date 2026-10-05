@@ -21,6 +21,8 @@ export type VersionStatus = 'STABLE' | 'DEVELOPMENT' | 'DEPRECATED';
 export interface VersionRecord {
   /** Short label: 'V1', 'V2', 'V3' */
   label: string;
+  /** Brand identity name: 'Emotune' | 'Emoflow' */
+  name: string;
   /** ISO date string: '2026-04-10' */
   releaseDate: string;
   status: VersionStatus;
@@ -92,18 +94,20 @@ function resolveMode(): AppMode {
 
 const V1_RECORD: VersionRecord = {
   label: 'V1',
+  name: 'Emotune',
   releaseDate: '2026-04-10',
   status: 'STABLE',
-  description: 'Original Baseline — B.Tech CSE Final Year Project Academic Submission',
+  description: 'Emotune — Facial Emotion-Based Music Recommendation System',
   isInitial: true,
   isCurrent: false,
 };
 
 const V2_RECORD: VersionRecord = {
   label: 'V2',
+  name: 'Emoflow',
   releaseDate: '2026-09-19',
   status: 'DEVELOPMENT',
-  description: 'Developer Mode — Headless Core, Multi-Provider Architecture, Acoustic DSP',
+  description: 'Emoflow — Adaptive Emotion-Aware Music Discovery & Playback System',
   isInitial: false,
   isCurrent: true,
 };
@@ -127,7 +131,7 @@ export function setApplicationMode(newMode: AppMode): void {
     const url = new URL(window.location.href);
     url.searchParams.set('mode', newMode.toLowerCase());
     window.history.pushState({}, '', url.toString());
-    document.title = newMode === 'BASELINE' ? 'Music Mirror — Baseline' : 'Music Mirror — Developer';
+    document.title = newMode === 'BASELINE' ? 'Emotune — Facial Emotion Music Recommender' : 'Emoflow — Adaptive Music Intelligence';
   }
   modeListeners.forEach(listener => listener(newMode));
 }

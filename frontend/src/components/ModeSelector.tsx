@@ -40,9 +40,9 @@ export default function ModeSelector() {
         className={`mm-mode-btn ${isBaseline ? 'active' : ''}`}
         role="radio"
         aria-checked={isBaseline}
-        title="V1 Baseline — Original April 10, 2026 Stable Reference"
+        title="Emotune V1 — Facial Emotion-Based Music Recommendation System"
       >
-        Baseline
+        Emotune
       </a>
       <a
         href={!isBaseline ? '#' : `${deploymentUrls.developerUrl}?mode=developer`}
@@ -50,9 +50,9 @@ export default function ModeSelector() {
         className={`mm-mode-btn ${!isBaseline ? 'active' : ''}`}
         role="radio"
         aria-checked={!isBaseline}
-        title="V2 Developer — Active Development & Preview Build"
+        title="Emoflow V2 — Adaptive Emotion-Aware Music Discovery & Playback System"
       >
-        Developer
+        Emoflow
       </a>
     </div>
   );

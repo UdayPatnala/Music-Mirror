@@ -10,6 +10,7 @@ import type {
 } from '../domain/canonical';
 import Camera from '../components/Camera';
 import type { DetectionResult } from '../components/Camera';
+import { FACE_TO_MIRROR_EMOTION } from '../components/cameraConstants';
 import { getDiscoveryCacheStats, clearDiscoveryCache } from '../services/YouTubeDiscoveryService';
 import { serviceWorkerManager } from '../services/ServiceWorkerManager';
 import { appConfig } from '../config/appConfig';
@@ -78,6 +79,7 @@ export default function MusicMirrorCorePage() {
   const [targetEmotion, setTargetEmotion] = useState<EmotionDescriptor>(EMOTIONS[0]);
   const [facialDetection, setFacialDetection] = useState<DetectionResult | null>(null);
   const [cameraVisible, setCameraVisible] = useState<boolean>(true);
+  const [autoSyncCamera, setAutoSyncCamera] = useState<boolean>(true);
   const [userNote, setUserNote] = useState<string>('');
 
   // ── Discovery & Results ────────────────────────────────────────────
@@ -164,9 +166,13 @@ export default function MusicMirrorCorePage() {
   // ── Facial Detection Callback ──────────────────────────────────────
   const handleFacialDetection = (res: DetectionResult) => {
     setFacialDetection(res);
-    const matched = EMOTIONS.find(e => e.id === res.emotion);
-    if (matched && res.confidence > 0.65) {
-      addLog(`Camera: ${res.emotion} (${(res.confidence * 100).toFixed(0)}% confidence, ${res.inferenceMs}ms)`, 'info');
+    const mappedEmotionId = FACE_TO_MIRROR_EMOTION[res.emotion] || res.emotion;
+    const matched = EMOTIONS.find(e => e.id === mappedEmotionId);
+    if (matched && res.confidence > 0.35) {
+      if (autoSyncCamera && activeEmotion.id !== matched.id) {
+        setActiveEmotion(matched);
+        addLog(`Camera face mapped: ${res.emotion} -> ${matched.label} (${(res.confidence * 100).toFixed(0)}% confidence, ${res.inferenceMs}ms)`, 'info');
+      }
     }
   };
 
@@ -324,9 +330,9 @@ export default function MusicMirrorCorePage() {
       {/* ── HEADER ─────────────────────────────────────────────────── */}
       <header className="mm-header">
         <div className="mm-brand-group">
-          <img src="/music-mirror-mark.svg" alt="Music Mirror Logo" className="mm-logo-mark" width="28" height="28" />
-          <span className="mm-title">Music Mirror</span>
-          <span className="mm-mode-badge">{currentMode === 'BASELINE' ? 'V1 · Baseline' : 'V2 · Developer'}</span>
+          <img src="/emoflow-mark.svg" alt="Emoflow Logo" className="mm-logo-mark" width="28" height="28" />
+          <span className="mm-title">Emoflow</span>
+          <span className="mm-mode-badge">{currentMode === 'BASELINE' ? 'Emotune · V1' : 'Emoflow · V2'}</span>
         </div>
         <ModeSelector />
         {currentMode === 'DEVELOPER' ? (
@@ -345,7 +351,7 @@ export default function MusicMirrorCorePage() {
             <span className="mm-status-dot ready" />
             <span>BASELINE: STABLE</span>
             <span>|</span>
-            <span>ORIGINAL BASELINE · APRIL 10, 2026</span>
+            <span>EMOTUNE ORIGINAL BASELINE · APRIL 10, 2026</span>
           </div>
         )}
       </header>
@@ -369,12 +375,22 @@ export default function MusicMirrorCorePage() {
           <div className="mm-section">
             <div className="mm-section-header">
               <span className="mm-label">Facial Emotion Detection</span>
-              <button
-                onClick={() => setCameraVisible(v => !v)}
-                className="btn-sm"
-              >
-                {cameraVisible ? 'Hide' : 'Show'}
-              </button>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => setAutoSyncCamera(v => !v)}
+                  className={`btn-sm ${autoSyncCamera ? 'active' : ''}`}
+                  title="Automatically update active emotion based on facial expression"
+                  style={{ fontSize: '11px' }}
+                >
+                  Auto-Sync: {autoSyncCamera ? 'ON' : 'OFF'}
+                </button>
+                <button
+                  onClick={() => setCameraVisible(v => !v)}
+                  className="btn-sm"
+                >
+                  {cameraVisible ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </div>
 
             {cameraVisible && (
@@ -383,7 +399,7 @@ export default function MusicMirrorCorePage() {
 
             {facialDetection && cameraVisible && (
               <div className="mm-data-row">
-                <span>Detected: <strong>{facialDetection.emotion}</strong></span>
+                <span>Detected: <strong>{facialDetection.emotion}</strong> ({FACE_TO_MIRROR_EMOTION[facialDetection.emotion] || facialDetection.emotion})</span>
                 <span>Confidence: <strong>{(facialDetection.confidence * 100).toFixed(0)}%</strong></span>
                 <span>Inference: {facialDetection.inferenceMs}ms</span>
               </div>
@@ -685,17 +701,17 @@ export default function MusicMirrorCorePage() {
           <div className="mm-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
             <div className="mm-section-header">
               <span className="mm-label">Product Mode & Version</span>
-              <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 600 }}>Active: V2 Developer</span>
+              <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 600 }}>Active: Emoflow (V2)</span>
             </div>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 12px 0' }}>
-              You are currently viewing Developer Mode (V2). You can return to the stable April 10 Baseline version at any time.
+              You are currently viewing Emoflow (V2 Developer Mode). You can return to the stable April 10 Emotune Baseline version at any time.
             </p>
             <button
               onClick={() => setApplicationMode('BASELINE')}
               className="btn-sm"
               style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
-              <span>Switch to Baseline Mode (V1) &rarr;</span>
+              <span>Switch to Emotune Mode (V1) &rarr;</span>
             </button>
           </div>
         </section>
@@ -710,7 +726,7 @@ export default function MusicMirrorCorePage() {
         >
           {currentMode === 'DEVELOPER'
             ? `Diagnostics — Cache: ${cacheStats.size} | SLA: <3000ms`
-            : 'Version Transparency & History — V1 Baseline (April 10, 2026)'}
+            : 'Version Transparency & History — Emotune Baseline (April 10, 2026)'}
           <span>{diagnosticsOpen ? ' [collapse]' : ' [expand]'}</span>
         </button>
 
@@ -759,8 +775,8 @@ export default function MusicMirrorCorePage() {
 
       {/* ── FOOTER ──────────────────────────────────────────────────── */}
       <footer className="mm-footer">
-        <span>Music Mirror — Headless Core</span>
-        <span>v{appConfig.version} &middot; {appVersionInfo.mode === 'BASELINE' ? 'Baseline' : 'Developer'}</span>
+        <span>Emoflow — Adaptive Emotion-Aware Music Discovery & Playback System</span>
+        <span>v{appConfig.version} &middot; {appVersionInfo.mode === 'BASELINE' ? 'Emotune V1' : 'Emoflow V2'}</span>
       </footer>
 
     </div>
