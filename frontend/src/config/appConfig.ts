@@ -37,11 +37,25 @@ const getEnv = (): 'development' | 'production' | 'test' => {
   return import.meta.env?.MODE === 'production' ? 'production' : 'development';
 };
 
+const getDefaultApiUrl = (): string => {
+  if (import.meta.env?.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  if (
+    typeof window !== 'undefined' &&
+    window.location &&
+    !['localhost', '127.0.0.1', '::1', '[::1]'].includes(window.location.hostname)
+  ) {
+    return 'https://emotion-music-recommender-wruw.onrender.com';
+  }
+  return 'http://localhost:8000';
+};
+
 export const appConfig: AppConfig = {
   env: getEnv(),
   appName: 'MusicMirror',
   version: (import.meta.env?.VITE_APP_SEMVER as string | undefined) ?? '2.06.06.0',
-  apiBaseUrl: import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8000',
+  apiBaseUrl: getDefaultApiUrl(),
   emotionInference: {
     minConfidenceThreshold: 0.60,
     temporalWindowSize: 10,

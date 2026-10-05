@@ -65,10 +65,26 @@ export interface AppVersionInfo {
 // ─── Mode resolution ─────────────────────────────────────────────────────────
 
 function resolveMode(): AppMode {
+  // Check URL query parameter first if in browser
+  if (typeof window !== 'undefined' && window.location?.search) {
+    const params = new URLSearchParams(window.location.search);
+    const modeParam = params.get('mode')?.toUpperCase();
+    if (modeParam === 'BASELINE') return 'BASELINE';
+    if (modeParam === 'DEVELOPER') return 'DEVELOPER';
+  }
+
   const envMode = (import.meta.env?.VITE_APP_MODE as string | undefined);
   if (envMode === 'BASELINE') return 'BASELINE';
   if (envMode === 'DEVELOPER') return 'DEVELOPER';
-  // On main branch (V2 Developer line), default mode is DEVELOPER
+
+  // In production browser without explicit mode parameter, default to BASELINE per specification
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const host = window.location.hostname;
+    if (host.includes('music-mirror-aos.vercel.app')) {
+      return 'BASELINE';
+    }
+  }
+
   return 'DEVELOPER';
 }
 
@@ -92,6 +108,30 @@ const V2_RECORD: VersionRecord = {
   isCurrent: true,
 };
 
+// ─── Reactive mode subscription ───────────────────────────────────────────────
+
+type ModeChangeListener = (mode: AppMode) => void;
+const modeListeners = new Set<ModeChangeListener>();
+
+export function subscribeToModeChange(listener: ModeChangeListener): () => void {
+  modeListeners.add(listener);
+  return () => {
+    modeListeners.delete(listener);
+  };
+}
+
+export function setApplicationMode(newMode: AppMode): void {
+  appVersionInfo.mode = newMode;
+  appVersionInfo.currentVersion = newMode === 'BASELINE' ? { ...V1_RECORD, isCurrent: true } : { ...V2_RECORD, isCurrent: true };
+  if (typeof window !== 'undefined') {
+    const url = new URL(window.location.href);
+    url.searchParams.set('mode', newMode.toLowerCase());
+    window.history.pushState({}, '', url.toString());
+    document.title = newMode === 'BASELINE' ? 'Music Mirror — Baseline' : 'Music Mirror — Developer';
+  }
+  modeListeners.forEach(listener => listener(newMode));
+}
+
 // ─── Exported singleton ───────────────────────────────────────────────────────
 
 const _mode = resolveMode();
@@ -99,7 +139,7 @@ const _mode = resolveMode();
 export const appVersionInfo: AppVersionInfo = {
   mode: _mode,
   initialVersion: V1_RECORD,
-  currentVersion: V2_RECORD,
+  currentVersion: _mode === 'BASELINE' ? { ...V1_RECORD, isCurrent: true } : { ...V2_RECORD, isCurrent: true },
   versionHistory: [V1_RECORD, V2_RECORD],
   deploymentUrls,
   internal: {
@@ -109,6 +149,7 @@ export const appVersionInfo: AppVersionInfo = {
     environment: (import.meta.env?.MODE as string | undefined) ?? 'development',
   },
 };
+
 
 // ─── Integrity validation ─────────────────────────────────────────────────────
 

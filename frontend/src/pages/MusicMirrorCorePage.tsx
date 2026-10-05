@@ -13,7 +13,13 @@ import type { DetectionResult } from '../components/Camera';
 import { getDiscoveryCacheStats, clearDiscoveryCache } from '../services/YouTubeDiscoveryService';
 import { serviceWorkerManager } from '../services/ServiceWorkerManager';
 import { appConfig } from '../config/appConfig';
-import { appVersionInfo, validateVersionIntegrity } from '../config/appVersionInfo';
+import {
+  appVersionInfo,
+  validateVersionIntegrity,
+  subscribeToModeChange,
+  setApplicationMode,
+  type AppMode,
+} from '../config/appVersionInfo';
 import VersionPanel from '../components/VersionPanel';
 import ModeSelector from '../components/ModeSelector';
 
@@ -51,6 +57,9 @@ const POLICY_DESCRIPTIONS: Record<MirrorPolicy, string> = {
 /* ─── Component ──────────────────────────────────────────────────────────── */
 
 export default function MusicMirrorCorePage() {
+  // ── Mode State ─────────────────────────────────────────────────────
+  const [currentMode, setCurrentMode] = useState<AppMode>(appVersionInfo.mode);
+
   // ── Core Engine State ──────────────────────────────────────────────
   const [playback, setPlayback] = useState<PlaybackState>(musicMirrorCore.getPlaybackState());
   const [queue, setQueue] = useState<QueueState>(musicMirrorCore.getQueue());
@@ -93,15 +102,20 @@ export default function MusicMirrorCorePage() {
     setStatusLog(prev => [{ time, msg, type }, ...prev.slice(0, 40)]);
   }, []);
 
+  // ── Mode Synchronization & Title ──────────────────────────────────
+  useEffect(() => {
+    document.title = currentMode === 'BASELINE' ? 'Music Mirror — Baseline' : 'Music Mirror — Developer';
+    return subscribeToModeChange((newMode) => {
+      setCurrentMode(newMode);
+    });
+  }, [currentMode]);
+
   // ── Initialization ─────────────────────────────────────────────────
   useEffect(() => {
     musicMirrorCore.initialize();
     musicMirrorCore.bindYouTubeContainer('youtube-player-container');
     const unsubPlayback = musicMirrorCore.subscribe(state => setPlayback(state));
     const unsubQueue = musicMirrorCore.subscribeQueue(q => setQueue(q));
-
-    // Synchronize tab bar title with active mode
-    document.title = appVersionInfo.mode === 'BASELINE' ? 'Music Mirror — Baseline' : 'Music Mirror — Developer';
 
     // Validate mode/version integrity at application startup
     const integrity = validateVersionIntegrity();
@@ -312,19 +326,28 @@ export default function MusicMirrorCorePage() {
         <div className="mm-brand-group">
           <img src="/music-mirror-mark.svg" alt="Music Mirror Logo" className="mm-logo-mark" width="28" height="28" />
           <span className="mm-title">Music Mirror</span>
-          <span className="mm-mode-badge">{appVersionInfo.mode === 'BASELINE' ? 'V1 · Baseline' : 'V2 · Developer'}</span>
+          <span className="mm-mode-badge">{currentMode === 'BASELINE' ? 'V1 · Baseline' : 'V2 · Developer'}</span>
         </div>
         <ModeSelector />
-        <div className="mm-status-row">
-          <span className={`mm-status-dot ${health.status === 'READY' ? 'ready' : health.status === 'DEGRADED' ? 'degraded' : 'offline'}`} />
-          <span>ENGINE: {health.status}</span>
-          <span>|</span>
-          <span>API: {health.backendConnected ? 'ONLINE' : 'STANDALONE'}</span>
-          <span>|</span>
-          <span>PROVIDER: {health.activeProvider.toUpperCase()}</span>
-          <span>|</span>
-          <span>LATENCY: {lastLatencyMs}ms</span>
-        </div>
+        {currentMode === 'DEVELOPER' ? (
+          <div className="mm-status-row">
+            <span className={`mm-status-dot ${health.status === 'READY' ? 'ready' : health.status === 'DEGRADED' ? 'degraded' : 'offline'}`} />
+            <span>ENGINE: {health.status}</span>
+            <span>|</span>
+            <span>API: {health.backendConnected ? 'ONLINE' : 'STANDALONE'}</span>
+            <span>|</span>
+            <span>PROVIDER: {health.activeProvider.toUpperCase()}</span>
+            <span>|</span>
+            <span>LATENCY: {lastLatencyMs}ms</span>
+          </div>
+        ) : (
+          <div className="mm-status-row">
+            <span className="mm-status-dot ready" />
+            <span>BASELINE: STABLE</span>
+            <span>|</span>
+            <span>ORIGINAL BASELINE · APRIL 10, 2026</span>
+          </div>
+        )}
       </header>
 
       {/* ── ERROR BANNER ────────────────────────────────────────────── */}
@@ -657,53 +680,77 @@ export default function MusicMirrorCorePage() {
               )}
             </div>
           </div>
+
+          {/* Profile & Version Mode */}
+          <div className="mm-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
+            <div className="mm-section-header">
+              <span className="mm-label">Product Mode & Version</span>
+              <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 600 }}>Active: V2 Developer</span>
+            </div>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '4px 0 12px 0' }}>
+              You are currently viewing Developer Mode (V2). You can return to the stable April 10 Baseline version at any time.
+            </p>
+            <button
+              onClick={() => setApplicationMode('BASELINE')}
+              className="btn-sm"
+              style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <span>Switch to Baseline Mode (V1) &rarr;</span>
+            </button>
+          </div>
         </section>
 
       </div>
 
-      {/* ── DIAGNOSTICS DRAWER ──────────────────────────────────────── */}
+      {/* ── DIAGNOSTICS & VERSION DRAWER ────────────────────────────── */}
       <section className="mm-diagnostics">
         <button
           className="mm-diag-toggle"
           onClick={() => setDiagnosticsOpen(v => !v)}
         >
-          Diagnostics — Cache: {cacheStats.size} | SLA: &lt;3000ms
+          {currentMode === 'DEVELOPER'
+            ? `Diagnostics — Cache: ${cacheStats.size} | SLA: <3000ms`
+            : 'Version Transparency & History — V1 Baseline (April 10, 2026)'}
           <span>{diagnosticsOpen ? ' [collapse]' : ' [expand]'}</span>
         </button>
 
         {diagnosticsOpen && (
           <div className="mm-diag-content">
-            <div className="mm-diag-actions">
-              <button onClick={runFailoverTest} className="btn-sm">Simulate Error 150</button>
-              <button onClick={runOfflineTest} className="btn-sm">Test Offline Fallback</button>
-              <button onClick={runLatencyBenchmark} className="btn-sm">Benchmark Latency</button>
-              <button onClick={runSpotifyCheck} className="btn-sm">Check Spotify</button>
-              <button onClick={() => { clearDiscoveryCache(); addLog('Cache purged', 'info'); }} className="btn-sm">Purge Cache</button>
-              <button onClick={async () => { await musicMirrorCore.clearOfflineCache(); addLog('Offline DB cache purged', 'info'); }} className="btn-sm">Purge Offline DB</button>
-              <button onClick={async () => { await serviceWorkerManager.purgeAudioStreamCache(); addLog('SW Audio Stream cache purged', 'info'); }} className="btn-sm">Purge SW Cache</button>
-              <button onClick={() => { const m = musicMirrorCore.getAcousticDspMetrics(); addLog(`DSP: RMS ${(m.rmsEnergy * 100).toFixed(1)}% | Centroid ${Math.round(m.spectralCentroidHz)}Hz | Flatness ${m.spectralFlatness.toFixed(3)}`, 'info'); }} className="btn-sm">Sample Acoustic DSP</button>
-              <button onClick={() => { musicMirrorCore.resetState(); addLog('Core engine reset', 'warn'); }} className="btn-sm btn-sm-danger">Reset Engine</button>
-            </div>
+            {currentMode === 'DEVELOPER' && (
+              <>
+                <div className="mm-diag-actions">
+                  <button onClick={runFailoverTest} className="btn-sm">Simulate Error 150</button>
+                  <button onClick={runOfflineTest} className="btn-sm">Test Offline Fallback</button>
+                  <button onClick={runLatencyBenchmark} className="btn-sm">Benchmark Latency</button>
+                  <button onClick={runSpotifyCheck} className="btn-sm">Check Spotify</button>
+                  <button onClick={() => { clearDiscoveryCache(); addLog('Cache purged', 'info'); }} className="btn-sm">Purge Cache</button>
+                  <button onClick={async () => { await musicMirrorCore.clearOfflineCache(); addLog('Offline DB cache purged', 'info'); }} className="btn-sm">Purge Offline DB</button>
+                  <button onClick={async () => { await serviceWorkerManager.purgeAudioStreamCache(); addLog('SW Audio Stream cache purged', 'info'); }} className="btn-sm">Purge SW Cache</button>
+                  <button onClick={() => { const m = musicMirrorCore.getAcousticDspMetrics(); addLog(`DSP: RMS ${(m.rmsEnergy * 100).toFixed(1)}% | Centroid ${Math.round(m.spectralCentroidHz)}Hz | Flatness ${m.spectralFlatness.toFixed(3)}`, 'info'); }} className="btn-sm">Sample Acoustic DSP</button>
+                  <button onClick={() => { musicMirrorCore.resetState(); addLog('Core engine reset', 'warn'); }} className="btn-sm btn-sm-danger">Reset Engine</button>
+                </div>
 
-            {testStatus && (
-              <div className="mm-diag-status">{testStatus}</div>
-            )}
-
-            <div>
-              <span className="mm-label">Event Log</span>
-              <div className="mm-log-box">
-                {statusLog.length === 0 ? (
-                  <span className="mm-empty">No events.</span>
-                ) : (
-                  statusLog.map((log, i) => (
-                    <div key={i} className={`mm-log-entry ${log.type}`}>
-                      <span className="mm-log-time">[{log.time}]</span>
-                      <span>{log.msg}</span>
-                    </div>
-                  ))
+                {testStatus && (
+                  <div className="mm-diag-status">{testStatus}</div>
                 )}
-              </div>
-            </div>
+
+                <div>
+                  <span className="mm-label">Event Log</span>
+                  <div className="mm-log-box">
+                    {statusLog.length === 0 ? (
+                      <span className="mm-empty">No events.</span>
+                    ) : (
+                      statusLog.map((log, i) => (
+                        <div key={i} className={`mm-log-entry ${log.type}`}>
+                          <span className="mm-log-time">[{log.time}]</span>
+                          <span>{log.msg}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             <VersionPanel />
           </div>

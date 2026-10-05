@@ -3,8 +3,10 @@
  * Functional baseline: renders MusicMirrorCorePage with resilient Error Boundary.
  */
 
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import MusicMirrorCorePage from './pages/MusicMirrorCorePage';
+import BaselineV1Page from './pages/BaselineV1Page';
+import { appVersionInfo, subscribeToModeChange, type AppMode } from './config/appVersionInfo';
 
 interface EBProps {
   children: React.ReactNode;
@@ -52,11 +54,27 @@ class ErrorBoundary extends Component<EBProps, EBState> {
 }
 
 export default function App() {
+  const [currentMode, setCurrentMode] = useState<AppMode>(appVersionInfo.mode);
+
+  useEffect(() => {
+    document.title = currentMode === 'BASELINE' ? 'Music Mirror — Baseline' : 'Music Mirror — Developer';
+
+    const unsubscribe = subscribeToModeChange((newMode) => {
+      setCurrentMode(newMode);
+    });
+    return unsubscribe;
+  }, [currentMode]);
+
   return (
     <ErrorBoundary>
       <div className="music-mirror-core-shell">
-        <MusicMirrorCorePage />
+        {currentMode === 'BASELINE' ? (
+          <BaselineV1Page />
+        ) : (
+          <MusicMirrorCorePage />
+        )}
       </div>
     </ErrorBoundary>
   );
 }
+
