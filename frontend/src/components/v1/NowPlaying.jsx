@@ -58,12 +58,17 @@ export default function NowPlaying({
     );
   }
 
+  const title = song.title || song.name || "Selected Track";
+  const artist = song.artist || "Unknown Artist";
+  const youtubeId = song.youtubeId || song.youtube_id || "ZbZSe6N_BXs";
+  const note = song.note || song.recommendation_reason || `Curated emotion track for your listening session.`;
+
   return (
     <section className="player-panel">
       <div className="player-header">
         <div>
           <p className="section-kicker">Now playing</p>
-          <h3>{song.title}</h3>
+          <h3>{title}</h3>
         </div>
         <span className="live-badge">{activeMoodLabel}</span>
       </div>
@@ -89,7 +94,7 @@ export default function NowPlaying({
 
       <div
         className={`player-frame ${playerMode === "spotify" ? "spotify" : ""}`}
-        key={playerMode === "spotify" ? spotifyPlaylist.url : song.youtubeId}
+        key={playerMode === "spotify" ? spotifyPlaylist.url : youtubeId}
       >
         {playerMode === "spotify" ? (
           <iframe
@@ -102,8 +107,8 @@ export default function NowPlaying({
           <iframe
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            src={embedUrl(song.youtubeId)}
-            title={`${song.title} by ${song.artist}`}
+            src={embedUrl(youtubeId)}
+            title={`${title} by ${artist}`}
           />
         )}
       </div>
@@ -111,16 +116,16 @@ export default function NowPlaying({
       <div className="player-footer">
         <div
           className="player-art"
-          style={{ backgroundImage: `url(${thumbnailUrl(song.youtubeId)})` }}
+          style={{ backgroundImage: `url(${thumbnailUrl(youtubeId)})` }}
         />
         <div>
           <p className="player-copy">
-            {playerMode === "spotify" ? spotifyPlaylist.label : song.artist}
+            {playerMode === "spotify" ? spotifyPlaylist.label : artist}
           </p>
           <p className="player-copy muted">
             {playerMode === "spotify"
               ? `Open a fuller Spotify playlist tuned for the ${activeMoodLabel.toLowerCase()} lane.`
-              : song.note}
+              : note}
           </p>
           {playerMode === "spotify" && (
             <a
