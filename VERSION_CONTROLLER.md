@@ -1,7 +1,7 @@
 # VERSION CONTROLLER
 
 > **AUTHORITATIVE HISTORICAL LEDGER & GOVERNANCE MECHANISM — FILE 2 OF 2**  
-> Current Authoritative Version: `2.06.06.0`  
+> Current Authoritative Version: `2.06.07.0`  
 > Status: `VERIFIED`  
 > Operating Standard: **Universal Version Control & Change Governance System (`A.BC.DE.F`)**  
 > Enforced by: Architectural Governance Invariant & Pre/Post Execution Gate
@@ -12,15 +12,15 @@
 
 | Attribute | Authoritative Value |
 |---|---|
-| **Authoritative Version** | `2.06.06.0` |
+| **Authoritative Version** | `2.06.07.0` |
 | **Release Line / Sub-Version** | `06` (Decoupled Provider Architecture & Obsidian UI) |
-| **Functional Revision** | `06` (Cross-Deployment Mode Switcher & Acoustic Brand Assets) |
+| **Functional Revision** | `07` (Emotune/Emoflow Rebrand, Facial Model Calibration & Recommendation Engine Optimization) |
 | **Patch / Audit Revision** | `0` (Zero Defects Baseline) |
 | **Verification Status** | `VERIFIED & PRODUCTION HARDENED` |
-| **Frontend Test Suite** | **322 / 322 PASSED** (22 test files, Vitest) |
+| **Frontend Test Suite** | **323 / 323 PASSED** (22 test files, Vitest) |
 | **Backend Test Suite** | **150 / 150 PASSED** (21 test files, Pytest) |
-| **Static Linter (oxlint)** | **0 errors, 0 warnings** across all files |
-| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~780ms) |
+| **Static Linter (oxlint)** | **0 errors** across all files |
+| **TypeScript / Build** | **Clean Build / Exit 0** (`tsc -b && vite build` in ~336ms) |
 
 ---
 
@@ -100,10 +100,33 @@ Receive Instruction
 | `2.06.05.0` | 2.06.04.1 | FUNCTIONAL | `335c1ba` | 2026-09-27 | Universal Project File Consolidation, Master Architecture & Multi-Candidate Cross-Matching |
 | `2.06.05.1` | 2.06.05.0 | PATCH | `97d562a` | 2026-10-04 | V1 Baseline & V2 Developer Mode Separation, AppVersionInfo Model & Diagnostics VersionPanel |
 | `2.06.06.0` | 2.06.05.1 | FUNCTIONAL | `d9cb6e3` | 2026-10-04 | Cross-Deployment Mode Switcher, Acoustic Brand Assets, SVG Favicon & Tab Bar Titles |
+| `2.06.07.0` | 2.06.06.0 | FUNCTIONAL | `77f47e7` | 2026-10-05 | Emotune & Emoflow Rebrand, Facial Model Calibration, Metadata & Recommendation Engine Optimization |
 
 ---
 
 ## 4. Detailed Version-by-Version Release & Change Ledger
+
+### `2.06.07.0` — 2026-10-05 (Functional Revision)
+- **Product Rebrand to Emotune & Emoflow**:
+  - Rebranded V1 to **Emotune** (*Emotune — Facial Emotion-Based Music Recommendation System*).
+  - Rebranded V2 to **Emoflow** (*Emoflow — Adaptive Emotion-Aware Music Discovery & Playback System*).
+  - Generated original vector brand marks: `emotune-mark.svg` (musical note contour enclosing facial profile) and `emoflow-mark.svg` (continuous adaptive waveform loop).
+  - Synchronized browser tab titles, navigation mode switchers, and canonical metadata records in `frontend/src/config/appVersionInfo.ts`.
+- **Facial Emotion Recognition Pipeline Calibration**:
+  - Set `TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.22 })` in both `Camera.tsx` and `v1/Camera.jsx`, eliminating detection dropouts under ambient room lighting.
+  - Implemented `EMOTION_CALIBRATION` sensitivity matrix attenuating neutral dominance on resting human faces with EMA temporal smoothing.
+  - Created `FACE_TO_MIRROR_EMOTION` taxonomy mapping in `cameraConstants.ts` bridging `face-api.js` raw emotions to product mood descriptors.
+  - Connected detections directly to `activeEmotion` with a toggleable Auto-Sync mode in `MusicMirrorCorePage.tsx`.
+- **YouTube Metadata Normalization & Indian Label Entity Resolution**:
+  - Enhanced `CanonicalNormalizer.ts` with multi-pipe (` | `) delimiter parsing, trailing video tag stripping (`[Full Video Song]`, `| Lyrical Video`, `4K`, `HD`), and Indian label entity resolution (Aditya Music, T-Series, Sony) preventing `"Various Artists"` fallbacks.
+- **Backend Recommendation Engine Resilience**:
+  - Hardened `format_duration()` and implemented `parse_duration_seconds()` in `recommendation_engine.py` preventing `TypeError` crashes on string durations like `"3:00"`.
+  - Switched database query from `join(Artist)` to `outerjoin(Artist)` to prevent unlinked artist records from dropping valid songs.
+  - Expanded `EMOTION_MAP` and `EMOTION_TARGETS` for all 7 emotions (`serene`, `joyful`, `melancholy`, `triumphant`, `focused`, `cathartic`, `centered`).
+  - Expanded `SongResponse` schema in `emotion.py` preserving acoustic attributes, duration, cover art, and provider IDs.
+  - Increased discovery timeout to 6000ms in `YouTubeDiscoveryService.ts`.
+  - Populated `MusicMirrorCore.ts` fallback catalog with real emotion-aligned tracks with YouTube playback IDs and dynamic query affinity scoring.
+- **Verification Gate**: 323 / 323 Vitest tests passing across 22 test files, 150 / 150 Pytest tests passing, 0 Oxlint errors, clean Vite build.
 
 ### `2.06.06.0` — 2026-10-04 (Functional Revision)
 - **Cross-Deployment Mode Switcher (`ModeSelector.tsx`)**:

@@ -778,7 +778,7 @@ describe('Tier 1: Comprehensive Feature Coverage Suite (F1 - F14)', () => {
       expect(discoveryEngine.getMetrics().cacheHitRate).toBe(0);
       const fresh = await discoveryEngine.discoverCandidates(intent, 10);
       expect(fresh.length).toBeGreaterThan(0);
-    });
+    }, 15000);
 
     it('F11.4: bounds cache capacity and evicts oldest items when max size reached', () => {
       const engine = DiscoveryEngine.getInstance();

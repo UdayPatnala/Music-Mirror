@@ -54,7 +54,7 @@ const getDefaultApiUrl = (): string => {
 export const appConfig: AppConfig = {
   env: getEnv(),
   appName: 'MusicMirror',
-  version: (import.meta.env?.VITE_APP_SEMVER as string | undefined) ?? '2.06.06.0',
+  version: (import.meta.env?.VITE_APP_SEMVER as string | undefined) ?? '2.06.07.0',
   apiBaseUrl: getDefaultApiUrl(),
   emotionInference: {
     minConfidenceThreshold: 0.60,

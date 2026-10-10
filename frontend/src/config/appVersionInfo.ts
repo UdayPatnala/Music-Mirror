@@ -147,7 +147,7 @@ export const appVersionInfo: AppVersionInfo = {
   versionHistory: [V1_RECORD, V2_RECORD],
   deploymentUrls,
   internal: {
-    semver: (import.meta.env?.VITE_APP_SEMVER as string | undefined) ?? '2.06.06.0',
+    semver: (import.meta.env?.VITE_APP_SEMVER as string | undefined) ?? '2.06.07.0',
     gitBranch: (import.meta.env?.VITE_GIT_BRANCH as string | undefined) ?? 'main',
     buildTimestamp: (import.meta.env?.VITE_BUILD_TIMESTAMP as string | undefined) ?? '',
     environment: (import.meta.env?.MODE as string | undefined) ?? 'development',
