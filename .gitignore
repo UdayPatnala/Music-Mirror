@@ -2,14 +2,10 @@
 __pycache__/
 *.pyc
 .venv/
-*.db
-*.db-wal
-*.db-shm
 
 # Node / React
 node_modules/
 build/
-dist/
 
 # Environment files
 .env
@@ -18,7 +14,3 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
-
-# Subfolders
-music-mirror-v1/
-scratch/

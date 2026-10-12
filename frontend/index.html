@@ -1,81 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <title>Music Mirror</title>
-
-    <!-- Favicon — SVG (all modern browsers) -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- Fallback PNG favicons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/logo192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/logo512.png" />
-    <link rel="apple-touch-icon" href="/logo192.png" />
-    <link rel="manifest" href="/manifest.json" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Canonical & SEO -->
-    <link rel="canonical" href="https://musicmirror.ai/" />
-    <meta name="description" content="Music Mirror — Real-time emotion-aware AI music intelligence. Interprets facial expressions via on-device biometrics and starts the perfect sound instantly." />
-    <meta name="theme-color" content="#0D0D0D" />
-    <meta name="robots" content="index, follow" />
-
-    <!-- Open Graph / Facebook / LinkedIn -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://musicmirror.ai/" />
-    <meta property="og:site_name" content="Music Mirror" />
-    <meta property="og:title" content="Music Mirror — Emotion-Aware AI Music" />
-    <meta property="og:description" content="Real-time facial emotion recognition meets intelligent music matching. 100% on-device privacy." />
-    <meta property="og:image" content="https://musicmirror.ai/mm-logo.jpg" />
-
-    <!-- Twitter / X -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://musicmirror.ai/" />
-    <meta name="twitter:title" content="Music Mirror — Emotion-Aware AI Music" />
-    <meta name="twitter:description" content="Real-time facial emotion recognition meets intelligent music matching. 100% on-device privacy." />
-    <meta name="twitter:image" content="https://musicmirror.ai/mm-logo.jpg" />
-
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebApplication",
-          "@id": "https://musicmirror.ai/#app",
-          "name": "Music Mirror",
-          "url": "https://musicmirror.ai/",
-          "applicationCategory": "MultimediaApplication",
-          "operatingSystem": "All modern web browsers",
-          "browserRequirements": "Requires WebGL, WebRTC camera access, and HTML5 Audio support",
-          "description": "Real-time emotion-aware AI music discovery and playback application.",
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-          }
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://musicmirror.ai/#website",
-          "name": "Music Mirror",
-          "url": "https://musicmirror.ai/",
-          "description": "Emotion-Aware AI Music Discovery and Playback Engine."
-        }
-      ]
-    }
-    </script>
-
-    <!-- Custom typography: Space Grotesk (display/brand) + Outfit (body) + JetBrains Mono (data) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
+    <meta charset="utf-8" />
+    <link rel="icon" href="/music-mirror-mark.svg?v=2" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon.ico?v=2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#09111f" />
+    <meta
+      name="description"
+      content="Music Mirror is an emotion-aware music room with live camera detection, embedded playback, and mood-based recommendations."
     />
+    <link rel="apple-touch-icon" href="/logo192.png?v=2" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Music Mirror</title>
   </head>
   <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/index.js"></script>
   </body>
 </html>

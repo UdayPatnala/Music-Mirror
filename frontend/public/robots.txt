@@ -1,5 +1,3 @@
-﻿User-agent: *
-Allow: /
-Disallow: /api/
-
-Sitemap: https://musicmirror.ai/sitemap.xml
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:

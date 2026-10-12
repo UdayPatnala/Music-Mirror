@@ -1,6 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "create-react-app",
-  "buildCommand": "CI=false npm run build",
-  "outputDirectory": "build"
-}
