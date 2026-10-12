@@ -5,7 +5,11 @@ function songKey(song) {
 }
 
 function formatTime(isoValue) {
-  return new Date(isoValue).toLocaleString([], {
+  const date = new Date(isoValue);
+  if (Number.isNaN(date.getTime())) {
+    return "Recent";
+  }
+  return date.toLocaleString([], {
     month: "short",
     day: "numeric",
     hour: "numeric",

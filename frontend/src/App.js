@@ -373,23 +373,66 @@ function readStorage(key, fallbackValue) {
   }
 }
 
-function readFavoritesStorage() {
+export function readProfileStorage() {
+  const raw = readStorage(STORAGE_KEYS.profile, null);
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const name = typeof raw.name === "string" ? raw.name.trim() : "";
+  const email = typeof raw.email === "string" ? raw.email.trim() : "";
+  if (!name || !email) return null;
+  return {
+    name,
+    email,
+    genre:
+      typeof raw.genre === "string" && raw.genre.trim()
+        ? raw.genre.trim()
+        : "Pop",
+    goal:
+      typeof raw.goal === "string" && raw.goal.trim()
+        ? raw.goal.trim()
+        : "Match my mood",
+  };
+}
+
+export function readFavoritesStorage() {
   const raw = readStorage(STORAGE_KEYS.favorites, []);
   if (!Array.isArray(raw)) return [];
   return raw.filter(isValidV1Song).map(normalizeSong);
 }
 
-function readHistoryStorage() {
+export function readHistoryStorage() {
   const raw = readStorage(STORAGE_KEYS.history, []);
   if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (item) =>
-      item &&
-      typeof item === "object" &&
-      item.title &&
-      item.artist &&
-      !/mirror\s*(track|artist|album)/i.test(`${item.title} ${item.artist}`)
-  );
+  return raw
+    .filter((item) => {
+      if (!item || typeof item !== "object") return false;
+      const title = String(item.title || item.name || "").trim();
+      const artist = String(item.artist || "").trim();
+      if (!title || !artist) return false;
+      if (/mirror\s*(track|artist|album)/i.test(`${title} ${artist}`)) {
+        return false;
+      }
+      return true;
+    })
+    .map((item, index) => {
+      const emotion = String(item.emotion || item.playlistEmotion || "happy")
+        .trim()
+        .toLowerCase();
+      const normalizedMood = normalizeEmotion(
+        item.playlistEmotion || item.emotion || "happy"
+      );
+      const playlistEmotion = FALLBACK_SONGS_BY_EMOTION[normalizedMood]
+        ? normalizedMood
+        : "happy";
+      return {
+        id: String(item.id || `hist-${index}-${Date.now()}`),
+        emotion: emotionLabels[emotion] ? emotion : playlistEmotion,
+        playlistEmotion,
+        source: item.source === "manual" ? "manual" : "camera",
+        title: String(item.title || item.name).trim(),
+        artist: String(item.artist).trim(),
+        timestamp: item.timestamp || new Date().toISOString(),
+      };
+    });
 }
 
 function songKey(song) {
@@ -397,7 +440,11 @@ function songKey(song) {
 }
 
 function formatTimestamp(isoValue) {
-  return new Date(isoValue).toLocaleTimeString([], {
+  const date = new Date(isoValue);
+  if (Number.isNaN(date.getTime())) {
+    return "No scans yet";
+  }
+  return date.toLocaleTimeString([], {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -439,9 +486,7 @@ function scrollToSection(sectionId) {
 }
 
 export default function App() {
-  const [profile, setProfile] = useState(() =>
-    readStorage(STORAGE_KEYS.profile, null)
-  );
+  const [profile, setProfile] = useState(() => readProfileStorage());
   const [favorites, setFavorites] = useState(() => readFavoritesStorage());
   const [history, setHistory] = useState(() => readHistoryStorage());
   const [detection, setDetection] = useState({
@@ -461,7 +506,9 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [cameraBatch, setCameraBatch] = useState([]);
   const [pendingMoodChange, setPendingMoodChange] = useState(null);
+  const [scanId, setScanId] = useState(0);
   const cameraBatchRef = useRef([]);
+  const hasLockedMoodRef = useRef(false);
 
   useEffect(() => {
     if (profile) {
@@ -487,6 +534,33 @@ export default function App() {
 
     let ignore = false;
     const normalizedRequested = normalizeEmotion(requestedEmotion);
+    const shouldRecordHistory = hasLockedMoodRef.current;
+
+    const recordScanHistory = (nextSongs, nextPlaylistEmotion) => {
+      if (!shouldRecordHistory || nextSongs.length === 0) return;
+
+      setHistory((currentHistory) => {
+        const nextEntry = {
+          id: `${Date.now()}`,
+          emotion: requestedEmotion,
+          playlistEmotion: nextPlaylistEmotion,
+          source: detection.source,
+          title: nextSongs[0].title,
+          artist: nextSongs[0].artist,
+          timestamp: new Date().toISOString(),
+        };
+
+        if (
+          currentHistory[0] &&
+          currentHistory[0].emotion === nextEntry.emotion &&
+          currentHistory[0].title === nextEntry.title
+        ) {
+          return currentHistory;
+        }
+
+        return [nextEntry, ...currentHistory].slice(0, 10);
+      });
+    };
 
     const fetchSongs = async () => {
       setRequestState("loading");
@@ -530,38 +604,26 @@ export default function App() {
           return nextSongs[0] || null;
         });
 
-        if (nextSongs.length > 0) {
-          setHistory((currentHistory) => {
-            const nextEntry = {
-              id: `${Date.now()}`,
-              emotion: requestedEmotion,
-              playlistEmotion: nextPlaylistEmotion,
-              source: detection.source,
-              title: nextSongs[0].title,
-              artist: nextSongs[0].artist,
-              timestamp: new Date().toISOString(),
-            };
-
-            if (
-              currentHistory[0] &&
-              currentHistory[0].emotion === nextEntry.emotion &&
-              currentHistory[0].title === nextEntry.title
-            ) {
-              return currentHistory;
-            }
-
-            return [nextEntry, ...currentHistory].slice(0, 10);
-          });
-        }
+        recordScanHistory(nextSongs, nextPlaylistEmotion);
       } catch (error) {
         if (ignore) return;
 
         const fallback = resolvePlayableCatalog([], normalizedRequested);
         setSongs(fallback);
         setPlaylistEmotion(normalizedRequested);
-        setSelectedSong(fallback[0] || null);
+        setSelectedSong((currentSong) => {
+          if (
+            currentSong &&
+            fallback.some((song) => songKey(song) === songKey(currentSong))
+          ) {
+            return currentSong;
+          }
+
+          return fallback[0] || null;
+        });
         setRequestState("success");
         setPendingMoodChange(null);
+        recordScanHistory(fallback, normalizedRequested);
       }
     };
 
@@ -570,7 +632,7 @@ export default function App() {
     return () => {
       ignore = true;
     };
-  }, [detection.source, profile, requestedEmotion]);
+  }, [detection.source, profile, requestedEmotion, scanId]);
 
   useEffect(() => {
     if (!pendingMoodChange) return;
@@ -589,7 +651,12 @@ export default function App() {
 
   const insightSummary = useMemo(() => {
     const counts = history.reduce((result, item) => {
-      result[item.playlistEmotion] = (result[item.playlistEmotion] || 0) + 1;
+      const mood = normalizeEmotion(
+        item?.playlistEmotion || item?.emotion || "happy"
+      );
+      if (emotionLabels[mood]) {
+        result[mood] = (result[mood] || 0) + 1;
+      }
       return result;
     }, {});
 
@@ -620,6 +687,7 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    hasLockedMoodRef.current = false;
     setProfile(null);
     setRequestedEmotion("happy");
     setPlaylistEmotion("happy");
@@ -671,13 +739,23 @@ export default function App() {
         source: "camera",
       });
 
-      if (!requestedEmotion || !selectedSong || requestState !== "success") {
+      if (
+        !hasLockedMoodRef.current ||
+        !requestedEmotion ||
+        !selectedSong ||
+        requestState !== "success"
+      ) {
+        hasLockedMoodRef.current = true;
         setRequestedEmotion(stableEmotion);
+        setScanId((current) => current + 1);
         setPendingMoodChange(null);
         return;
       }
 
-      if (stableEmotion === requestedEmotion) {
+      if (
+        stableEmotion === requestedEmotion ||
+        normalizeEmotion(stableEmotion) === normalizeEmotion(requestedEmotion)
+      ) {
         setPendingMoodChange(null);
         return;
       }
@@ -697,6 +775,7 @@ export default function App() {
   );
 
   const handleManualMood = (emotion) => {
+    hasLockedMoodRef.current = true;
     setDetection({
       emotion,
       confidence: 1,
@@ -706,6 +785,7 @@ export default function App() {
     setPendingMoodChange(null);
     resetCameraBatch();
     setRequestedEmotion(emotion);
+    setScanId((current) => current + 1);
   };
 
   const handleToggleFavorite = useCallback((song) => {
@@ -724,7 +804,9 @@ export default function App() {
   const handleAcceptSuggestedMood = () => {
     if (!pendingMoodChange) return;
 
+    hasLockedMoodRef.current = true;
     setRequestedEmotion(pendingMoodChange.emotion);
+    setScanId((current) => current + 1);
     setTimeout(() => {
       setPendingMoodChange(null);
     }, 150);
